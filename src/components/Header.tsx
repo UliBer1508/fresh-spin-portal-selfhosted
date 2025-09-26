@@ -1,5 +1,4 @@
 import { PackageCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import NotificationSettingsDialog from "@/components/NotificationSettingsDialog";
 
@@ -29,9 +28,6 @@ const Header = ({ viewSettings, onViewSettingsChange }: HeaderProps) => {
             />
           )}
           <NotificationSettingsDialog />
-          <Button size="sm" className="bg-primary hover:bg-primary/90">
-            Wäscheservice
-          </Button>
         </div>
       </div>
     </header>

@@ -56,7 +56,7 @@ export const useBookings = () => {
         },
         () => {
           console.log('Booking change detected, refetching...');
-          fetchBookings();
+          fetchBookings(false);
         }
       )
       .on(
@@ -68,7 +68,7 @@ export const useBookings = () => {
         },
         () => {
           console.log('Linen order change detected, refetching...');
-          fetchBookings();
+          fetchBookings(false);
         }
       )
       .subscribe();
@@ -78,9 +78,9 @@ export const useBookings = () => {
     };
   }, []);
 
-  const fetchBookings = async () => {
+  const fetchBookings = async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       
       // Fetch nur Buchungen die Wäschebestellungen haben
       const { data: bookingsData, error: bookingsError } = await supabase
@@ -122,9 +122,9 @@ export const useBookings = () => {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
-  return { bookings, loading, error, refetch: fetchBookings };
+  return { bookings, loading, error, refetch: () => fetchBookings(true) };
 };

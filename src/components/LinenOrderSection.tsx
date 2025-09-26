@@ -1,13 +1,41 @@
+import { useState } from "react";
 import { Calendar, Clock, User, Package, FileText, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LinenOrder } from "@/hooks/useBookings";
+import LinenItemsDialog from "@/components/dialogs/LinenItemsDialog";
+import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
+import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
 
 interface LinenOrderSectionProps {
   linenOrders: LinenOrder[];
+  onUpdate?: () => void;
 }
 
-const LinenOrderSection = ({ linenOrders }: LinenOrderSectionProps) => {
+const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) => {
+  const [selectedOrder, setSelectedOrder] = useState<LinenOrder | null>(null);
+  const [itemsDialogOpen, setItemsDialogOpen] = useState(false);
+  const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
+  const [notesDialogOpen, setNotesDialogOpen] = useState(false);
+
+  const handleShowItems = (order: LinenOrder) => {
+    setSelectedOrder(order);
+    setItemsDialogOpen(true);
+  };
+
+  const handleEditDelivery = (order: LinenOrder) => {
+    setSelectedOrder(order);
+    setDeliveryDialogOpen(true);
+  };
+
+  const handleShowNotes = (order: LinenOrder) => {
+    setSelectedOrder(order);
+    setNotesDialogOpen(true);
+  };
+
+  const handleUpdate = () => {
+    onUpdate?.();
+  };
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case "delivered":
@@ -106,15 +134,27 @@ const LinenOrderSection = ({ linenOrders }: LinenOrderSectionProps) => {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleShowItems(order)}
+                >
                   <FileText className="w-4 h-4 mr-1" />
                   Artikel anzeigen
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleEditDelivery(order)}
+                >
                   <Clock className="w-4 h-4 mr-1" />
                   Liefertermin bearbeiten
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleShowNotes(order)}
+                >
                   <Package className="w-4 h-4 mr-1" />
                   Wäschenotizen anzeigen
                 </Button>
@@ -129,6 +169,25 @@ const LinenOrderSection = ({ linenOrders }: LinenOrderSectionProps) => {
           </div>
         ))}
       </div>
+
+      {/* Dialogs */}
+      <LinenItemsDialog
+        order={selectedOrder}
+        open={itemsDialogOpen}
+        onOpenChange={setItemsDialogOpen}
+      />
+      <DeliveryDateDialog
+        order={selectedOrder}
+        open={deliveryDialogOpen}
+        onOpenChange={setDeliveryDialogOpen}
+        onUpdate={handleUpdate}
+      />
+      <LinenNotesDialog
+        order={selectedOrder}
+        open={notesDialogOpen}
+        onOpenChange={setNotesDialogOpen}
+        onUpdate={handleUpdate}
+      />
     </div>
   );
 };

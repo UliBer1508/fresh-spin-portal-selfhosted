@@ -86,7 +86,7 @@ const BookingCard = ({ booking }: BookingCardProps) => {
           </div>
 
           {/* Linen Orders Section */}
-          <LinenOrderSection linenOrders={booking.linen_orders || []} />
+          <LinenOrderSection linenOrders={booking.linen_orders || []} onUpdate={() => window.location.reload()} />
         </div>
       </CardContent>
     </Card>

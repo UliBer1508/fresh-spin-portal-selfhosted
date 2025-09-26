@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter, RotateCcw } from "lucide-react";
+import { Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -133,14 +133,6 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
     onFilteredBookingsChange(filteredBookings);
   }, [filteredBookings, onFilteredBookingsChange]);
 
-  const resetFilters = () => {
-    setSearchQuery("");
-    setStatusFilter("pending");
-    setHouseFilter("all");
-    setTimeFilter("all");
-    setStaffFilter("all");
-  };
-
   return (
     <div className="space-y-6">
       {/* Search Bar */}
@@ -227,15 +219,6 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
           <Badge variant="secondary" className="text-primary bg-accent font-medium">
             {filteredBookings.length} von {bookings.length} Wäsche-Aufträgen
           </Badge>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={resetFilters}
-            className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
-          >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Filter zurücksetzen
-          </Button>
         </div>
       </div>
     </div>

@@ -256,18 +256,55 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
                 <div className="flex items-center space-x-2">
                   <Calendar className="w-4 h-4 text-info" />
                   <span className="text-sm text-foreground">
-                    Abholung: {formatDateTime(order.delivery_date, order.delivery_time)}
+                    Lieferung: {formatDateTime(order.delivery_date, order.delivery_time)}
                   </span>
                 </div>
 
-                {order.laundry_staff?.name && (
-                  <div className="flex items-center space-x-2">
-                    <User className="w-4 h-4 text-info" />
-                    <span className="text-sm text-foreground">
-                      Zugewiesen: <span className="font-medium">{order.laundry_staff.name}</span>
-                    </span>
-                  </div>
-                )}
+                {/* Staff Assignment with Label */}
+                <div className="flex items-center space-x-2">
+                  <User className="w-4 h-4 text-info" />
+                  <span className="text-sm text-foreground">Zugewiesen:</span>
+                </div>
+                <div className="ml-6">
+                  <Select
+                    value={order.assigned_staff_id || "none"}
+                    onValueChange={(value) => value !== "none" && handleAssignStaff(order.id, value)}
+                  >
+                    <SelectTrigger className="w-full max-w-sm">
+                      <div className="flex items-center space-x-2">
+                        <UserPlus className="w-4 h-4 text-muted-foreground" />
+                        <SelectValue placeholder="Wäschekraft zuweisen..." />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border border-border shadow-lg z-50">
+                      {!order.assigned_staff_id && (
+                        <SelectItem 
+                          value="none"
+                          className="cursor-pointer hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                        >
+                          Keine Zuweisung
+                        </SelectItem>
+                      )}
+                      {laundryStaff.map((staff) => (
+                        <SelectItem 
+                          key={staff.id} 
+                          value={staff.id}
+                          className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                        >
+                          {staff.name}
+                        </SelectItem>
+                      ))}
+                      {order.assigned_staff_id && (
+                        <SelectItem 
+                          value="REMOVE"
+                          className="cursor-pointer hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                        >
+                          Zuweisung entfernen
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="flex flex-wrap gap-2">

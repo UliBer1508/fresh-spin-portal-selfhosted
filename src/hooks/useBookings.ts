@@ -115,15 +115,12 @@ export const useBookings = () => {
 
       if (bookingsError) throw bookingsError;
 
-      console.log('Raw bookings data:', bookingsData);
-
       // Filtere nur Buchungen die tatsächlich Wäschebestellungen haben
       const bookingsWithLinenOrders = bookingsData?.filter(booking => 
         booking.linen_orders && booking.linen_orders.length > 0
       ) || [];
 
-      console.log('Filtered bookings:', bookingsWithLinenOrders);
-      setBookings(bookingsWithLinenOrders as any);
+      setBookings(bookingsWithLinenOrders as unknown as Booking[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {

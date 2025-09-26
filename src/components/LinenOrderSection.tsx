@@ -159,7 +159,9 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
   };
 
   const getDeliveryTypeText = (deliveryType?: string) => {
-    switch (deliveryType?.toLowerCase()) {
+    // Fallback to 'delivery' if deliveryType is not provided
+    const type = deliveryType || 'delivery';
+    switch (type.toLowerCase()) {
       case 'pickup':
       case 'abholung':
         return 'Abholung';

@@ -46,46 +46,39 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
           </Tabs>
         </div>
 
-        {/* Mobile Layout - Two Rows */}
+        {/* Mobile Layout - Two Rows with proper TabsList structure */}
         <div className="md:hidden py-2">
           <Tabs value={activeTab} onValueChange={onTabChange}>
-            <div className="space-y-2">
-              {/* First Row - Wäsche & Kalender */}
-              <div className="flex space-x-1">
-                <TabsTrigger 
-                  value="waesche" 
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none rounded-lg h-10 px-3 font-medium flex-1 text-xs"
-                >
-                  <Package className="w-4 h-4 mr-1" />
-                  Wäsche (4)
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="kalender"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none rounded-lg h-10 px-3 font-medium text-muted-foreground flex-1 text-xs"
-                >
-                  <Calendar className="w-4 h-4 mr-1" />
-                  Kalender
-                </TabsTrigger>
-              </div>
-              
-              {/* Second Row - Wäschekräfte & Benachrichtigungen */}
-              <div className="flex space-x-1">
-                <TabsTrigger 
-                  value="waeschekraefte"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none rounded-lg h-10 px-3 font-medium text-muted-foreground flex-1 text-xs"
-                >
-                  <Users className="w-4 h-4 mr-1" />
-                  Wäschekräfte
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="benachrichtigungen"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-none rounded-lg h-10 px-3 font-medium text-muted-foreground flex-1 text-xs"
-                >
-                  <Bell className="w-4 h-4 mr-1" />
-                  Benachrichtigungen
-                </TabsTrigger>
-              </div>
-            </div>
+            <TabsList className="grid w-full grid-cols-2 grid-rows-2 gap-2 h-auto bg-transparent p-0">
+              <TabsTrigger 
+                value="waesche" 
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"
+              >
+                <Package className="w-4 h-4 mr-1" />
+                Wäsche (4)
+              </TabsTrigger>
+              <TabsTrigger 
+                value="kalender"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"
+              >
+                <Calendar className="w-4 h-4 mr-1" />
+                Kalender
+              </TabsTrigger>
+              <TabsTrigger 
+                value="waeschekraefte"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"
+              >
+                <Users className="w-4 h-4 mr-1" />
+                Wäschekräfte
+              </TabsTrigger>
+              <TabsTrigger 
+                value="benachrichtigungen"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"
+              >
+                <Bell className="w-4 h-4 mr-1" />
+                Benachrichtigungen
+              </TabsTrigger>
+            </TabsList>
           </Tabs>
         </div>
       </div>

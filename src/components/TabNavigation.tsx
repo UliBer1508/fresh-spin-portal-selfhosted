@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Calendar, Users, Bell } from "lucide-react";
+import { Package, Calendar, Users } from "lucide-react";
 
 interface TabNavigationProps {
   activeTab: string;
@@ -35,13 +35,6 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
                 <Users className="w-4 h-4 mr-2" />
                 Wäschekräfte
               </TabsTrigger>
-              <TabsTrigger 
-                value="benachrichtigungen"
-                className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none h-12 px-4 font-medium text-muted-foreground"
-              >
-                <Bell className="w-4 h-4 mr-2" />
-                Benachrichtigungen
-              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -66,17 +59,10 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
               </TabsTrigger>
               <TabsTrigger 
                 value="waeschekraefte"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs col-span-2"
               >
                 <Users className="w-4 h-4 mr-1" />
                 Wäschekräfte
-              </TabsTrigger>
-              <TabsTrigger 
-                value="benachrichtigungen"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"
-              >
-                <Bell className="w-4 h-4 mr-1" />
-                Benachrichtigungen
               </TabsTrigger>
             </TabsList>
           </Tabs>

@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Calendar, Users } from "lucide-react";
-import NotificationSettingsDialog from "@/components/NotificationSettingsDialog";
+import { Package, Calendar, Users, Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TabNavigationProps {
   activeTab: string;
@@ -39,7 +38,9 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
             </TabsList>
           </Tabs>
           <div className="flex items-center">
-            <NotificationSettingsDialog />
+            <Button variant="ghost" size="sm" className="h-12 px-3 text-muted-foreground hover:text-primary">
+              <Bell className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </div>

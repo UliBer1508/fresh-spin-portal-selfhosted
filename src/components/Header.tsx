@@ -1,6 +1,5 @@
 import { PackageCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import NotificationSettingsDialog from "@/components/NotificationSettingsDialog";
 
 const Header = () => {
   return (
@@ -16,7 +15,6 @@ const Header = () => {
         </div>
         
         <div className="flex items-center space-x-3">
-          <NotificationSettingsDialog />
           <Button size="sm" className="bg-primary hover:bg-primary/90">
             Wäscheservice
           </Button>

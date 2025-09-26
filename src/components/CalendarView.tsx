@@ -252,216 +252,225 @@ const CalendarView = () => {
   };
 
   return (
-    <div className="flex gap-6">
-      {/* Main Calendar */}
-      <div className="flex-1">
-        {/* Calendar Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold">
-              {view === 'month' 
-                ? format(currentDate, 'MMMM yyyy', { locale: de })
-                : `${format(weekStart, 'd. MMM', { locale: de })} - ${format(weekEnd, 'd. MMM yyyy', { locale: de })}`
-              }
-            </h1>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToPrevious}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToToday}
-              >
-                Heute
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToNext}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Button
-              variant={view === 'month' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setView('month')}
-            >
-              Monat
-            </Button>
-            <Button
-              variant={view === 'week' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setView('week')}
-            >
-              Woche
-            </Button>
-          </div>
-        </div>
-
-        {/* Calendar Grid */}
-        <div className="bg-background border rounded-lg">
-          {/* Days of week header */}
-          <div className="grid grid-cols-7 border-b">
-            {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((day) => (
-              <div key={day} className="p-4 text-center text-sm font-medium text-muted-foreground">
-                {day}
-              </div>
-            ))}
-          </div>
-
-          {/* Calendar days */}
-          <div className={cn("grid", view === 'month' ? "grid-cols-7" : "grid-cols-7")}>
-            {displayDays.map((date) => {
-              const dayEvents = getEventsByDate(date);
-              const isToday = isSameDay(date, new Date());
-              const isCurrentMonth = view === 'month' ? format(date, 'M') === format(currentDate, 'M') : true;
-
-              return (
-                <div
-                  key={date.toISOString()}
-                  className={cn(
-                    view === 'month' ? "min-h-[120px]" : "min-h-[150px]",
-                    "p-2 border-r border-b last:border-r-0 cursor-pointer hover:bg-accent/10",
-                    isToday && "bg-accent/20",
-                    !isCurrentMonth && "text-muted-foreground bg-muted/20"
-                  )}
-                  onClick={() => handleDayClick(date)}
-                >
-                  <div className={cn(
-                    "text-sm font-medium mb-2",
-                    isToday && "text-primary font-bold",
-                    !isCurrentMonth && "text-muted-foreground"
-                  )}>
-                    {view === 'week' ? format(date, 'EEE d', { locale: de }) : format(date, 'd')}
-                  </div>
-                  <div className="space-y-1">
-                    {dayEvents.slice(0, view === 'week' ? 5 : 3).map((event) => (
-                      <Badge
-                        key={event.id}
-                        className={cn(
-                          "text-xs px-2 py-1 block truncate cursor-pointer hover:opacity-80",
-                          getEventColor(event.type)
-                        )}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEventClick(event);
-                        }}
-                      >
-                        {event.title}
-                        {view === 'week' && event.guest && (
-                          <span className="block text-xs opacity-75">
-                            {event.guest}
-                          </span>
-                        )}
-                      </Badge>
-                    ))}
-                    {dayEvents.length > (view === 'week' ? 5 : 3) && (
-                      <div className="text-xs text-muted-foreground">
-                        +{dayEvents.length - (view === 'week' ? 5 : 3)} weitere
-                      </div>
-                    )}
-                  </div>
+    <div className="space-y-6">
+      <div className="space-y-6 lg:space-y-0 lg:flex lg:gap-6">
+        {/* Main Calendar */}
+        <div className="flex-1">
+          {/* Calendar Header */}
+          <div className="mb-6">
+            <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+              <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-4">
+                <h1 className="text-xl md:text-2xl font-bold">
+                  {view === 'month' 
+                    ? format(currentDate, 'MMMM yyyy', { locale: de })
+                    : `${format(weekStart, 'd. MMM', { locale: de })} - ${format(weekEnd, 'd. MMM yyyy', { locale: de })}`
+                  }
+                </h1>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToPrevious}
+                    className="h-8 px-2 md:h-9 md:px-3"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToToday}
+                    className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
+                  >
+                    Heute
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToNext}
+                    className="h-8 px-2 md:h-9 md:px-3"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Sidebar */}
-      <div className="w-80 space-y-6">
-        {/* Selected Date Events */}
-        {selectedDate && (
-          <div className="bg-background border rounded-lg p-4">
-            <h3 className="font-medium mb-3">
-              Termine für {format(selectedDate, 'd. MMMM', { locale: de })}
-            </h3>
-            {getSelectedDateEvents().length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                Keine Termine für diesen Tag.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {getSelectedDateEvents().map((event) => (
-                  <div key={event.id} className="border-l-4 border-l-primary pl-3">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <div className={cn("w-3 h-3 rounded", getEventIconColor(event.type))}></div>
-                      <span className="font-medium text-sm">{event.title}</span>
-                    </div>
-                    {event.guest && (
-                      <p className="text-sm text-muted-foreground">
-                        Gast: {event.guest}
-                      </p>
-                    )}
-                    {event.house && (
-                      <p className="text-sm text-muted-foreground">
-                        {event.house}
-                      </p>
-                    )}
-                  </div>
-                ))}
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Date Picker */}
-        <div className="bg-background border rounded-lg p-4">
-          <h3 className="font-medium mb-3">Datum auswählen</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Wählen Sie ein Datum aus dem Kalender
-          </p>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="w-full justify-start">
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {selectedDate ? format(selectedDate, 'PPP', { locale: de }) : 'Datum wählen'}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                initialFocus
-                className="pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant={view === 'month' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setView('month')}
+                  className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
+                >
+                  Monat
+                </Button>
+                <Button
+                  variant={view === 'week' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setView('week')}
+                  className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
+                >
+                  Woche
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Calendar Grid */}
+          <div className="bg-background border rounded-lg">
+            {/* Days of week header */}
+            <div className="grid grid-cols-7 border-b">
+              {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((day) => (
+                <div key={day} className="p-2 md:p-4 text-center text-xs md:text-sm font-medium text-muted-foreground">
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar days */}
+            <div className={cn("grid", view === 'month' ? "grid-cols-7" : "grid-cols-7")}>
+              {displayDays.map((date) => {
+                const dayEvents = getEventsByDate(date);
+                const isToday = isSameDay(date, new Date());
+                const isCurrentMonth = view === 'month' ? format(date, 'M') === format(currentDate, 'M') : true;
+
+                return (
+                  <div
+                    key={date.toISOString()}
+                    className={cn(
+                      view === 'month' ? "min-h-[80px] md:min-h-[120px]" : "min-h-[120px] md:min-h-[150px]",
+                      "p-1 md:p-2 border-r border-b last:border-r-0 cursor-pointer hover:bg-accent/10",
+                      isToday && "bg-accent/20",
+                      !isCurrentMonth && "text-muted-foreground bg-muted/20"
+                    )}
+                    onClick={() => handleDayClick(date)}
+                  >
+                    <div className={cn(
+                      "text-xs md:text-sm font-medium mb-1 md:mb-2",
+                      isToday && "text-primary font-bold",
+                      !isCurrentMonth && "text-muted-foreground"
+                    )}>
+                      {view === 'week' ? format(date, 'EEE d', { locale: de }) : format(date, 'd')}
+                    </div>
+                    <div className="space-y-0.5 md:space-y-1">
+                      {dayEvents.slice(0, view === 'week' ? 3 : 2).map((event) => (
+                        <Badge
+                          key={event.id}
+                          className={cn(
+                            "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 block truncate cursor-pointer hover:opacity-80",
+                            getEventColor(event.type)
+                          )}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEventClick(event);
+                          }}
+                        >
+                          {event.title}
+                          {view === 'week' && event.guest && (
+                            <span className="hidden md:block text-xs opacity-75">
+                              {event.guest}
+                            </span>
+                          )}
+                        </Badge>
+                      ))}
+                      {dayEvents.length > (view === 'week' ? 3 : 2) && (
+                        <div className="text-[10px] md:text-xs text-muted-foreground">
+                          +{dayEvents.length - (view === 'week' ? 3 : 2)} weitere
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
-        {/* Legend */}
-        <div className="bg-background border rounded-lg p-4">
-          <h3 className="font-medium mb-3">Legende</h3>
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-success rounded"></div>
-              <span className="text-sm">Check-in</span>
+        {/* Sidebar */}
+        <div className="w-full lg:w-80 space-y-4 lg:space-y-6">
+          {/* Selected Date Events */}
+          {selectedDate && (
+            <div className="bg-background border rounded-lg p-3 md:p-4">
+              <h3 className="font-medium mb-3 text-sm md:text-base">
+                Termine für {format(selectedDate, 'd. MMMM', { locale: de })}
+              </h3>
+              {getSelectedDateEvents().length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Keine Termine für diesen Tag.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {getSelectedDateEvents().map((event) => (
+                    <div key={event.id} className="border-l-4 border-l-primary pl-3">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <div className={cn("w-3 h-3 rounded", getEventIconColor(event.type))}></div>
+                        <span className="font-medium text-sm">{event.title}</span>
+                      </div>
+                      {event.guest && (
+                        <p className="text-sm text-muted-foreground">
+                          Gast: {event.guest}
+                        </p>
+                      )}
+                      {event.house && (
+                        <p className="text-sm text-muted-foreground">
+                          {event.house}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-destructive rounded"></div>
-              <span className="text-sm">Check-out</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-warning rounded"></div>
-              <span className="text-sm">Belegt</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-info rounded"></div>
-              <span className="text-sm">Reinigung</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-purple-500 rounded"></div>
-              <span className="text-sm">Wäsche</span>
+          )}
+
+          {/* Date Picker */}
+          <div className="bg-background border rounded-lg p-3 md:p-4">
+            <h3 className="font-medium mb-3 text-sm md:text-base">Datum auswählen</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Wählen Sie ein Datum aus dem Kalender
+            </p>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-start">
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedDate ? format(selectedDate, 'PPP', { locale: de }) : 'Datum wählen'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  initialFocus
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Legend */}
+          <div className="bg-background border rounded-lg p-3 md:p-4">
+            <h3 className="font-medium mb-3 text-sm md:text-base">Legende</h3>
+            <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 md:w-4 md:h-4 bg-success rounded"></div>
+                <span className="text-xs md:text-sm">Check-in</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 md:w-4 md:h-4 bg-destructive rounded"></div>
+                <span className="text-xs md:text-sm">Check-out</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 md:w-4 md:h-4 bg-warning rounded"></div>
+                <span className="text-xs md:text-sm">Belegt</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 md:w-4 md:h-4 bg-info rounded"></div>
+                <span className="text-xs md:text-sm">Reinigung</span>
+              </div>
+              <div className="flex items-center space-x-2 col-span-2 md:col-span-1">
+                <div className="w-3 h-3 md:w-4 md:h-4 bg-purple-500 rounded"></div>
+                <span className="text-xs md:text-sm">Wäsche</span>
+              </div>
             </div>
           </div>
         </div>

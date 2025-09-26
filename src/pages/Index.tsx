@@ -11,6 +11,8 @@ import { ViewSettings, defaultSettings } from "@/components/ViewSettingsDialog";
 import { useBookings, Booking } from "@/hooks/useBookings";
 
 const Index = () => {
+  console.log("=== INDEX COMPONENT STARTED ===");
+  
   const [activeTab, setActiveTab] = useState("waesche");
   const { bookings, loading, error } = useBookings();
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
@@ -27,6 +29,7 @@ const Index = () => {
   };
 
   const renderTabContent = () => {
+    console.log("Rendering tab content for:", activeTab);
     switch (activeTab) {
       case "waesche":
         return (
@@ -84,6 +87,7 @@ const Index = () => {
     }
   };
 
+  console.log("Index returning JSX, activeTab:", activeTab);
   return (
     <div className="min-h-screen bg-background">
       <PWAStatusBar />

@@ -1,6 +1,5 @@
 import { PackageCheck } from "lucide-react";
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
-import NotificationSettingsDialog from "@/components/NotificationSettingsDialog";
 
 interface HeaderProps {
   viewSettings?: ViewSettings;
@@ -27,7 +26,6 @@ const Header = ({ viewSettings, onViewSettingsChange }: HeaderProps) => {
               onSettingsChange={onViewSettingsChange}
             />
           )}
-          <NotificationSettingsDialog />
         </div>
       </div>
     </header>

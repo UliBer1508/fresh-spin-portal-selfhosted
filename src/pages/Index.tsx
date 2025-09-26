@@ -1,15 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";
 import BookingCard from "@/components/BookingCard";
-import { useBookings } from "@/hooks/useBookings";
+import { useBookings, Booking } from "@/hooks/useBookings";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("waesche");
   const { bookings, loading, error, refetch } = useBookings();
+  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
+
+  // Update filtered bookings when bookings change
+  useEffect(() => {
+    setFilteredBookings(bookings);
+  }, [bookings]);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -36,7 +42,10 @@ const Index = () => {
               </Button>
             </div>
 
-            <SearchAndFilter />
+            <SearchAndFilter 
+              bookings={bookings}
+              onFilteredBookingsChange={setFilteredBookings}
+            />
 
             {loading ? (
               <div className="text-center py-8">
@@ -46,13 +55,13 @@ const Index = () => {
               <div className="text-center py-8 text-destructive">
                 <p>Fehler beim Laden der Buchungen: {error}</p>
               </div>
-            ) : bookings.length === 0 ? (
+            ) : filteredBookings.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-muted-foreground">Keine Buchungen gefunden.</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {bookings.map((booking) => (
+                {filteredBookings.map((booking) => (
                   <BookingCard key={booking.id} booking={booking} />
                 ))}
               </div>

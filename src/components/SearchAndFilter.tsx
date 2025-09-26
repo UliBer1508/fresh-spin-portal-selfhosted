@@ -1,15 +1,99 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Search, Filter, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Booking } from "@/hooks/useBookings";
 
-const SearchAndFilter = () => {
+interface SearchAndFilterProps {
+  bookings: Booking[];
+  onFilteredBookingsChange: (filteredBookings: Booking[]) => void;
+}
+
+const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilterProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [houseFilter, setHouseFilter] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
+
+  // Get unique houses from bookings
+  const uniqueHouses = useMemo(() => {
+    const houses = bookings.map(booking => booking.houses?.name).filter(Boolean);
+    return [...new Set(houses)];
+  }, [bookings]);
+
+  // Filter logic
+  const filteredBookings = useMemo(() => {
+    let filtered = [...bookings];
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(booking => 
+        booking.guest_name?.toLowerCase().includes(query) ||
+        booking.houses?.name?.toLowerCase().includes(query) ||
+        booking.houses?.address?.toLowerCase().includes(query) ||
+        booking.id.toLowerCase().includes(query)
+      );
+    }
+
+    // Status filter
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(booking => {
+        const linenOrder = booking.linen_orders?.[0];
+        if (!linenOrder) return false;
+        
+        const status = linenOrder.status?.toLowerCase();
+        switch (statusFilter) {
+          case "pending":
+            return status === "pending";
+          case "in-progress":
+            return status === "in_progress" || status === "assigned";
+          case "completed":
+            return status === "delivered" || status === "geliefert" || status === "completed";
+          default:
+            return true;
+        }
+      });
+    }
+
+    // House filter
+    if (houseFilter !== "all") {
+      filtered = filtered.filter(booking => 
+        booking.houses?.name?.toLowerCase().replace(/\s+/g, '-') === houseFilter
+      );
+    }
+
+    // Time filter
+    if (timeFilter !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekStart = new Date(today.getTime() - (today.getDay() * 24 * 60 * 60 * 1000));
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      filtered = filtered.filter(booking => {
+        const checkIn = new Date(booking.check_in);
+        switch (timeFilter) {
+          case "today":
+            return checkIn >= today && checkIn < new Date(today.getTime() + 24 * 60 * 60 * 1000);
+          case "week":
+            return checkIn >= weekStart;
+          case "month":
+            return checkIn >= monthStart;
+          default:
+            return true;
+        }
+      });
+    }
+
+    return filtered;
+  }, [bookings, searchQuery, statusFilter, houseFilter, timeFilter]);
+
+  // Update parent component when filtered bookings change
+  useEffect(() => {
+    onFilteredBookingsChange(filteredBookings);
+  }, [filteredBookings, onFilteredBookingsChange]);
 
   const resetFilters = () => {
     setSearchQuery("");
@@ -43,7 +127,7 @@ const SearchAndFilter = () => {
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Alle Status" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-background border border-border shadow-md z-50">
               <SelectItem value="all">Alle Status</SelectItem>
               <SelectItem value="pending">Ausstehend</SelectItem>
               <SelectItem value="in-progress">In Bearbeitung</SelectItem>
@@ -55,11 +139,13 @@ const SearchAndFilter = () => {
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Alle Häuser" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-background border border-border shadow-md z-50">
               <SelectItem value="all">Alle Häuser</SelectItem>
-              <SelectItem value="wald-chalet">Wald Chalet</SelectItem>
-              <SelectItem value="berg-villa">Berg Villa</SelectItem>
-              <SelectItem value="see-haus">See Haus</SelectItem>
+              {uniqueHouses.map(house => (
+                <SelectItem key={house} value={house?.toLowerCase().replace(/\s+/g, '-') || ''}>
+                  {house}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
@@ -67,7 +153,7 @@ const SearchAndFilter = () => {
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Alle Zeiten" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-background border border-border shadow-md z-50">
               <SelectItem value="all">Alle Zeiten</SelectItem>
               <SelectItem value="today">Heute</SelectItem>
               <SelectItem value="week">Diese Woche</SelectItem>
@@ -78,7 +164,7 @@ const SearchAndFilter = () => {
 
         <div className="flex items-center space-x-4">
           <Badge variant="secondary" className="text-primary bg-accent font-medium">
-            4 von 4 Wäsche-Aufträgen
+            {filteredBookings.length} von {bookings.length} Wäsche-Aufträgen
           </Badge>
           <Button 
             variant="outline" 

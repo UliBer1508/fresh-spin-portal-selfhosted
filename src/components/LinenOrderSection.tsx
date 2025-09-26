@@ -158,6 +158,18 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
     return formattedDate;
   };
 
+  const getDeliveryTypeText = (deliveryType?: string) => {
+    switch (deliveryType?.toLowerCase()) {
+      case 'pickup':
+      case 'abholung':
+        return 'Abholung';
+      case 'delivery':
+      case 'lieferung':
+      default:
+        return 'Lieferung';
+    }
+  };
+
   if (!linenOrders || linenOrders.length === 0) {
     return (
       <div className="mt-4 p-4 bg-muted/30 rounded-lg border-l-4 border-l-warning">
@@ -212,7 +224,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
                 <div className="flex items-center space-x-2">
                   <Calendar className="w-4 h-4 text-info" />
                   <span className="text-sm text-foreground">
-                    Lieferung: {formatDateTime(order.delivery_date, order.delivery_time)}
+                    {getDeliveryTypeText(order.delivery_type)}: {formatDateTime(order.delivery_date, order.delivery_time)}
                   </span>
                 </div>
 
@@ -279,8 +291,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
                 >
                   <Clock className="w-4 h-4 mr-1" />
                   {(order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'geliefert' || order.status?.toLowerCase() === 'completed') 
-                    ? "Liefertermin ansehen" 
-                    : "Liefertermin bearbeiten"}
+                    ? `${getDeliveryTypeText(order.delivery_type)}stermin ansehen`
+                    : `${getDeliveryTypeText(order.delivery_type)}stermin bearbeiten`}
                 </Button>
                 <Button 
                   variant="outline" 

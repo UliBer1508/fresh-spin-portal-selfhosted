@@ -4,6 +4,7 @@ import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";
 import BookingCard from "@/components/BookingCard";
 import CalendarView from "@/components/CalendarView";
+import LaundryStaffManagement from "@/components/LaundryStaffManagement";
 import { useBookings, Booking } from "@/hooks/useBookings";
 
 const Index = () => {
@@ -56,16 +57,7 @@ const Index = () => {
         return <CalendarView />;
       
       case "waeschekraefte":
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-semibold text-foreground mb-4">
-              Wäschekräfte verwalten
-            </h2>
-            <p className="text-muted-foreground">
-              Die Personalverwaltung wird in Kürze verfügbar sein.
-            </p>
-          </div>
-        );
+        return <LaundryStaffManagement />;
       
       default:
         return null;

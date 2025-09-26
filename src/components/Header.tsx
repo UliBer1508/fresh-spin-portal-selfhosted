@@ -1,4 +1,4 @@
-import { RefreshCw, PackageCheck } from "lucide-react";
+import { PackageCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Header = () => {
@@ -15,10 +15,6 @@ const Header = () => {
         </div>
         
         <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary hover:text-primary-foreground">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Aktualisieren
-          </Button>
           <Button size="sm" className="bg-primary hover:bg-primary/90">
             Wäscheservice
           </Button>

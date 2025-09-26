@@ -3,6 +3,7 @@ import { Calendar, Clock, User, Package, FileText, AlertCircle, UserPlus } from 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { LinenOrder } from "@/hooks/useBookings";
@@ -18,87 +19,35 @@ interface LaundryStaff {
 interface LinenOrderSectionProps {
   linenOrders: LinenOrder[];
   onUpdate?: () => void;
+  viewSettings: ViewSettings;
 }
 
-const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) => {
+const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSectionProps) => {
   const [selectedOrder, setSelectedOrder] = useState<LinenOrder | null>(null);
   const [itemsDialogOpen, setItemsDialogOpen] = useState(false);
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
   const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
 
+  // Fetch laundry staff for assignment dropdown
   useEffect(() => {
+    const fetchLaundryStaff = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('laundry_staff')
+          .select('id, name')
+          .eq('is_active', true)
+          .order('name');
+
+        if (error) throw error;
+        setLaundryStaff(data || []);
+      } catch (error) {
+        console.error('Error fetching laundry staff:', error);
+      }
+    };
+
     fetchLaundryStaff();
   }, []);
-
-  const fetchLaundryStaff = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('laundry_staff')
-        .select('id, name')
-        .eq('is_active', true)
-        .order('name');
-
-      if (error) throw error;
-      setLaundryStaff(data || []);
-    } catch (error) {
-      console.error('Error fetching laundry staff:', error);
-    }
-  };
-
-  const handleShowItems = (order: LinenOrder) => {
-    setSelectedOrder(order);
-    setItemsDialogOpen(true);
-  };
-
-  const handleEditDelivery = (order: LinenOrder) => {
-    const isDelivered = order.status?.toLowerCase() === 'delivered' || 
-                       order.status?.toLowerCase() === 'geliefert' || 
-                       order.status?.toLowerCase() === 'completed';
-    
-    if (isDelivered) {
-      // Öffne trotzdem den Dialog, aber er wird als readonly angezeigt
-      setSelectedOrder(order);
-      setDeliveryDialogOpen(true);
-    } else {
-      setSelectedOrder(order);
-      setDeliveryDialogOpen(true);
-    }
-  };
-
-  const handleShowNotes = (order: LinenOrder) => {
-    setSelectedOrder(order);
-    setNotesDialogOpen(true);
-  };
-
-  const handleAssignStaff = async (orderId: string, staffId: string) => {
-    try {
-      const updateData = staffId === "REMOVE" 
-        ? { assigned_staff_id: null }
-        : { assigned_staff_id: staffId };
-
-      const { error } = await supabase
-        .from('linen_orders')
-        .update(updateData)
-        .eq('id', orderId);
-
-      if (error) throw error;
-
-      const message = staffId === "REMOVE" 
-        ? 'Zuweisung erfolgreich entfernt'
-        : 'Wäschekraft erfolgreich zugewiesen';
-      
-      toast.success(message);
-      handleUpdate();
-    } catch (error) {
-      console.error('Error assigning staff:', error);
-      toast.error('Fehler beim Zuweisen der Wäschekraft');
-    }
-  };
-
-  const handleUpdate = () => {
-    onUpdate?.();
-  };
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
@@ -110,29 +59,78 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
       if (error) throw error;
 
       toast.success('Status erfolgreich aktualisiert');
-      handleUpdate();
+      onUpdate?.();
     } catch (error) {
       console.error('Error updating status:', error);
       toast.error('Fehler beim Aktualisieren des Status');
     }
   };
-  const getStatusColor = (status: string) => {
+
+  const handleAssignStaff = async (orderId: string, staffId: string) => {
+    try {
+      const { error } = await supabase
+        .from('linen_orders')
+        .update({ assigned_staff_id: staffId })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast.success('Wäschekraft erfolgreich zugewiesen');
+      onUpdate?.();
+    } catch (error) {
+      console.error('Error assigning staff:', error);
+      toast.error('Fehler beim Zuweisen der Wäschekraft');
+    }
+  };
+
+  const handleUnassignStaff = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('linen_orders')
+        .update({ assigned_staff_id: null })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast.success('Zuweisung erfolgreich entfernt');
+      onUpdate?.();
+    } catch (error) {
+      console.error('Error unassigning staff:', error);
+      toast.error('Fehler beim Entfernen der Zuweisung');
+    }
+  };
+
+  const handleShowItems = (order: LinenOrder) => {
+    setSelectedOrder(order);
+    setItemsDialogOpen(true);
+  };
+
+  const handleEditDelivery = (order: LinenOrder) => {
+    setSelectedOrder(order);
+    setDeliveryDialogOpen(true);
+  };
+
+  const handleShowNotes = (order: LinenOrder) => {
+    setSelectedOrder(order);
+    setNotesDialogOpen(true);
+  };
+
+  const getStatusColor = (status?: string) => {
     switch (status?.toLowerCase()) {
       case "delivered":
       case "geliefert":
       case "completed":
-        return "bg-success text-success-foreground";
+        return "border-success text-success bg-success/10";
       case "in_progress":
       case "assigned":
-        return "bg-warning text-warning-foreground";
+        return "border-warning text-warning bg-warning/10";
       case "pending":
-        return "bg-muted text-muted-foreground";
       default:
-        return "bg-muted text-muted-foreground";
+        return "border-muted-foreground text-muted-foreground bg-muted/50";
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status?: string) => {
     switch (status?.toLowerCase()) {
       case "delivered":
       case "geliefert":
@@ -159,7 +157,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
   };
 
   const getDeliveryTypeText = (deliveryType?: string) => {
-    // Fallback to 'delivery' if deliveryType is not provided
     const type = deliveryType || 'delivery';
     switch (type.toLowerCase()) {
       case 'pickup':
@@ -193,24 +190,26 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
         
         {linenOrders.map((order) => (
           <div key={order.id} className="bg-muted/30 rounded-lg p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <Select value={order.status || 'pending'} onValueChange={(value) => handleStatusChange(order.id, value)}>
-                <SelectTrigger className={`w-48 ${getStatusColor(order.status)}`}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-background border border-border shadow-lg z-50">
-                  <SelectItem value="pending" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                    Ausstehend
-                  </SelectItem>
-                  <SelectItem value="in_progress" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                    In Bearbeitung
-                  </SelectItem>
-                  <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                    Geliefert
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {viewSettings.showOrderStatus && (
+              <div className="flex items-center justify-between">
+                <Select value={order.status || 'pending'} onValueChange={(value) => handleStatusChange(order.id, value)}>
+                  <SelectTrigger className={`w-48 ${getStatusColor(order.status)}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border border-border shadow-lg z-50">
+                    <SelectItem value="pending" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                      Ausstehend
+                    </SelectItem>
+                    <SelectItem value="in_progress" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                      In Bearbeitung
+                    </SelectItem>
+                    <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                      Geliefert
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -223,93 +222,113 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
                   </div>
                 )}
 
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4 text-info" />
-                  <span className="text-sm text-foreground">
-                    {getDeliveryTypeText(order.delivery_type)}: {formatDateTime(order.delivery_date, order.delivery_time)}
-                  </span>
-                </div>
+                {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="w-4 h-4 text-info" />
+                    <span className="text-sm text-foreground">
+                      {viewSettings.showDeliveryType ? `${getDeliveryTypeText(order.delivery_type)}: ` : ''}
+                      {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) ? 
+                        formatDateTime(
+                          viewSettings.showDeliveryDate ? order.delivery_date : undefined,
+                          viewSettings.showDeliveryTime ? order.delivery_time : undefined
+                        ) : ''
+                      }
+                    </span>
+                  </div>
+                )}
 
-                {/* Staff Assignment with Label */}
-                <div className="flex items-center space-x-2">
-                  <User className="w-4 h-4 text-info" />
-                  <span className="text-sm text-foreground">Zugewiesen:</span>
-                </div>
-                <div className="ml-6">
-                  <Select
-                    value={order.assigned_staff_id || "none"}
-                    onValueChange={(value) => value !== "none" && handleAssignStaff(order.id, value)}
-                  >
-                    <SelectTrigger className="w-full max-w-sm">
-                      <div className="flex items-center space-x-2">
-                        <UserPlus className="w-4 h-4 text-muted-foreground" />
-                        <SelectValue placeholder="Wäschekraft zuweisen..." />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent className="bg-background border border-border shadow-lg z-50">
-                      {!order.assigned_staff_id && (
-                        <SelectItem 
-                          value="none"
-                          className="cursor-pointer hover:bg-accent hover:text-accent-foreground text-muted-foreground"
-                        >
-                          Keine Zuweisung
-                        </SelectItem>
-                      )}
-                      {laundryStaff.map((staff) => (
-                        <SelectItem 
-                          key={staff.id} 
-                          value={staff.id}
-                          className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                        >
-                          {staff.name}
-                        </SelectItem>
-                      ))}
-                      {order.assigned_staff_id && (
-                        <SelectItem 
-                          value="REMOVE"
-                          className="cursor-pointer hover:bg-accent hover:text-accent-foreground text-muted-foreground"
-                        >
-                          Zuweisung entfernen
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Staff Assignment */}
+                {viewSettings.showAssignedStaff && (
+                  <>
+                    <div className="flex items-center space-x-2">
+                      <User className="w-4 h-4 text-info" />
+                      <span className="text-sm text-foreground">Zugewiesen:</span>
+                    </div>
+                    <div className="ml-6">
+                      <Select
+                        value={order.assigned_staff_id || "none"}
+                        onValueChange={(value) => value !== "none" && handleAssignStaff(order.id, value)}
+                      >
+                        <SelectTrigger className="w-full max-w-sm">
+                          <div className="flex items-center space-x-2">
+                            <UserPlus className="w-4 h-4 text-muted-foreground" />
+                            <SelectValue placeholder="Wäschekraft zuweisen..." />
+                          </div>
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
+                          <SelectItem value="none" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                            Keine Zuweisung
+                          </SelectItem>
+                          {laundryStaff.map((staff) => (
+                            <SelectItem 
+                              key={staff.id} 
+                              value={staff.id}
+                              className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                            >
+                              {staff.name}
+                            </SelectItem>
+                          ))}
+                          {order.assigned_staff_id && (
+                            <SelectItem 
+                              value="unassign" 
+                              className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
+                              onSelect={() => handleUnassignStaff(order.id)}
+                            >
+                              Zuweisung entfernen
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleShowItems(order)}
-                >
-                  <FileText className="w-4 h-4 mr-1" />
-                  Artikel anzeigen
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleEditDelivery(order)}
-                >
-                  <Clock className="w-4 h-4 mr-1" />
-                  {(order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'geliefert' || order.status?.toLowerCase() === 'completed') 
-                    ? `${getDeliveryTypeText(order.delivery_type)}stermin ansehen`
-                    : `${getDeliveryTypeText(order.delivery_type)}stermin bearbeiten`}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleShowNotes(order)}
-                >
-                  <Package className="w-4 h-4 mr-1" />
-                  Wäschenotizen anzeigen
-                </Button>
+                {viewSettings.showOrderItems && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleShowItems(order)}
+                  >
+                    <FileText className="w-4 h-4 mr-1" />
+                    Artikel anzeigen
+                  </Button>
+                )}
+                
+                {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleEditDelivery(order)}
+                  >
+                    <Clock className="w-4 h-4 mr-1" />
+                    {(order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'geliefert' || order.status?.toLowerCase() === 'completed') 
+                      ? `${getDeliveryTypeText(order.delivery_type)}stermin ansehen`
+                      : `${getDeliveryTypeText(order.delivery_type)}stermin bearbeiten`}
+                  </Button>
+                )}
+                
+                {viewSettings.showOrderNotes && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleShowNotes(order)}
+                  >
+                    <Package className="w-4 h-4 mr-1" />
+                    Wäschenotizen anzeigen
+                  </Button>
+                )}
               </div>
             </div>
 
-            {order.notes && (
+            {order.notes && viewSettings.showOrderNotes && (
               <div className="mt-2 p-2 bg-background rounded border-l-4 border-l-info">
-                <p className="text-sm text-muted-foreground">{order.notes}</p>
+                <div className="flex items-center space-x-2 mb-1">
+                  <FileText className="w-4 h-4 text-info" />
+                  <span className="text-sm font-medium text-foreground">Notizen:</span>
+                </div>
+                <p className="text-sm text-muted-foreground ml-6">{order.notes}</p>
               </div>
             )}
           </div>
@@ -318,21 +337,23 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
 
       {/* Dialogs */}
       <LinenItemsDialog
-        order={selectedOrder}
         open={itemsDialogOpen}
         onOpenChange={setItemsDialogOpen}
-      />
-      <DeliveryDateDialog
         order={selectedOrder}
+      />
+
+      <DeliveryDateDialog
         open={deliveryDialogOpen}
         onOpenChange={setDeliveryDialogOpen}
-        onUpdate={handleUpdate}
-      />
-      <LinenNotesDialog
         order={selectedOrder}
+        onUpdate={onUpdate}
+      />
+
+      <LinenNotesDialog
         open={notesDialogOpen}
         onOpenChange={setNotesDialogOpen}
-        onUpdate={handleUpdate}
+        order={selectedOrder}
+        onUpdate={onUpdate}
       />
     </div>
   );

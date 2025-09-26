@@ -6,12 +6,24 @@ import BookingCard from "@/components/BookingCard";
 import CalendarView from "@/components/CalendarView";
 import LaundryStaffManagement from "@/components/LaundryStaffManagement";
 import NotificationSettings from "@/components/NotificationSettings";
+import { ViewSettings, defaultSettings } from "@/components/ViewSettingsDialog";
 import { useBookings, Booking } from "@/hooks/useBookings";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("waesche");
   const { bookings, loading, error } = useBookings();
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
+  
+  // ViewSettings State mit localStorage
+  const [viewSettings, setViewSettings] = useState<ViewSettings>(() => {
+    const saved = localStorage.getItem('viewSettings');
+    return saved ? JSON.parse(saved) : defaultSettings;
+  });
+
+  const handleViewSettingsChange = (settings: ViewSettings) => {
+    setViewSettings(settings);
+    localStorage.setItem('viewSettings', JSON.stringify(settings));
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -30,6 +42,8 @@ const Index = () => {
             <SearchAndFilter 
               bookings={bookings}
               onFilteredBookingsChange={setFilteredBookings}
+              viewSettings={viewSettings}
+              onViewSettingsChange={handleViewSettingsChange}
             />
 
             {loading ? (
@@ -47,7 +61,11 @@ const Index = () => {
             ) : (
               <div className="space-y-4">
                 {filteredBookings.map((booking) => (
-                  <BookingCard key={booking.id} booking={booking} />
+                  <BookingCard 
+                    key={booking.id} 
+                    booking={booking} 
+                    viewSettings={viewSettings}
+                  />
                 ))}
               </div>
             )}

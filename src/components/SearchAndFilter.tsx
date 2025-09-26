@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking } from "@/hooks/useBookings";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -16,9 +17,16 @@ interface LaundryStaff {
 interface SearchAndFilterProps {
   bookings: Booking[];
   onFilteredBookingsChange: (filteredBookings: Booking[]) => void;
+  viewSettings: ViewSettings;
+  onViewSettingsChange: (settings: ViewSettings) => void;
 }
 
-const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilterProps) => {
+const SearchAndFilter = ({ 
+  bookings, 
+  onFilteredBookingsChange, 
+  viewSettings, 
+  onViewSettingsChange 
+}: SearchAndFilterProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("pending");
   const [houseFilter, setHouseFilter] = useState("all");
@@ -219,6 +227,10 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
           <Badge variant="secondary" className="text-primary bg-accent font-medium">
             {filteredBookings.length} von {bookings.length} Wäsche-Aufträgen
           </Badge>
+          <ViewSettingsDialog
+            settings={viewSettings}
+            onSettingsChange={onViewSettingsChange}
+          />
         </div>
       </div>
     </div>

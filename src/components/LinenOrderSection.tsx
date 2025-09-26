@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Calendar, Clock, User, Package, FileText, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Calendar, Clock, User, Package, FileText, AlertCircle, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,6 +9,11 @@ import { LinenOrder } from "@/hooks/useBookings";
 import LinenItemsDialog from "@/components/dialogs/LinenItemsDialog";
 import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
 import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
+
+interface LaundryStaff {
+  id: string;
+  name: string;
+}
 
 interface LinenOrderSectionProps {
   linenOrders: LinenOrder[];
@@ -20,6 +25,26 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
   const [itemsDialogOpen, setItemsDialogOpen] = useState(false);
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
+  const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
+
+  useEffect(() => {
+    fetchLaundryStaff();
+  }, []);
+
+  const fetchLaundryStaff = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('laundry_staff')
+        .select('id, name')
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) throw error;
+      setLaundryStaff(data || []);
+    } catch (error) {
+      console.error('Error fetching laundry staff:', error);
+    }
+  };
 
   const handleShowItems = (order: LinenOrder) => {
     setSelectedOrder(order);
@@ -44,6 +69,31 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
   const handleShowNotes = (order: LinenOrder) => {
     setSelectedOrder(order);
     setNotesDialogOpen(true);
+  };
+
+  const handleAssignStaff = async (orderId: string, staffId: string) => {
+    try {
+      const updateData = staffId === "" 
+        ? { assigned_staff_id: null }
+        : { assigned_staff_id: staffId };
+
+      const { error } = await supabase
+        .from('linen_orders')
+        .update(updateData)
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      const message = staffId === "" 
+        ? 'Zuweisung erfolgreich entfernt'
+        : 'Wäschekraft erfolgreich zugewiesen';
+      
+      toast.success(message);
+      handleUpdate();
+    } catch (error) {
+      console.error('Error assigning staff:', error);
+      toast.error('Fehler beim Zuweisen der Wäschekraft');
+    }
   };
 
   const handleUpdate = () => {
@@ -151,11 +201,47 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 {order.service_providers?.name && (
-                  <div className="flex items-center space-x-2">
-                    <Package className="w-4 h-4 text-info" />
-                    <span className="text-sm text-foreground">
-                      Provider: <span className="font-medium">{order.service_providers.name}</span>
-                    </span>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Package className="w-4 h-4 text-info" />
+                      <span className="text-sm text-foreground">
+                        Provider: <span className="font-medium">{order.service_providers.name}</span>
+                      </span>
+                    </div>
+                    
+                    {/* Staff Assignment Dropdown */}
+                    <div className="ml-6">
+                      <Select
+                        value={order.assigned_staff_id || ""}
+                        onValueChange={(value) => value && handleAssignStaff(order.id, value)}
+                      >
+                        <SelectTrigger className="w-full max-w-sm">
+                          <div className="flex items-center space-x-2">
+                            <UserPlus className="w-4 h-4 text-muted-foreground" />
+                            <SelectValue placeholder="Wäschekraft zuweisen..." />
+                          </div>
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border border-border shadow-lg z-50">
+                          {laundryStaff.map((staff) => (
+                            <SelectItem 
+                              key={staff.id} 
+                              value={staff.id}
+                              className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                            >
+                              {staff.name}
+                            </SelectItem>
+                          ))}
+                          {order.assigned_staff_id && (
+                            <SelectItem 
+                              value=""
+                              className="cursor-pointer hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                            >
+                              Zuweisung entfernen
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 )}
 

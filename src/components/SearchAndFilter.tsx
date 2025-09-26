@@ -41,22 +41,15 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
 
     // Status filter
     if (statusFilter !== "all") {
-      console.log("Filtering by status:", statusFilter);
       filtered = filtered.filter(booking => {
         const linenOrder = booking.linen_orders?.[0];
-        if (!linenOrder) {
-          console.log("No linen order for booking:", booking.guest_name);
-          return false;
-        }
+        if (!linenOrder) return false;
         
         const status = linenOrder.status?.toLowerCase();
-        console.log(`Booking ${booking.guest_name}: status = "${status}", checking against "${statusFilter}"`);
         
         switch (statusFilter) {
           case "pending":
-            const isPending = status === "pending";
-            console.log(`Is pending: ${isPending}`);
-            return isPending;
+            return status === "pending";
           case "in-progress":
             return status === "in_progress" || status === "assigned";
           case "completed":
@@ -65,7 +58,6 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
             return true;
         }
       });
-      console.log("Filtered bookings after status filter:", filtered.length);
     }
 
     // House filter
@@ -107,7 +99,7 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
 
   const resetFilters = () => {
     setSearchQuery("");
-    setStatusFilter("all");
+    setStatusFilter("pending");
     setHouseFilter("all");
     setTimeFilter("all");
   };

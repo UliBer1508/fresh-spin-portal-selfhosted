@@ -12,11 +12,6 @@ const Index = () => {
   const { bookings, loading, error, refetch } = useBookings();
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
 
-  // Update filtered bookings when bookings change
-  useEffect(() => {
-    setFilteredBookings(bookings);
-  }, [bookings]);
-
   const renderTabContent = () => {
     switch (activeTab) {
       case "waesche":

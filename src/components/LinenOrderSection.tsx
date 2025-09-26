@@ -224,7 +224,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
                 <div className="flex items-center space-x-2">
                   <Calendar className="w-4 h-4 text-info" />
                   <span className="text-sm text-foreground">
-                    {getDeliveryTypeText(order.delivery_type)}: {formatDateTime(order.delivery_date, order.delivery_time)}
+                    Lieferung: {formatDateTime(order.delivery_date, order.delivery_time)}
                   </span>
                 </div>
 
@@ -291,8 +291,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
                 >
                   <Clock className="w-4 h-4 mr-1" />
                   {(order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'geliefert' || order.status?.toLowerCase() === 'completed') 
-                    ? `${getDeliveryTypeText(order.delivery_type)}stermin ansehen`
-                    : `${getDeliveryTypeText(order.delivery_type)}stermin bearbeiten`}
+                    ? "Liefertermin ansehen" 
+                    : "Liefertermin bearbeiten"}
                 </Button>
                 <Button 
                   variant="outline" 

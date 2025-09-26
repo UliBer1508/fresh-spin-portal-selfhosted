@@ -24,7 +24,6 @@ export interface LinenOrder {
   status: string;
   delivery_date?: string;
   delivery_time?: string;
-  delivery_type?: string;
   notes?: string;
   items: any;
   provider_id?: string;
@@ -97,7 +96,6 @@ export const useBookings = () => {
             status,
             delivery_date,
             delivery_time,
-            delivery_type,
             notes,
             items,
             provider_id,

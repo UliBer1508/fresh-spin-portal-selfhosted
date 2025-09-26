@@ -19,6 +19,7 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
 
   // Get unique houses from bookings
   const uniqueHouses = useMemo(() => {
+    if (!bookings || bookings.length === 0) return [];
     const houses = bookings.map(booking => booking.houses?.name).filter(Boolean);
     return [...new Set(houses)];
   }, [bookings]);

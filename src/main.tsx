@@ -1,39 +1,21 @@
 import { createRoot } from "react-dom/client";
+import "./index.css";
 
-console.log("Starting app...");
+console.log("Starting app with CSS...");
 
 const TestApp = () => {
-  console.log("TestApp rendering");
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: 'red',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: 'white',
-      fontSize: '24px',
-      fontFamily: 'Arial'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        color: 'black',
-        padding: '20px',
-        borderRadius: '8px'
-      }}>
-        <h1>Minimal Test</h1>
-        <p>Wird das angezeigt?</p>
+    <div className="min-h-screen bg-primary p-8">
+      <div className="bg-white p-4 rounded">
+        <h1 className="text-2xl font-bold text-black">
+          CSS Test - Funktioniert Tailwind?
+        </h1>
+        <p className="text-gray-600 mt-2">
+          Wenn die Farben stimmen, funktioniert CSS.
+        </p>
       </div>
     </div>
   );
 };
 
-const rootElement = document.getElementById("root");
-console.log("Root element found:", rootElement);
-
-if (rootElement) {
-  const root = createRoot(rootElement);
-  root.render(<TestApp />);
-} else {
-  console.error("Root element not found!");
-}
+createRoot(document.getElementById("root")!).render(<TestApp />);

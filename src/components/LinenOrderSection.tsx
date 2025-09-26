@@ -159,7 +159,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
   };
 
   const getDeliveryTypeText = (deliveryType?: string) => {
-    console.log('delivery_type value:', deliveryType);
     // Fallback to 'delivery' if deliveryType is not provided
     const type = deliveryType || 'delivery';
     switch (type.toLowerCase()) {
@@ -192,9 +191,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
           <h4 className="font-medium text-foreground">Wäschebestellung</h4>
         </div>
         
-        {linenOrders.map((order) => {
-          console.log('Rendering order:', order, 'delivery_type:', order.delivery_type);
-          return (
+        {linenOrders.map((order) => (
           <div key={order.id} className="bg-muted/30 rounded-lg p-4 space-y-3">
             <div className="flex items-center justify-between">
               <Select value={order.status || 'pending'} onValueChange={(value) => handleStatusChange(order.id, value)}>
@@ -316,7 +313,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
               </div>
             )}
           </div>
-        )})}
+        ))}
       </div>
 
       {/* Dialogs */}

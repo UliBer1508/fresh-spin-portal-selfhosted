@@ -97,6 +97,7 @@ export const useBookings = () => {
             status,
             delivery_date,
             delivery_time,
+            delivery_type,
             notes,
             items,
             provider_id,

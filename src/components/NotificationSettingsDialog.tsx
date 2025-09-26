@@ -221,9 +221,9 @@ const NotificationSettingsDialog = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                   <div>
-                    <div className="font-medium">Neue Reinigungsaufträge</div>
+                    <div className="font-medium">Neue Wäschebestellungen</div>
                     <div className="text-sm text-muted-foreground">
-                      Wenn ein neuer Auftrag erstellt wird
+                      Wenn eine neue Bestellung erstellt wird
                     </div>
                   </div>
                 </div>
@@ -239,7 +239,7 @@ const NotificationSettingsDialog = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-orange-500"></div>
                   <div>
-                    <div className="font-medium">Auftragsänderungen</div>
+                    <div className="font-medium">Bestellungsänderungen</div>
                     <div className="text-sm text-muted-foreground">
                       Datum, Zeit oder Details wurden geändert
                     </div>
@@ -257,9 +257,9 @@ const NotificationSettingsDialog = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
                   <div>
-                    <div className="font-medium">Statusänderungen</div>
+                    <div className="font-medium">Lieferstatus-Änderungen</div>
                     <div className="text-sm text-muted-foreground">
-                      Wenn ein Auftrag abgeschlossen oder storniert wird
+                      Wenn eine Bestellung geliefert oder storniert wird
                     </div>
                   </div>
                 </div>
@@ -275,9 +275,9 @@ const NotificationSettingsDialog = () => {
                 <div className="flex items-center gap-3">
                   <AlertCircle className="w-4 h-4 text-red-500" />
                   <div>
-                    <div className="font-medium">Dringende Aufträge</div>
+                    <div className="font-medium">Dringende Bestellungen</div>
                     <div className="text-sm text-muted-foreground">
-                      Aufträge die heute oder morgen stattfinden
+                      Bestellungen die heute oder morgen geliefert werden
                     </div>
                   </div>
                 </div>

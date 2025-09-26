@@ -3,53 +3,11 @@ import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";
 import BookingCard from "@/components/BookingCard";
-
-// Mock data for bookings
-const mockBookings = [
-  {
-    id: "1",
-    accommodation: "Wald Chalet",
-    address: "Trattenbach 299/17, 5741 Neukirchen am GV",
-    guest: "Tiepel",
-    guestCount: 1,
-    checkIn: "24.8.2025",
-    checkOut: "7.9.2025",
-    status: "in-progress" as const,
-  },
-  {
-    id: "2",
-    accommodation: "Berg Villa",
-    address: "Bergstraße 15, 5741 Neukirchen am GV",
-    guest: "Schmidt",
-    guestCount: 4,
-    checkIn: "20.8.2025",
-    checkOut: "3.9.2025",
-    status: "completed" as const,
-  },
-  {
-    id: "3",
-    accommodation: "See Haus",
-    address: "Seeweg 8, 5741 Neukirchen am GV",
-    guest: "Müller",
-    guestCount: 2,
-    checkIn: "25.8.2025",
-    checkOut: "10.9.2025",
-    status: "pending" as const,
-  },
-  {
-    id: "4",
-    accommodation: "Alpen Lodge",
-    address: "Gipfelweg 22, 5741 Neukirchen am GV",
-    guest: "Weber",
-    guestCount: 6,
-    checkIn: "28.8.2025",
-    checkOut: "12.9.2025",
-    status: "in-progress" as const,
-  },
-];
+import { useBookings } from "@/hooks/useBookings";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("waesche");
+  const { bookings, loading, error } = useBookings();
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -67,11 +25,25 @@ const Index = () => {
 
             <SearchAndFilter />
 
-            <div className="space-y-4">
-              {mockBookings.map((booking) => (
-                <BookingCard key={booking.id} {...booking} />
-              ))}
-            </div>
+            {loading ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Lade Buchungen...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-8 text-destructive">
+                <p>Fehler beim Laden der Buchungen: {error}</p>
+              </div>
+            ) : bookings.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Keine Buchungen gefunden.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {bookings.map((booking) => (
+                  <BookingCard key={booking.id} booking={booking} />
+                ))}
+              </div>
+            )}
           </div>
         );
       

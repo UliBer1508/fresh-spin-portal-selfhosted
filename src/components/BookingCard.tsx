@@ -1,51 +1,42 @@
 import { MapPin, User, Users, Calendar, CalendarCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import LinenOrderSection from "./LinenOrderSection";
+import { Booking } from "@/hooks/useBookings";
 
 interface BookingCardProps {
-  id: string;
-  accommodation: string;
-  address: string;
-  guest: string;
-  guestCount: number;
-  checkIn: string;
-  checkOut: string;
-  status: "pending" | "in-progress" | "completed";
+  booking: Booking;
 }
 
-const BookingCard = ({ 
-  accommodation, 
-  address, 
-  guest, 
-  guestCount, 
-  checkIn, 
-  checkOut, 
-  status 
-}: BookingCardProps) => {
+const BookingCard = ({ booking }: BookingCardProps) => {
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
+    switch (status?.toLowerCase()) {
+      case "confirmed":
         return "bg-success text-success-foreground";
-      case "in-progress":
-        return "bg-warning text-warning-foreground";
+      case "cancelled":
+        return "bg-destructive text-destructive-foreground";
       case "pending":
-        return "bg-muted text-muted-foreground";
+        return "bg-warning text-warning-foreground";
       default:
         return "bg-muted text-muted-foreground";
     }
   };
 
   const getStatusText = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "Abgeschlossen";
-      case "in-progress":
-        return "In Bearbeitung";
+    switch (status?.toLowerCase()) {
+      case "confirmed":
+        return "Bestätigt";
+      case "cancelled":
+        return "Storniert";
       case "pending":
         return "Ausstehend";
       default:
-        return "Unbekannt";
+        return status || "Unbekannt";
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('de-DE');
   };
 
   return (
@@ -58,15 +49,15 @@ const BookingCard = ({
               <div className="flex items-center space-x-2">
                 <MapPin className="w-5 h-5 text-primary" />
                 <h3 className="font-semibold text-lg text-foreground">
-                  Unterkunft: {accommodation}
+                  Unterkunft: {booking.houses?.name || 'Unbekannt'}
                 </h3>
               </div>
               <div className="flex items-center space-x-2 text-muted-foreground ml-7">
-                <span className="text-sm">Adresse: {address}</span>
+                <span className="text-sm">Adresse: {booking.houses?.address || 'Keine Adresse'}</span>
               </div>
             </div>
-            <Badge className={getStatusColor(status)}>
-              {getStatusText(status)}
+            <Badge className={getStatusColor(booking.status)}>
+              {getStatusText(booking.status)}
             </Badge>
           </div>
 
@@ -74,11 +65,11 @@ const BookingCard = ({
           <div className="space-y-2 ml-7">
             <div className="flex items-center space-x-2">
               <User className="w-4 h-4 text-primary" />
-              <span className="text-foreground font-medium">Gast: {guest}</span>
+              <span className="text-foreground font-medium">Gast: {booking.guest_name}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Users className="w-4 h-4 text-primary" />
-              <span className="text-foreground">Gäste: {guestCount} Personen</span>
+              <span className="text-foreground">Gäste: {booking.number_of_guests} Personen</span>
             </div>
           </div>
 
@@ -86,13 +77,16 @@ const BookingCard = ({
           <div className="flex items-center space-x-6 ml-7">
             <div className="flex items-center space-x-2">
               <Calendar className="w-4 h-4 text-info" />
-              <span className="text-foreground">Check-in: {checkIn}</span>
+              <span className="text-foreground">Check-in: {formatDate(booking.check_in)}</span>
             </div>
             <div className="flex items-center space-x-2">
               <CalendarCheck className="w-4 h-4 text-info" />
-              <span className="text-foreground">Check-out: {checkOut}</span>
+              <span className="text-foreground">Check-out: {formatDate(booking.check_out)}</span>
             </div>
           </div>
+
+          {/* Linen Orders Section */}
+          <LinenOrderSection linenOrders={booking.linen_orders || []} />
         </div>
       </CardContent>
     </Card>

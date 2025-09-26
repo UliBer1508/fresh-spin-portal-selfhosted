@@ -35,11 +35,11 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
                 <Users className="w-4 h-4 mr-2" />
                 Wäschekräfte
               </TabsTrigger>
+              <div className="flex items-center ml-4">
+                <NotificationSettingsDialog />
+              </div>
             </TabsList>
           </Tabs>
-          <div className="flex items-center ml-6">
-            <NotificationSettingsDialog />
-          </div>
         </div>
       </div>
     </div>

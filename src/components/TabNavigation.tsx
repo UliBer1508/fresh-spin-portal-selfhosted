@@ -39,10 +39,10 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
           </Tabs>
         </div>
 
-        {/* Mobile Layout - Two Rows with proper TabsList structure */}
+        {/* Mobile Layout - Responsive Grid */}
         <div className="md:hidden py-2">
           <Tabs value={activeTab} onValueChange={onTabChange}>
-            <TabsList className="grid w-full grid-cols-2 grid-rows-2 gap-2 h-auto bg-transparent p-0">
+            <TabsList className="grid w-full grid-cols-2 gap-2 h-auto bg-transparent p-0">
               <TabsTrigger 
                 value="waesche" 
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"

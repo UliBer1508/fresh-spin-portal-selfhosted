@@ -115,6 +115,8 @@ export const useBookings = () => {
 
       if (bookingsError) throw bookingsError;
 
+      console.log('Bookings data with delivery_type:', bookingsData);
+      
       // Filtere nur Buchungen die tatsächlich Wäschebestellungen haben
       const bookingsWithLinenOrders = bookingsData?.filter(booking => 
         booking.linen_orders && booking.linen_orders.length > 0

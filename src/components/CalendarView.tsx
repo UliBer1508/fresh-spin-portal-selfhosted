@@ -176,6 +176,19 @@ const CalendarView = () => {
     return events.filter(event => isSameDay(event.date, date));
   };
 
+  const getSelectedDateEvents = () => {
+    if (!selectedDate) return [];
+    return getEventsByDate(selectedDate);
+  };
+
+  const handleEventClick = (event: CalendarEvent) => {
+    setSelectedDate(event.date);
+  };
+
+  const handleDayClick = (date: Date) => {
+    setSelectedDate(date);
+  };
+
   const getEventColor = (type: CalendarEvent['type']) => {
     switch (type) {
       case 'check-in':
@@ -190,6 +203,23 @@ const CalendarView = () => {
         return 'bg-purple-500 text-white';
       default:
         return 'bg-muted text-muted-foreground';
+    }
+  };
+
+  const getEventIconColor = (type: CalendarEvent['type']) => {
+    switch (type) {
+      case 'check-in':
+        return 'bg-success';
+      case 'check-out':
+        return 'bg-destructive';
+      case 'occupied':
+        return 'bg-warning';
+      case 'cleaning':
+        return 'bg-info';
+      case 'linen':
+        return 'bg-purple-500';
+      default:
+        return 'bg-muted';
     }
   };
 
@@ -279,9 +309,10 @@ const CalendarView = () => {
                 <div
                   key={date.toISOString()}
                   className={cn(
-                    "min-h-[120px] p-2 border-r border-b last:border-r-0",
+                    "min-h-[120px] p-2 border-r border-b last:border-r-0 cursor-pointer hover:bg-accent/10",
                     isToday && "bg-accent/20"
                   )}
+                  onClick={() => handleDayClick(date)}
                 >
                   <div className={cn(
                     "text-sm font-medium mb-2",
@@ -294,9 +325,13 @@ const CalendarView = () => {
                       <Badge
                         key={event.id}
                         className={cn(
-                          "text-xs px-2 py-1 block truncate",
+                          "text-xs px-2 py-1 block truncate cursor-pointer hover:opacity-80",
                           getEventColor(event.type)
                         )}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEventClick(event);
+                        }}
                       >
                         {event.title}
                       </Badge>
@@ -316,6 +351,41 @@ const CalendarView = () => {
 
       {/* Sidebar */}
       <div className="w-80 space-y-6">
+        {/* Selected Date Events */}
+        {selectedDate && (
+          <div className="bg-background border rounded-lg p-4">
+            <h3 className="font-medium mb-3">
+              Termine für {format(selectedDate, 'd. MMMM', { locale: de })}
+            </h3>
+            {getSelectedDateEvents().length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Keine Termine für diesen Tag.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {getSelectedDateEvents().map((event) => (
+                  <div key={event.id} className="border-l-4 border-l-primary pl-3">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <div className={cn("w-3 h-3 rounded", getEventIconColor(event.type))}></div>
+                      <span className="font-medium text-sm">{event.title}</span>
+                    </div>
+                    {event.guest && (
+                      <p className="text-sm text-muted-foreground">
+                        Gast: {event.guest}
+                      </p>
+                    )}
+                    {event.house && (
+                      <p className="text-sm text-muted-foreground">
+                        {event.house}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Date Picker */}
         <div className="bg-background border rounded-lg p-4">
           <h3 className="font-medium mb-3">Datum auswählen</h3>

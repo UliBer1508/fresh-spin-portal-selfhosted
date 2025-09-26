@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
+import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking } from "@/hooks/useBookings";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -223,15 +223,9 @@ const SearchAndFilter = ({
           </Select>
         </div>
 
-        <div className="flex items-center space-x-4">
-          <Badge variant="secondary" className="text-primary bg-accent font-medium">
-            {filteredBookings.length} von {bookings.length} Wäsche-Aufträgen
-          </Badge>
-          <ViewSettingsDialog
-            settings={viewSettings}
-            onSettingsChange={onViewSettingsChange}
-          />
-        </div>
+        <Badge variant="secondary" className="text-primary bg-accent font-medium">
+          {filteredBookings.length} von {bookings.length} Wäsche-Aufträgen
+        </Badge>
       </div>
     </div>
   );

@@ -45,6 +45,27 @@ const LaundryStaffManagement = () => {
 
   useEffect(() => {
     fetchStaff();
+    
+    // Real-time subscription für automatische Updates bei Änderungen an linen_orders
+    const channel = supabase
+      .channel('laundry-staff-orders')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'linen_orders'
+        },
+        () => {
+          console.log('Linen order change detected, updating staff counts...');
+          fetchStaff();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
@@ -54,13 +75,40 @@ const LaundryStaffManagement = () => {
   const fetchStaff = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch staff with dynamic order counts
+      const { data: staffData, error: staffError } = await supabase
         .from('laundry_staff')
         .select('*')
         .order('name');
 
-      if (error) throw error;
-      setStaff(data || []);
+      if (staffError) throw staffError;
+
+      // Get order counts for each staff member
+      const staffWithCounts = await Promise.all(
+        (staffData || []).map(async (staffMember) => {
+          // Get total orders assigned to this staff member
+          const { count: totalOrders } = await supabase
+            .from('linen_orders')
+            .select('*', { count: 'exact', head: true })
+            .eq('assigned_staff_id', staffMember.id);
+
+          // Get completed orders for this staff member
+          const { count: completedOrders } = await supabase
+            .from('linen_orders')
+            .select('*', { count: 'exact', head: true })
+            .eq('assigned_staff_id', staffMember.id)
+            .in('status', ['delivered', 'geliefert', 'completed']);
+
+          return {
+            ...staffMember,
+            total_orders: totalOrders || 0,
+            completed_orders: completedOrders || 0,
+          };
+        })
+      );
+
+      setStaff(staffWithCounts);
     } catch (error) {
       console.error('Error fetching staff:', error);
       toast.error('Fehler beim Laden der Wäschekräfte');
@@ -340,6 +388,10 @@ const LaundryStaffManagement = () => {
                   <div className="text-center">
                     <div className="text-lg font-bold">{person.total_orders}</div>
                     <div className="text-xs text-muted-foreground">Aufträge gesamt</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold">{person.total_orders - person.completed_orders}</div>
+                    <div className="text-xs text-muted-foreground">Aktiv</div>
                   </div>
                 </div>
 

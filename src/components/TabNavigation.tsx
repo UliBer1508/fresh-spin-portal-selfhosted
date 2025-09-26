@@ -1,5 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Calendar, Users } from "lucide-react";
+import { Package, Calendar, Users, Bell } from "lucide-react";
 
 interface TabNavigationProps {
   activeTab: string;
@@ -39,7 +39,7 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
           </Tabs>
         </div>
 
-        {/* Mobile Layout - 3 Tabs angepasst */}
+        {/* Mobile Layout - 4 Tabs im 2x2 Grid */}
         <div className="md:hidden py-2">
           <Tabs value={activeTab} onValueChange={onTabChange}>
             <TabsList className="grid w-full grid-cols-2 gap-2 h-auto bg-transparent p-0">
@@ -59,10 +59,17 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
               </TabsTrigger>
               <TabsTrigger 
                 value="waeschekraefte"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs col-span-2"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"
               >
                 <Users className="w-4 h-4 mr-1" />
                 Wäschekräfte
+              </TabsTrigger>
+              <TabsTrigger 
+                value="benachrichtigungen"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"
+              >
+                <Bell className="w-4 h-4 mr-1" />
+                Benachrichtigungen
               </TabsTrigger>
             </TabsList>
           </Tabs>

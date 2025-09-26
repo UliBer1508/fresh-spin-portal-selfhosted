@@ -5,6 +5,7 @@ import SearchAndFilter from "@/components/SearchAndFilter";
 import BookingCard from "@/components/BookingCard";
 import CalendarView from "@/components/CalendarView";
 import LaundryStaffManagement from "@/components/LaundryStaffManagement";
+import NotificationSettingsDialog from "@/components/NotificationSettingsDialog";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PWAStatusBar from "@/components/PWAStatusBar";
 import { ViewSettings, defaultSettings } from "@/components/ViewSettingsDialog";
@@ -78,6 +79,9 @@ const Index = () => {
       
       case "waeschekraefte":
         return <LaundryStaffManagement />;
+      
+      case "benachrichtigungen":
+        return <NotificationSettingsDialog />;
       
       default:
         // Falls jemand auf einen nicht-existierenden Tab zugreift, zu "waesche" zurückkehren

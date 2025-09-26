@@ -4,23 +4,36 @@ import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";
 import BookingCard from "@/components/BookingCard";
 import { useBookings } from "@/hooks/useBookings";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("waesche");
-  const { bookings, loading, error } = useBookings();
+  const { bookings, loading, error, refetch } = useBookings();
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "waesche":
         return (
           <div className="space-y-6">
-            <div className="text-center md:text-left">
-              <h1 className="text-3xl font-bold text-foreground mb-2">
-                Alle Buchungen mit Wäschebestellungen
-              </h1>
-              <p className="text-muted-foreground text-lg">
-                Verwalten Sie alle Wäscheaufträge für Ihre Gäste
-              </p>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="text-center md:text-left">
+                <h1 className="text-3xl font-bold text-foreground mb-2">
+                  Alle Buchungen mit Wäschebestellungen
+                </h1>
+                <p className="text-muted-foreground text-lg">
+                  Verwalten Sie alle Wäscheaufträge für Ihre Gäste
+                </p>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={refetch} 
+                disabled={loading}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Aktualisieren
+              </Button>
             </div>
 
             <SearchAndFilter />

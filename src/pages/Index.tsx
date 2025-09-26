@@ -5,7 +5,7 @@ import SearchAndFilter from "@/components/SearchAndFilter";
 import BookingCard from "@/components/BookingCard";
 import CalendarView from "@/components/CalendarView";
 import LaundryStaffManagement from "@/components/LaundryStaffManagement";
-import NotificationSettingsSimple from "@/components/NotificationSettingsSimple";
+import NotificationSettings from "@/components/NotificationSettings";
 import { useBookings, Booking } from "@/hooks/useBookings";
 
 const Index = () => {
@@ -14,7 +14,6 @@ const Index = () => {
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
 
   const renderTabContent = () => {
-    console.log("Current activeTab:", activeTab); // Debug log
     switch (activeTab) {
       case "waesche":
         return (
@@ -62,13 +61,7 @@ const Index = () => {
         return <LaundryStaffManagement />;
       
       case "benachrichtigungen":
-        console.log("Rendering NotificationSettings"); // Debug log
-        try {
-          return <NotificationSettingsSimple onBack={() => setActiveTab("waeschekraefte")} />;
-        } catch (error) {
-          console.error("Error rendering NotificationSettings:", error);
-          return <div>Error loading notification settings</div>;
-        }
+        return <NotificationSettings onBack={() => setActiveTab("waeschekraefte")} />;
       
       default:
         return null;

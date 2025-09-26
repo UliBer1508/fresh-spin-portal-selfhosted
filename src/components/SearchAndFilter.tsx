@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Booking } from "@/hooks/useBookings";
+import { supabase } from "@/integrations/supabase/client";
+
+interface LaundryStaff {
+  id: string;
+  name: string;
+  is_active: boolean;
+}
 
 interface SearchAndFilterProps {
   bookings: Booking[];
@@ -16,6 +23,8 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
   const [statusFilter, setStatusFilter] = useState("pending");
   const [houseFilter, setHouseFilter] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
+  const [staffFilter, setStaffFilter] = useState("all");
+  const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
 
   // Get unique houses from bookings
   const uniqueHouses = useMemo(() => {
@@ -23,6 +32,25 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
     const houses = bookings.map(booking => booking.houses?.name).filter(Boolean);
     return [...new Set(houses)];
   }, [bookings]);
+
+  // Load laundry staff
+  useEffect(() => {
+    const fetchLaundryStaff = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('laundry_staff')
+          .select('id, name, is_active')
+          .order('name');
+
+        if (error) throw error;
+        setLaundryStaff(data || []);
+      } catch (error) {
+        console.error('Error fetching laundry staff:', error);
+      }
+    };
+
+    fetchLaundryStaff();
+  }, []);
 
   // Filter logic
   const filteredBookings = useMemo(() => {
@@ -89,8 +117,16 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
       });
     }
 
+    // Staff filter
+    if (staffFilter !== "all") {
+      filtered = filtered.filter(booking => {
+        const linenOrder = booking.linen_orders?.[0];
+        return linenOrder?.assigned_staff_id === staffFilter;
+      });
+    }
+
     return filtered;
-  }, [bookings, searchQuery, statusFilter, houseFilter, timeFilter]);
+  }, [bookings, searchQuery, statusFilter, houseFilter, timeFilter, staffFilter]);
 
   // Update parent component when filtered bookings change
   useEffect(() => {
@@ -102,6 +138,7 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
     setStatusFilter("pending");
     setHouseFilter("all");
     setTimeFilter("all");
+    setStaffFilter("all");
   };
 
   return (
@@ -160,6 +197,28 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
               <SelectItem value="today">Heute</SelectItem>
               <SelectItem value="week">Diese Woche</SelectItem>
               <SelectItem value="month">Dieser Monat</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={staffFilter} onValueChange={setStaffFilter}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Alle Wäschekräfte" />
+            </SelectTrigger>
+            <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
+              <SelectItem value="all">Alle Wäschekräfte</SelectItem>
+              {laundryStaff.map((staff) => (
+                <SelectItem key={staff.id} value={staff.id}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>{staff.name}</span>
+                    <Badge 
+                      className={`ml-2 ${staff.is_active ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}
+                      variant="outline"
+                    >
+                      {staff.is_active ? "Aktiv" : "Inaktiv"}
+                    </Badge>
+                  </div>
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

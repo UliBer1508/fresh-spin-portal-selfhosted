@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Calendar, Clock, User, Package, FileText, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { LinenOrder } from "@/hooks/useBookings";
 import LinenItemsDialog from "@/components/dialogs/LinenItemsDialog";
 import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
@@ -45,6 +48,23 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
 
   const handleUpdate = () => {
     onUpdate?.();
+  };
+
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('linen_orders')
+        .update({ status: newStatus })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast.success('Status erfolgreich aktualisiert');
+      handleUpdate();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast.error('Fehler beim Aktualisieren des Status');
+    }
   };
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -110,9 +130,22 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
         {linenOrders.map((order) => (
           <div key={order.id} className="bg-muted/30 rounded-lg p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <Badge className={getStatusColor(order.status)}>
-                {getStatusText(order.status)}
-              </Badge>
+              <Select value={order.status || 'pending'} onValueChange={(value) => handleStatusChange(order.id, value)}>
+                <SelectTrigger className={`w-48 ${getStatusColor(order.status)}`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border shadow-lg z-50">
+                  <SelectItem value="pending" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                    Ausstehend
+                  </SelectItem>
+                  <SelectItem value="in_progress" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                    In Bearbeitung
+                  </SelectItem>
+                  <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                    Geliefert
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

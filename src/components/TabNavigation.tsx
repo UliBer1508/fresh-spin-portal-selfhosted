@@ -12,7 +12,7 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
   return (
     <div className="border-b border-border bg-white">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between h-12">
           <Tabs value={activeTab} onValueChange={onTabChange} className="flex-1">
             <TabsList className="h-12 bg-transparent p-0 space-x-8">
               <TabsTrigger 
@@ -38,7 +38,9 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <NotificationSettingsDialog />
+          <div className="flex items-center">
+            <NotificationSettingsDialog />
+          </div>
         </div>
       </div>
     </div>

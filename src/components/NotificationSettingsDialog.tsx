@@ -117,7 +117,11 @@ const NotificationSettingsDialog = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-12 px-3 rounded-none border-b-2 border-transparent hover:border-primary hover:bg-transparent">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-12 px-3 rounded-none border-b-2 border-transparent hover:border-primary hover:bg-transparent text-muted-foreground hover:text-primary transition-colors"
+        >
           <Bell className="w-4 h-4" />
         </Button>
       </DialogTrigger>

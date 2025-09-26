@@ -37,7 +37,7 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <div className="flex items-center">
+          <div className="flex items-center ml-6">
             <NotificationSettingsDialog />
           </div>
         </div>

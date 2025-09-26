@@ -5,6 +5,7 @@ import SearchAndFilter from "@/components/SearchAndFilter";
 import BookingCard from "@/components/BookingCard";
 import CalendarView from "@/components/CalendarView";
 import LaundryStaffManagement from "@/components/LaundryStaffManagement";
+import NotificationSettings from "@/components/NotificationSettings";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PWAStatusBar from "@/components/PWAStatusBar";
 import { ViewSettings, defaultSettings } from "@/components/ViewSettingsDialog";
@@ -81,6 +82,9 @@ const Index = () => {
       
       case "waeschekraefte":
         return <LaundryStaffManagement />;
+      
+      case "benachrichtigungen":
+        return <NotificationSettings />;
       
       default:
         return null;

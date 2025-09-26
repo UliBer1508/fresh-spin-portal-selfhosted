@@ -24,6 +24,7 @@ export interface LinenOrder {
   status: string;
   delivery_date?: string;
   delivery_time?: string;
+  delivery_type?: string;
   notes?: string;
   items: any;
   provider_id?: string;
@@ -96,6 +97,7 @@ export const useBookings = () => {
             status,
             delivery_date,
             delivery_time,
+            delivery_type,
             notes,
             items,
             provider_id,
@@ -113,12 +115,15 @@ export const useBookings = () => {
 
       if (bookingsError) throw bookingsError;
 
+      console.log('Raw bookings data:', bookingsData);
+
       // Filtere nur Buchungen die tatsächlich Wäschebestellungen haben
       const bookingsWithLinenOrders = bookingsData?.filter(booking => 
         booking.linen_orders && booking.linen_orders.length > 0
       ) || [];
 
-      setBookings(bookingsWithLinenOrders);
+      console.log('Filtered bookings:', bookingsWithLinenOrders);
+      setBookings(bookingsWithLinenOrders as any);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {

@@ -24,8 +24,18 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
   };
 
   const handleEditDelivery = (order: LinenOrder) => {
-    setSelectedOrder(order);
-    setDeliveryDialogOpen(true);
+    const isDelivered = order.status?.toLowerCase() === 'delivered' || 
+                       order.status?.toLowerCase() === 'geliefert' || 
+                       order.status?.toLowerCase() === 'completed';
+    
+    if (isDelivered) {
+      // Öffne trotzdem den Dialog, aber er wird als readonly angezeigt
+      setSelectedOrder(order);
+      setDeliveryDialogOpen(true);
+    } else {
+      setSelectedOrder(order);
+      setDeliveryDialogOpen(true);
+    }
   };
 
   const handleShowNotes = (order: LinenOrder) => {
@@ -148,7 +158,9 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
                   onClick={() => handleEditDelivery(order)}
                 >
                   <Clock className="w-4 h-4 mr-1" />
-                  Liefertermin bearbeiten
+                  {(order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'geliefert' || order.status?.toLowerCase() === 'completed') 
+                    ? "Liefertermin ansehen" 
+                    : "Liefertermin bearbeiten"}
                 </Button>
                 <Button 
                   variant="outline" 

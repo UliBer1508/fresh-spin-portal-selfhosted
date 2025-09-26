@@ -3,9 +3,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { LinenOrder } from "@/hooks/useBookings";
+import { AlertCircle } from "lucide-react";
 
 interface DeliveryDateDialogProps {
   order: LinenOrder | null;
@@ -29,8 +31,10 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
     onOpenChange(open);
   };
 
+  const isDelivered = order?.status?.toLowerCase() === 'delivered' || order?.status?.toLowerCase() === 'geliefert' || order?.status?.toLowerCase() === 'completed';
+
   const handleSave = async () => {
-    if (!order) return;
+    if (!order || isDelivered) return;
 
     setIsLoading(true);
     try {
@@ -52,6 +56,7 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
       onUpdate();
       onOpenChange(false);
     } catch (error) {
+      console.error('Fehler beim Update:', error);
       toast({
         title: "Fehler",
         description: "Liefertermin konnte nicht aktualisiert werden",
@@ -71,6 +76,15 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
           <DialogTitle>Liefertermin bearbeiten</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          {isDelivered && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Diese Bestellung wurde bereits geliefert und kann nicht mehr bearbeitet werden.
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <div className="space-y-2">
             <Label htmlFor="delivery-date">Lieferdatum</Label>
             <Input
@@ -78,6 +92,7 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
               type="date"
               value={deliveryDate}
               onChange={(e) => setDeliveryDate(e.target.value)}
+              disabled={isDelivered}
             />
           </div>
           <div className="space-y-2">
@@ -87,16 +102,19 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
               type="time"
               value={deliveryTime}
               onChange={(e) => setDeliveryTime(e.target.value)}
+              disabled={isDelivered}
             />
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Abbrechen
+            {isDelivered ? "Schließen" : "Abbrechen"}
           </Button>
-          <Button onClick={handleSave} disabled={isLoading}>
-            {isLoading ? "Speichern..." : "Speichern"}
-          </Button>
+          {!isDelivered && (
+            <Button onClick={handleSave} disabled={isLoading}>
+              {isLoading ? "Speichern..." : "Speichern"}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

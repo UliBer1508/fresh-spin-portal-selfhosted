@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Calendar, Clock, User, Package, FileText, AlertCircle } from "lucide-react";
+import { Calendar, Clock, User, Package, FileText, AlertCircle, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LinenOrder } from "@/hooks/useBookings";
 import LinenItemsDialog from "@/components/dialogs/LinenItemsDialog";
 import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
 import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
+import UpdateStatusDialog from "@/components/dialogs/UpdateStatusDialog";
 
 interface LinenOrderSectionProps {
   linenOrders: LinenOrder[];
@@ -17,6 +18,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
   const [itemsDialogOpen, setItemsDialogOpen] = useState(false);
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
 
   const handleShowItems = (order: LinenOrder) => {
     setSelectedOrder(order);
@@ -41,6 +43,11 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
   const handleShowNotes = (order: LinenOrder) => {
     setSelectedOrder(order);
     setNotesDialogOpen(true);
+  };
+
+  const handleUpdateStatus = (order: LinenOrder) => {
+    setSelectedOrder(order);
+    setStatusDialogOpen(true);
   };
 
   const handleUpdate = () => {
@@ -165,6 +172,15 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
                 <Button 
                   variant="outline" 
                   size="sm"
+                  onClick={() => handleUpdateStatus(order)}
+                  className="bg-primary/10 hover:bg-primary/20 border-primary/20"
+                >
+                  <RefreshCw className="w-4 h-4 mr-1" />
+                  Status aktualisieren
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
                   onClick={() => handleShowNotes(order)}
                 >
                   <Package className="w-4 h-4 mr-1" />
@@ -198,6 +214,12 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
         order={selectedOrder}
         open={notesDialogOpen}
         onOpenChange={setNotesDialogOpen}
+        onUpdate={handleUpdate}
+      />
+      <UpdateStatusDialog
+        order={selectedOrder}
+        open={statusDialogOpen}
+        onOpenChange={setStatusDialogOpen}
         onUpdate={handleUpdate}
       />
     </div>

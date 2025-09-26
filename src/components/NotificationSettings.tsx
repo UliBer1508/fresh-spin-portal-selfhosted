@@ -154,6 +154,11 @@ const NotificationSettings = ({ onBack }: NotificationSettingsProps) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Debug info */}
+      <div className="p-2 bg-yellow-100 text-xs">
+        Debug: Component loaded, preferences loaded: {loading ? 'Loading...' : 'Loaded'}
+      </div>
+      
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-foreground">
@@ -195,7 +200,10 @@ const NotificationSettings = ({ onBack }: NotificationSettingsProps) => {
                 </div>
                 <Switch
                   checked={preferences.toast_notifications}
-                  onCheckedChange={(checked) => updatePreference('toast_notifications', checked)}
+                  onCheckedChange={(checked) => {
+                    console.log('Toast notifications toggle:', checked);
+                    updatePreference('toast_notifications', checked);
+                  }}
                 />
               </div>
 

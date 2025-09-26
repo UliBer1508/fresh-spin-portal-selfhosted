@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";
+import BookingCard from "@/components/BookingCard";
 import { useBookings, Booking } from "@/hooks/useBookings";
 
 const SimpleIndex = () => {
@@ -16,20 +17,28 @@ const SimpleIndex = () => {
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="bg-white p-6 rounded-lg shadow mb-6">
-          <h2 className="text-3xl font-bold mb-4">SearchAndFilter Test</h2>
-          <p className="text-gray-600 mb-4">
-            Buchungen geladen: {bookings.length}
-          </p>
+          <h2 className="text-3xl font-bold mb-4">BookingCard Test</h2>
           
           <SearchAndFilter 
             bookings={bookings}
             onFilteredBookingsChange={setFilteredBookings}
           />
           
-          <div className="mt-4 p-4 bg-gray-100 rounded">
-            <p className="text-gray-600">
+          <div className="mt-6">
+            <p className="text-gray-600 mb-4">
               Gefilterte Buchungen: {filteredBookings.length}
             </p>
+            
+            {filteredBookings.length > 0 ? (
+              <div className="space-y-4">
+                <p className="text-green-600 font-medium">BookingCards werden geladen...</p>
+                {filteredBookings.slice(0, 2).map((booking) => (
+                  <BookingCard key={booking.id} booking={booking} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">Keine Buchungen zum Anzeigen</p>
+            )}
           </div>
         </div>
       </main>

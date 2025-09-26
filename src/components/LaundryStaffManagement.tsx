@@ -241,8 +241,36 @@ const LaundryStaffManagement = () => {
                 <SelectItem value="orders">Nach Aufträgen</SelectItem>
               </SelectContent>
             </Select>
+            <Select onValueChange={(value) => {
+              if (value) {
+                const selectedStaff = staff.find(s => s.id === value);
+                if (selectedStaff) {
+                  setFilteredStaff([selectedStaff]);
+                  setSearchQuery(selectedStaff.name);
+                }
+              }
+            }}>
+              <SelectTrigger className="w-full md:w-56">
+                <SelectValue placeholder="Wäschekraft auswählen" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
+                {staff.map((person) => (
+                  <SelectItem key={person.id} value={person.id}>
+                    <div className="flex items-center justify-between w-full">
+                      <span>{person.name}</span>
+                      <Badge 
+                        className={`ml-2 ${person.is_active ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}
+                        variant="outline"
+                      >
+                        {person.is_active ? "Aktiv" : "Inaktiv"}
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button variant="outline" onClick={resetFilters}>
-              Filter zurücksetzen
+              Alle zeigen
             </Button>
           </div>
           <p className="text-sm text-muted-foreground">

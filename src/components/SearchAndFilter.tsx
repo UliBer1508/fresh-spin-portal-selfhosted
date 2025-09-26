@@ -180,11 +180,9 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
             <SelectContent className="bg-background border border-border shadow-md z-50">
               <SelectItem value="all">Alle Häuser</SelectItem>
               {uniqueHouses.map(house => (
-                house ? (
-                  <SelectItem key={house} value={house.toLowerCase().replace(/\s+/g, '-')}>
-                    {house}
-                  </SelectItem>
-                ) : null
+                <SelectItem key={house} value={house?.toLowerCase().replace(/\s+/g, '-') || ''}>
+                  {house}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -208,11 +206,9 @@ const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilter
             <SelectContent className="bg-background border border-border shadow-md z-50">
               <SelectItem value="all">Alle Wäschekräfte</SelectItem>
               {laundryStaff.map(staff => (
-                staff.id && staff.name ? (
-                  <SelectItem key={staff.id} value={staff.id}>
-                    {staff.name}
-                  </SelectItem>
-                ) : null
+                <SelectItem key={staff.id} value={staff.id}>
+                  {staff.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

@@ -1,14 +1,8 @@
 import { PackageCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import NotificationSettingsDialog from "@/components/NotificationSettingsDialog";
 
-interface HeaderProps {
-  viewSettings?: ViewSettings;
-  onViewSettingsChange?: (settings: ViewSettings) => void;
-}
-
-const Header = ({ viewSettings, onViewSettingsChange }: HeaderProps) => {
+const Header = () => {
   return (
     <header className="bg-white border-b border-border px-6 py-4">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -22,12 +16,6 @@ const Header = ({ viewSettings, onViewSettingsChange }: HeaderProps) => {
         </div>
         
         <div className="flex items-center space-x-3">
-          {viewSettings && onViewSettingsChange && (
-            <ViewSettingsDialog
-              settings={viewSettings}
-              onSettingsChange={onViewSettingsChange}
-            />
-          )}
           <NotificationSettingsDialog />
           <Button size="sm" className="bg-primary hover:bg-primary/90">
             Wäscheservice

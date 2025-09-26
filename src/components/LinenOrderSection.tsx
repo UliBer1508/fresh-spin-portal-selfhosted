@@ -73,7 +73,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
 
   const handleAssignStaff = async (orderId: string, staffId: string) => {
     try {
-      const updateData = staffId === "" 
+      const updateData = staffId === "REMOVE" 
         ? { assigned_staff_id: null }
         : { assigned_staff_id: staffId };
 
@@ -84,7 +84,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
 
       if (error) throw error;
 
-      const message = staffId === "" 
+      const message = staffId === "REMOVE" 
         ? 'Zuweisung erfolgreich entfernt'
         : 'Wäschekraft erfolgreich zugewiesen';
       
@@ -212,8 +212,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
                     {/* Staff Assignment Dropdown */}
                     <div className="ml-6">
                       <Select
-                        value={order.assigned_staff_id || ""}
-                        onValueChange={(value) => value && handleAssignStaff(order.id, value)}
+                        value={order.assigned_staff_id || "none"}
+                        onValueChange={(value) => value !== "none" && handleAssignStaff(order.id, value)}
                       >
                         <SelectTrigger className="w-full max-w-sm">
                           <div className="flex items-center space-x-2">
@@ -222,6 +222,14 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
                           </div>
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50">
+                          {!order.assigned_staff_id && (
+                            <SelectItem 
+                              value="none"
+                              className="cursor-pointer hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                            >
+                              Keine Zuweisung
+                            </SelectItem>
+                          )}
                           {laundryStaff.map((staff) => (
                             <SelectItem 
                               key={staff.id} 
@@ -233,7 +241,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate }: LinenOrderSectionProps) =>
                           ))}
                           {order.assigned_staff_id && (
                             <SelectItem 
-                              value=""
+                              value="REMOVE"
                               className="cursor-pointer hover:bg-accent hover:text-accent-foreground text-muted-foreground"
                             >
                               Zuweisung entfernen

@@ -1,15 +1,12 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, Calendar, Users, Bell } from "lucide-react";
-import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 
 interface TabNavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  viewSettings?: ViewSettings;
-  onViewSettingsChange?: (settings: ViewSettings) => void;
 }
 
-const TabNavigation = ({ activeTab, onTabChange, viewSettings, onViewSettingsChange }: TabNavigationProps) => {
+const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
   return (
     <div className="border-b border-border bg-white">
       <div className="max-w-7xl mx-auto px-6">
@@ -46,15 +43,6 @@ const TabNavigation = ({ activeTab, onTabChange, viewSettings, onViewSettingsCha
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          
-          {viewSettings && onViewSettingsChange && activeTab === "waesche" && (
-            <div className="ml-4">
-              <ViewSettingsDialog
-                settings={viewSettings}
-                onSettingsChange={onViewSettingsChange}
-              />
-            </div>
-          )}
         </div>
       </div>
     </div>

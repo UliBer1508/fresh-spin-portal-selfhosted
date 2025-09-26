@@ -91,12 +91,13 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <PWAStatusBar />
-      <Header />
+      <Header 
+        viewSettings={viewSettings}
+        onViewSettingsChange={handleViewSettingsChange}
+      />
       <TabNavigation 
         activeTab={activeTab} 
         onTabChange={setActiveTab}
-        viewSettings={viewSettings}
-        onViewSettingsChange={handleViewSettingsChange}
       />
       
       <main className="max-w-7xl mx-auto px-6 py-8">

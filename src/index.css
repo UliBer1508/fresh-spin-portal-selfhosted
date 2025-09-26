@@ -17,26 +17,36 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Wäscheportal Green Theme */
+    --primary: 142 76% 36%;  /* Fresh green */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 142 76% 88%;  /* Light green */
+    --secondary-foreground: 142 76% 20%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 220 13% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 142 76% 92%;  /* Very light green */
+    --accent-foreground: 142 76% 20%;
+
+    --success: 142 76% 36%;  /* Green for success states */
+    --success-foreground: 0 0% 100%;
+
+    --warning: 43 96% 56%;  /* Yellow for warnings */
+    --warning-foreground: 0 0% 0%;
+
+    --info: 217 91% 60%;  /* Blue for info */
+    --info-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --input: 220 13% 96%;
+    --ring: 142 76% 36%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 

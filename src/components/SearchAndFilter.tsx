@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -33,6 +33,7 @@ const SearchAndFilter = ({
   const [timeFilter, setTimeFilter] = useState("all");
   const [staffFilter, setStaffFilter] = useState("all");
   const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Get unique houses from bookings
   const uniqueHouses = useMemo(() => {
@@ -141,92 +142,129 @@ const SearchAndFilter = ({
     onFilteredBookingsChange(filteredBookings);
   }, [filteredBookings, onFilteredBookingsChange]);
 
+  // Count active filters
+  const activeFiltersCount = [
+    searchQuery.trim() !== "",
+    statusFilter !== "pending", 
+    houseFilter !== "all",
+    timeFilter !== "all",
+    staffFilter !== "all"
+  ].filter(Boolean).length;
+
   return (
-    <div className="space-y-6">
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary w-5 h-5" />
-        <Input
-          placeholder="Suche nach Gast, Haus oder Bestellnummer..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 h-12 text-base border-border focus:ring-primary focus:border-primary"
-        />
-      </div>
-
-      {/* Filters */}
+    <div className="space-y-4">
+      {/* Toggle Button */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Filter className="w-4 h-4 text-primary" />
-            <span className="font-medium text-foreground">Filter</span>
-          </div>
-          
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Alle Status" />
-            </SelectTrigger>
-            <SelectContent className="bg-background border border-border shadow-md z-50">
-              <SelectItem value="all">Alle Status</SelectItem>
-              <SelectItem value="pending">Ausstehend</SelectItem>
-              <SelectItem value="in-progress">In Bearbeitung</SelectItem>
-              <SelectItem value="completed">Abgeschlossen</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={houseFilter} onValueChange={setHouseFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Alle Häuser" />
-            </SelectTrigger>
-            <SelectContent className="bg-background border border-border shadow-md z-50">
-              <SelectItem value="all">Alle Häuser</SelectItem>
-              {uniqueHouses.map(house => (
-                <SelectItem key={house} value={house?.toLowerCase().replace(/\s+/g, '-') || ''}>
-                  {house}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={timeFilter} onValueChange={setTimeFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Alle Zeiten" />
-            </SelectTrigger>
-            <SelectContent className="bg-background border border-border shadow-md z-50">
-              <SelectItem value="all">Alle Zeiten</SelectItem>
-              <SelectItem value="today">Heute</SelectItem>
-              <SelectItem value="week">Diese Woche</SelectItem>
-              <SelectItem value="month">Dieser Monat</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={staffFilter} onValueChange={setStaffFilter}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Alle Wäschekräfte" />
-            </SelectTrigger>
-            <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
-              <SelectItem value="all">Alle Wäschekräfte</SelectItem>
-              {laundryStaff.map((staff) => (
-                <SelectItem key={staff.id} value={staff.id}>
-                  <div className="flex items-center justify-between w-full">
-                    <span>{staff.name}</span>
-                    <Badge 
-                      className={`ml-2 ${staff.is_active ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}
-                      variant="outline"
-                    >
-                      {staff.is_active ? "Aktiv" : "Inaktiv"}
-                    </Badge>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
+        <Button
+          variant="outline"
+          onClick={() => setIsFilterOpen(!isFilterOpen)}
+          className="gap-2"
+        >
+          <Search className="w-4 h-4" />
+          <Filter className="w-4 h-4" />
+          Suche & Filter
+          {activeFiltersCount > 0 && (
+            <Badge variant="secondary" className="ml-2">
+              {activeFiltersCount}
+            </Badge>
+          )}
+          {isFilterOpen ? (
+            <ChevronUp className="w-4 h-4 ml-1" />
+          ) : (
+            <ChevronDown className="w-4 h-4 ml-1" />
+          )}
+        </Button>
+        
         <Badge variant="secondary" className="text-primary bg-accent font-medium">
           {filteredBookings.length} von {bookings.length} Wäsche-Aufträgen
         </Badge>
       </div>
+
+      {/* Expandable Filter Section */}
+      {isFilterOpen && (
+        <div className="space-y-4 animate-in slide-in-from-top-2 duration-200">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary w-5 h-5" />
+            <Input
+              placeholder="Suche nach Gast, Haus oder Bestellnummer..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-12 text-base border-border focus:ring-primary focus:border-primary"
+            />
+          </div>
+
+          {/* Filters */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4 flex-wrap gap-2">
+              <div className="flex items-center space-x-2">
+                <Filter className="w-4 h-4 text-primary" />
+                <span className="font-medium text-foreground">Filter</span>
+              </div>
+              
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Alle Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border shadow-md z-50">
+                  <SelectItem value="all">Alle Status</SelectItem>
+                  <SelectItem value="pending">Ausstehend</SelectItem>
+                  <SelectItem value="in-progress">In Bearbeitung</SelectItem>
+                  <SelectItem value="completed">Abgeschlossen</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={houseFilter} onValueChange={setHouseFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Alle Häuser" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border shadow-md z-50">
+                  <SelectItem value="all">Alle Häuser</SelectItem>
+                  {uniqueHouses.map(house => (
+                    <SelectItem key={house} value={house?.toLowerCase().replace(/\s+/g, '-') || ''}>
+                      {house}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={timeFilter} onValueChange={setTimeFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Alle Zeiten" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border shadow-md z-50">
+                  <SelectItem value="all">Alle Zeiten</SelectItem>
+                  <SelectItem value="today">Heute</SelectItem>
+                  <SelectItem value="week">Diese Woche</SelectItem>
+                  <SelectItem value="month">Dieser Monat</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={staffFilter} onValueChange={setStaffFilter}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Alle Wäschekräfte" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
+                  <SelectItem value="all">Alle Wäschekräfte</SelectItem>
+                  {laundryStaff.map((staff) => (
+                    <SelectItem key={staff.id} value={staff.id}>
+                      <div className="flex items-center justify-between w-full">
+                        <span>{staff.name}</span>
+                        <Badge 
+                          className={`ml-2 ${staff.is_active ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}
+                          variant="outline"
+                        >
+                          {staff.is_active ? "Aktiv" : "Inaktiv"}
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

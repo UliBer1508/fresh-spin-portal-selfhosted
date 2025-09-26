@@ -35,6 +35,13 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
                 <Users className="w-4 h-4 mr-2" />
                 Wäschekräfte
               </TabsTrigger>
+              <TabsTrigger 
+                value="benachrichtigungen"
+                className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none h-12 px-4 font-medium text-muted-foreground"
+              >
+                <Bell className="w-4 h-4 mr-2" />
+                Benachrichtigungen
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>

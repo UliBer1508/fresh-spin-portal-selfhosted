@@ -5,7 +5,7 @@ import SearchAndFilter from "@/components/SearchAndFilter";
 import BookingCard from "@/components/BookingCard";
 import CalendarView from "@/components/CalendarView";
 import LaundryStaffManagement from "@/components/LaundryStaffManagement";
-import NotificationSettingsNew from "@/components/NotificationSettingsNew";
+import NotificationSettingsSimple2 from "@/components/NotificationSettingsSimple2";
 import { useBookings, Booking } from "@/hooks/useBookings";
 
 const Index = () => {
@@ -61,7 +61,7 @@ const Index = () => {
         return <LaundryStaffManagement />;
       
       case "benachrichtigungen":
-        return <NotificationSettingsNew onBack={() => setActiveTab("waeschekraefte")} />;
+        return <NotificationSettingsSimple2 onBack={() => setActiveTab("waeschekraefte")} />;
       
       default:
         return null;

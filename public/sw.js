@@ -1,4 +1,4 @@
-const CACHE_NAME = 'teuni-waescheportal-v1';
+const CACHE_NAME = 'teuni-waescheportal-v2';
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',

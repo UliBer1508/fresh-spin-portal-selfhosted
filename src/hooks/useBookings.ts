@@ -43,13 +43,46 @@ export const useBookings = () => {
 
   useEffect(() => {
     fetchBookings();
+    
+    // Real-time subscription für automatische Updates
+    const channel = supabase
+      .channel('bookings-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookings'
+        },
+        () => {
+          console.log('Booking change detected, refetching...');
+          fetchBookings();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'linen_orders'
+        },
+        () => {
+          console.log('Linen order change detected, refetching...');
+          fetchBookings();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchBookings = async () => {
     try {
       setLoading(true);
       
-      // Fetch bookings with house information and linen orders
+      // Fetch nur Buchungen die Wäschebestellungen haben
       const { data: bookingsData, error: bookingsError } = await supabase
         .from('bookings')
         .select(`
@@ -75,11 +108,17 @@ export const useBookings = () => {
             )
           )
         `)
+        .not('linen_orders', 'is', null)
         .order('check_in', { ascending: true });
 
       if (bookingsError) throw bookingsError;
 
-      setBookings(bookingsData || []);
+      // Filtere nur Buchungen die tatsächlich Wäschebestellungen haben
+      const bookingsWithLinenOrders = bookingsData?.filter(booking => 
+        booking.linen_orders && booking.linen_orders.length > 0
+      ) || [];
+
+      setBookings(bookingsWithLinenOrders);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {

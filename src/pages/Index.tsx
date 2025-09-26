@@ -6,6 +6,8 @@ import BookingCard from "@/components/BookingCard";
 import CalendarView from "@/components/CalendarView";
 import LaundryStaffManagement from "@/components/LaundryStaffManagement";
 import NotificationSettings from "@/components/NotificationSettings";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import PWAStatusBar from "@/components/PWAStatusBar";
 import { ViewSettings, defaultSettings } from "@/components/ViewSettingsDialog";
 import { useBookings, Booking } from "@/hooks/useBookings";
 
@@ -88,6 +90,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <PWAStatusBar />
       <Header />
       <TabNavigation 
         activeTab={activeTab} 
@@ -99,6 +102,8 @@ const Index = () => {
       <main className="max-w-7xl mx-auto px-6 py-8">
         {renderTabContent()}
       </main>
+
+      <PWAInstallPrompt />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";
 import BookingCard from "@/components/BookingCard";
+import CalendarView from "@/components/CalendarView";
 import { useBookings, Booking } from "@/hooks/useBookings";
 
 const Index = () => {
@@ -52,16 +53,7 @@ const Index = () => {
         );
       
       case "kalender":
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-semibold text-foreground mb-4">
-              Kalender-Ansicht
-            </h2>
-            <p className="text-muted-foreground">
-              Die Kalender-Funktion wird in Kürze verfügbar sein.
-            </p>
-          </div>
-        );
+        return <CalendarView />;
       
       case "waeschekraefte":
         return (

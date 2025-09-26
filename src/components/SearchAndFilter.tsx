@@ -13,7 +13,7 @@ interface SearchAndFilterProps {
 
 const SearchAndFilter = ({ bookings, onFilteredBookingsChange }: SearchAndFilterProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("pending");
   const [houseFilter, setHouseFilter] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
 

@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, parseISO, isWithinInterval } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, parseISO, isWithinInterval, startOfWeek, endOfWeek, addWeeks, subWeeks, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
@@ -50,6 +50,14 @@ const CalendarView = () => {
   const monthEnd = endOfMonth(currentDate);
   const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
+  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Monday
+  const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
+  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+
+  const displayStart = view === 'month' ? monthStart : weekStart;
+  const displayEnd = view === 'month' ? monthEnd : weekEnd;
+  const displayDays = view === 'month' ? monthDays : weekDays;
+
   useEffect(() => {
     fetchCalendarData();
   }, [currentDate]);
@@ -57,8 +65,8 @@ const CalendarView = () => {
   const fetchCalendarData = async () => {
     setLoading(true);
     try {
-      const startDate = monthStart.toISOString().split('T')[0];
-      const endDate = monthEnd.toISOString().split('T')[0];
+      const startDate = displayStart.toISOString().split('T')[0];
+      const endDate = displayEnd.toISOString().split('T')[0];
 
       // Fetch bookings
       const { data: bookings } = await supabase
@@ -223,12 +231,20 @@ const CalendarView = () => {
     }
   };
 
-  const goToPreviousMonth = () => {
-    setCurrentDate(subMonths(currentDate, 1));
+  const goToPrevious = () => {
+    if (view === 'month') {
+      setCurrentDate(subMonths(currentDate, 1));
+    } else {
+      setCurrentDate(subWeeks(currentDate, 1));
+    }
   };
 
-  const goToNextMonth = () => {
-    setCurrentDate(addMonths(currentDate, 1));
+  const goToNext = () => {
+    if (view === 'month') {
+      setCurrentDate(addMonths(currentDate, 1));
+    } else {
+      setCurrentDate(addWeeks(currentDate, 1));
+    }
   };
 
   const goToToday = () => {
@@ -243,13 +259,16 @@ const CalendarView = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold">
-              {format(currentDate, 'MMMM yyyy', { locale: de })}
+              {view === 'month' 
+                ? format(currentDate, 'MMMM yyyy', { locale: de })
+                : `${format(weekStart, 'd. MMM', { locale: de })} - ${format(weekEnd, 'd. MMM yyyy', { locale: de })}`
+              }
             </h1>
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={goToPreviousMonth}
+                onClick={goToPrevious}
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
@@ -263,7 +282,7 @@ const CalendarView = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={goToNextMonth}
+                onClick={goToNext}
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>
@@ -300,28 +319,32 @@ const CalendarView = () => {
           </div>
 
           {/* Calendar days */}
-          <div className="grid grid-cols-7">
-            {monthDays.map((date) => {
+          <div className={cn("grid", view === 'month' ? "grid-cols-7" : "grid-cols-7")}>
+            {displayDays.map((date) => {
               const dayEvents = getEventsByDate(date);
               const isToday = isSameDay(date, new Date());
+              const isCurrentMonth = view === 'month' ? format(date, 'M') === format(currentDate, 'M') : true;
 
               return (
                 <div
                   key={date.toISOString()}
                   className={cn(
-                    "min-h-[120px] p-2 border-r border-b last:border-r-0 cursor-pointer hover:bg-accent/10",
-                    isToday && "bg-accent/20"
+                    view === 'month' ? "min-h-[120px]" : "min-h-[150px]",
+                    "p-2 border-r border-b last:border-r-0 cursor-pointer hover:bg-accent/10",
+                    isToday && "bg-accent/20",
+                    !isCurrentMonth && "text-muted-foreground bg-muted/20"
                   )}
                   onClick={() => handleDayClick(date)}
                 >
                   <div className={cn(
                     "text-sm font-medium mb-2",
-                    isToday && "text-primary font-bold"
+                    isToday && "text-primary font-bold",
+                    !isCurrentMonth && "text-muted-foreground"
                   )}>
-                    {format(date, 'd')}
+                    {view === 'week' ? format(date, 'EEE d', { locale: de }) : format(date, 'd')}
                   </div>
                   <div className="space-y-1">
-                    {dayEvents.slice(0, 3).map((event) => (
+                    {dayEvents.slice(0, view === 'week' ? 5 : 3).map((event) => (
                       <Badge
                         key={event.id}
                         className={cn(
@@ -334,11 +357,16 @@ const CalendarView = () => {
                         }}
                       >
                         {event.title}
+                        {view === 'week' && event.guest && (
+                          <span className="block text-xs opacity-75">
+                            {event.guest}
+                          </span>
+                        )}
                       </Badge>
                     ))}
-                    {dayEvents.length > 3 && (
+                    {dayEvents.length > (view === 'week' ? 5 : 3) && (
                       <div className="text-xs text-muted-foreground">
-                        +{dayEvents.length - 3} weitere
+                        +{dayEvents.length - (view === 'week' ? 5 : 3)} weitere
                       </div>
                     )}
                   </div>

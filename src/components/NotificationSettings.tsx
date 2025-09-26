@@ -25,6 +25,7 @@ interface NotificationSettingsProps {
 }
 
 const NotificationSettings = ({ onBack }: NotificationSettingsProps) => {
+  console.log("NotificationSettings component rendered"); // Debug log
   const [preferences, setPreferences] = useState<NotificationPrefs>({
     toast_notifications: true,
     email_notifications: false,
@@ -145,12 +146,15 @@ const NotificationSettings = ({ onBack }: NotificationSettingsProps) => {
   };
 
   if (loading) {
+    console.log("NotificationSettings is loading..."); // Debug log
     return (
       <div className="flex items-center justify-center py-8">
         <p className="text-muted-foreground">Lade Einstellungen...</p>
       </div>
     );
   }
+
+  console.log("NotificationSettings preferences:", preferences); // Debug log
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

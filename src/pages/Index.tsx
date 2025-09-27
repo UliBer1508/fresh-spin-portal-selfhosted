@@ -18,8 +18,21 @@ const Index = () => {
   
   // ViewSettings State mit localStorage
   const [viewSettings, setViewSettings] = useState<ViewSettings>(() => {
-    const saved = localStorage.getItem('viewSettings');
-    return saved ? JSON.parse(saved) : defaultSettings;
+    try {
+      const saved = localStorage.getItem('viewSettings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Validate that it's a valid object with expected structure
+        if (typeof parsed === 'object' && parsed !== null) {
+          return { ...defaultSettings, ...parsed };
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to parse viewSettings from localStorage:', error);
+      // Clear corrupted data
+      localStorage.removeItem('viewSettings');
+    }
+    return defaultSettings;
   });
 
   const handleViewSettingsChange = (settings: ViewSettings) => {

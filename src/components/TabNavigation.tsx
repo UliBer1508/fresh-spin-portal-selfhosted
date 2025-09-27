@@ -1,5 +1,5 @@
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, Calendar, Users, Bell } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface TabNavigationProps {
   activeTab: string;
@@ -7,79 +7,62 @@ interface TabNavigationProps {
 }
 
 const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
+  const tabs = [
+    { id: "waesche", label: "Wäsche (4)", icon: Package },
+    { id: "kalender", label: "Kalender", icon: Calendar },
+    { id: "waeschekraefte", label: "Wäschekräfte", icon: Users },
+    { id: "benachrichtigungen", label: "Benachrichtigungen", icon: Bell },
+  ];
+
   return (
     <div className="border-b border-border bg-white">
       <div className="max-w-7xl mx-auto px-6">
         {/* Desktop Layout - Single Row */}
         <div className="hidden md:flex items-center justify-between h-12">
-          <Tabs value={activeTab} onValueChange={onTabChange} className="flex-1">
-            <TabsList className="h-12 bg-transparent p-0 space-x-8">
-              <TabsTrigger 
-                value="waesche" 
-                className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none h-12 px-4 font-medium"
-              >
-                <Package className="w-4 h-4 mr-2" />
-                Wäsche (4)
-              </TabsTrigger>
-              <TabsTrigger 
-                value="kalender"
-                className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none h-12 px-4 font-medium text-muted-foreground"
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Kalender
-              </TabsTrigger>
-              <TabsTrigger 
-                value="waeschekraefte"
-                className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none h-12 px-4 font-medium text-muted-foreground"
-              >
-                <Users className="w-4 h-4 mr-2" />
-                Wäschekräfte
-              </TabsTrigger>
-              <TabsTrigger 
-                value="benachrichtigungen"
-                className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none h-12 px-4 font-medium text-muted-foreground"
-              >
-                <Bell className="w-4 h-4 mr-2" />
-                Benachrichtigungen
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="flex space-x-8">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange(tab.id)}
+                  className={cn(
+                    "flex items-center h-12 px-4 font-medium border-b-2 transition-colors",
+                    activeTab === tab.id
+                      ? "text-primary border-primary"
+                      : "text-muted-foreground border-transparent hover:text-foreground"
+                  )}
+                >
+                  <Icon className="w-4 h-4 mr-2" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Mobile Layout - 4 Tabs im 2x2 Grid */}
         <div className="md:hidden py-2">
-          <Tabs value={activeTab} onValueChange={onTabChange}>
-            <TabsList className="grid w-full grid-cols-2 gap-2 h-auto bg-transparent p-0">
-              <TabsTrigger 
-                value="waesche" 
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"
-              >
-                <Package className="w-4 h-4 mr-1" />
-                Wäsche (4)
-              </TabsTrigger>
-              <TabsTrigger 
-                value="kalender"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"
-              >
-                <Calendar className="w-4 h-4 mr-1" />
-                Kalender
-              </TabsTrigger>
-              <TabsTrigger 
-                value="waeschekraefte"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"
-              >
-                <Users className="w-4 h-4 mr-1" />
-                Wäschekräfte
-              </TabsTrigger>
-              <TabsTrigger 
-                value="benachrichtigungen"
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg h-10 px-3 font-medium text-xs"
-              >
-                <Bell className="w-4 h-4 mr-1" />
-                Benachrichtigungen
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="grid w-full grid-cols-2 gap-2">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange(tab.id)}
+                  className={cn(
+                    "flex items-center justify-center rounded-lg h-10 px-3 font-medium text-xs transition-colors",
+                    activeTab === tab.id
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  )}
+                >
+                  <Icon className="w-4 h-4 mr-1" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

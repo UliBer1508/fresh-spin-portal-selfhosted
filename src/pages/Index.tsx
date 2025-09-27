@@ -10,6 +10,8 @@ import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PWAStatusBar from "@/components/PWAStatusBar";
 import { ViewSettings, defaultSettings } from "@/components/ViewSettingsDialog";
 import { useBookings, Booking } from "@/hooks/useBookings";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("waesche");
@@ -122,6 +124,8 @@ const Index = () => {
       </main>
 
       <PWAInstallPrompt />
+      <Toaster />
+      <Sonner />
     </div>
   );
 };

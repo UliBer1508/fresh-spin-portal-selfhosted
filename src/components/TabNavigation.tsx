@@ -1,5 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
+// Cache bust v2 - emojis fixed
 
 interface TabNavigationProps {
   activeTab: string;

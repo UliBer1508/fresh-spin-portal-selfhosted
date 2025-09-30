@@ -1,4 +1,3 @@
-import { MapPin, User, Users, Calendar, CalendarCheck } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import LinenOrderSection from "./LinenOrderSection";
@@ -52,7 +51,7 @@ const BookingCard = ({ booking, viewSettings }: BookingCardProps) => {
                 <div className="space-y-1">
                   {viewSettings.showAccommodationName && (
                     <div className="flex items-center space-x-2">
-                      <MapPin className="w-5 h-5 text-primary" />
+                      <span className="text-lg">📍</span>
                       <h3 className="font-semibold text-lg text-foreground">
                         Unterkunft: {booking.houses?.name || 'Unbekannt'}
                       </h3>
@@ -78,13 +77,13 @@ const BookingCard = ({ booking, viewSettings }: BookingCardProps) => {
             <div className="space-y-2 ml-7">
               {viewSettings.showGuestName && (
                 <div className="flex items-center space-x-2">
-                  <User className="w-4 h-4 text-primary" />
+                  <span className="text-base">👤</span>
                   <span className="text-foreground font-medium">Gast: {booking.guest_name}</span>
                 </div>
               )}
               {viewSettings.showGuestCount && (
                 <div className="flex items-center space-x-2">
-                  <Users className="w-4 h-4 text-primary" />
+                  <span className="text-base">👥</span>
                   <span className="text-foreground">Gäste: {booking.number_of_guests} Personen</span>
                 </div>
               )}
@@ -96,13 +95,13 @@ const BookingCard = ({ booking, viewSettings }: BookingCardProps) => {
             <div className="flex items-center space-x-6 ml-7">
               {viewSettings.showCheckInDate && (
                 <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4 text-info" />
+                  <span className="text-base">📅</span>
                   <span className="text-foreground">Check-in: {formatDate(booking.check_in)}</span>
                 </div>
               )}
               {viewSettings.showCheckOutDate && (
                 <div className="flex items-center space-x-2">
-                  <CalendarCheck className="w-4 h-4 text-info" />
+                  <span className="text-base">📅</span>
                   <span className="text-foreground">Check-out: {formatDate(booking.check_out)}</span>
                 </div>
               )}

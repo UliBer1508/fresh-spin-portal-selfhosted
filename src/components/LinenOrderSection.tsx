@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Calendar, Clock, User, Package, FileText, AlertCircle, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -173,7 +172,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
     return (
       <div className="mt-4 p-4 bg-muted/30 rounded-lg border-l-4 border-l-warning">
         <div className="flex items-center space-x-2">
-          <AlertCircle className="w-5 h-5 text-warning" />
+          <span className="text-lg">⚠️</span>
           <span className="text-muted-foreground">Keine Wäschebestellung vorhanden</span>
         </div>
       </div>
@@ -184,7 +183,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
     <div className="mt-4 space-y-3">
       <div className="border-t border-border pt-4">
         <div className="flex items-center space-x-2 mb-3">
-          <Package className="w-5 h-5 text-primary" />
+          <span className="text-lg">🧺</span>
           <h4 className="font-medium text-foreground">Wäschebestellung</h4>
         </div>
         
@@ -215,7 +214,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
               <div className="space-y-2">
                 {order.service_providers?.name && (
                   <div className="flex items-center space-x-2">
-                    <Package className="w-4 h-4 text-info" />
+                    <span className="text-base">🚚</span>
                     <span className="text-sm text-foreground">
                       Provider: <span className="font-medium">{order.service_providers.name}</span>
                     </span>
@@ -224,7 +223,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
 
                 {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
                   <div className="flex items-center space-x-2">
-                    <Calendar className="w-4 h-4 text-info" />
+                    <span className="text-base">📅</span>
                     <span className="text-sm text-foreground">
                       {viewSettings.showDeliveryType ? `${getDeliveryTypeText(order.delivery_type)}: ` : ''}
                       {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) ? 
@@ -241,7 +240,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                 {viewSettings.showAssignedStaff && (
                   <>
                     <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4 text-info" />
+                      <span className="text-base">👤</span>
                       <span className="text-sm text-foreground">Zugewiesen:</span>
                     </div>
                     <div className="ml-6">
@@ -251,7 +250,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                       >
                         <SelectTrigger className="w-full max-w-sm">
                           <div className="flex items-center space-x-2">
-                            <UserPlus className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-base">➕</span>
                             <SelectValue placeholder="Wäschekraft zuweisen..." />
                           </div>
                         </SelectTrigger>
@@ -291,7 +290,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                     size="sm"
                     onClick={() => handleShowItems(order)}
                   >
-                    <FileText className="w-4 h-4 mr-1" />
+                    <span className="text-base mr-1">📄</span>
                     Artikel anzeigen
                   </Button>
                 )}
@@ -302,7 +301,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                     size="sm"
                     onClick={() => handleEditDelivery(order)}
                   >
-                    <Clock className="w-4 h-4 mr-1" />
+                    <span className="text-base mr-1">⏰</span>
                     {(order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'geliefert' || order.status?.toLowerCase() === 'completed') 
                       ? `${getDeliveryTypeText(order.delivery_type)}stermin ansehen`
                       : `${getDeliveryTypeText(order.delivery_type)}stermin bearbeiten`}
@@ -315,7 +314,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                     size="sm"
                     onClick={() => handleShowNotes(order)}
                   >
-                    <Package className="w-4 h-4 mr-1" />
+                    <span className="text-base mr-1">🧺</span>
                     Wäschenotizen anzeigen
                   </Button>
                 )}
@@ -325,7 +324,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
             {order.notes && viewSettings.showOrderNotes && (
               <div className="mt-2 p-2 bg-background rounded border-l-4 border-l-info">
                 <div className="flex items-center space-x-2 mb-1">
-                  <FileText className="w-4 h-4 text-info" />
+                  <span className="text-base">📝</span>
                   <span className="text-sm font-medium text-foreground">Notizen:</span>
                 </div>
                 <p className="text-sm text-muted-foreground ml-6">{order.notes}</p>

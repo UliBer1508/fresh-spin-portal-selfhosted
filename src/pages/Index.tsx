@@ -111,18 +111,20 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <PWAStatusBar />
-      <Header 
-        viewSettings={viewSettings}
-        onViewSettingsChange={handleViewSettingsChange}
-      />
-      <TabNavigation 
-        activeTab={activeTab} 
-        onTabChange={setActiveTab}
-      />
-      
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {renderTabContent()}
-      </main>
+      <div className="pt-12 md:pt-0">
+        <Header 
+          viewSettings={viewSettings}
+          onViewSettingsChange={handleViewSettingsChange}
+        />
+        <TabNavigation 
+          activeTab={activeTab} 
+          onTabChange={setActiveTab}
+        />
+        
+        <main className="max-w-7xl mx-auto px-6 py-8">
+          {renderTabContent()}
+        </main>
+      </div>
 
       <PWAInstallPrompt />
       <Toaster />

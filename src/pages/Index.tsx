@@ -8,6 +8,7 @@ import CalendarView from "@/components/CalendarView";
 import LaundryStaffManagement from "@/components/LaundryStaffManagement";
 import NotificationSettings from "@/components/NotificationSettings";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import PWAStatusBar from "@/components/PWAStatusBar";
 import { ViewSettings, defaultSettings } from "@/components/ViewSettingsDialog";
 import { useBookings, Booking } from "@/hooks/useBookings";
@@ -127,6 +128,7 @@ const Index = () => {
       </div>
 
       <PWAInstallPrompt />
+      <PWAUpdatePrompt />
       <Toaster />
       <Sonner />
     </div>

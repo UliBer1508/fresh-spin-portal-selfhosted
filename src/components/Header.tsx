@@ -1,3 +1,4 @@
+import React from "react";
 import { PackageCheck } from "lucide-react";
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 

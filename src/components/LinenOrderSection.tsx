@@ -263,49 +263,53 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                {viewSettings.showOrderItems && (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleShowItems(order)}
-                  >
-                    <span className="text-base mr-1">📋</span>
-                    Artikel anzeigen
-                  </Button>
-                )}
-                
-                {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleEditDelivery(order)}
-                  >
-                    <span className="text-base mr-1">⏰</span>
-                    {(order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'geliefert' || order.status?.toLowerCase() === 'completed') 
-                      ? `${getDeliveryTypeText(order.delivery_type)}stermin ansehen`
-                      : `${getDeliveryTypeText(order.delivery_type)}stermin bearbeiten`}
-                  </Button>
-                )}
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap gap-2">
+                  {viewSettings.showOrderItems && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleShowItems(order)}
+                    >
+                      <span className="text-base mr-1">📋</span>
+                      Artikel anzeigen
+                    </Button>
+                  )}
+                  
+                  {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEditDelivery(order)}
+                      >
+                        <span className="text-base mr-1">⏰</span>
+                        {(order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'geliefert' || order.status?.toLowerCase() === 'completed') 
+                          ? `${getDeliveryTypeText(order.delivery_type)}stermin ansehen`
+                          : `${getDeliveryTypeText(order.delivery_type)}stermin bearbeiten`}
+                      </Button>
 
-                {viewSettings.showOrderStatus && (
-                  <Select value={order.status || 'pending'} onValueChange={(value) => handleStatusChange(order.id, value)}>
-                    <SelectTrigger className={`w-48 ${getStatusColor(order.status)}`}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background border border-border shadow-lg z-50">
-                      <SelectItem value="pending" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                        Ausstehend
-                      </SelectItem>
-                      <SelectItem value="in_progress" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                        In Bearbeitung
-                      </SelectItem>
-                      <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                        Geliefert
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+                      {viewSettings.showOrderStatus && (
+                        <Select value={order.status || 'pending'} onValueChange={(value) => handleStatusChange(order.id, value)}>
+                          <SelectTrigger className={`w-48 ${getStatusColor(order.status)}`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background border border-border shadow-lg z-50">
+                            <SelectItem value="pending" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                              Ausstehend
+                            </SelectItem>
+                            <SelectItem value="in_progress" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                              In Bearbeitung
+                            </SelectItem>
+                            <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                              Geliefert
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 

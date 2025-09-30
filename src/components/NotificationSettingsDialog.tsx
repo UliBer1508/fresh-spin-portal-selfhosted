@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Bell, Volume2, Mail, Smartphone, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

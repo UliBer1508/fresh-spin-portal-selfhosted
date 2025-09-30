@@ -287,17 +287,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                       : `${getDeliveryTypeText(order.delivery_type)}stermin bearbeiten`}
                   </Button>
                 )}
-                
-                {viewSettings.showOrderNotes && (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleShowNotes(order)}
-                  >
-                    <span className="text-base mr-1">📝</span>
-                    Wäschenotizen anzeigen
-                  </Button>
-                )}
 
                 {viewSettings.showOrderStatus && (
                   <Select value={order.status || 'pending'} onValueChange={(value) => handleStatusChange(order.id, value)}>

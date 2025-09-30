@@ -1,5 +1,4 @@
 import React from "react";
-import { PackageCheck } from "lucide-react";
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 
 interface HeaderProps {
@@ -13,7 +12,7 @@ const Header = ({ viewSettings, onViewSettingsChange }: HeaderProps) => {
       <div className="flex items-center justify-between max-w-7xl mx-auto">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-            <PackageCheck className="w-6 h-6 text-primary-foreground" />
+            <span className="text-2xl">🧺</span>
           </div>
           <h1 className="text-xl font-semibold text-foreground">
             Teuni Wäscheportal

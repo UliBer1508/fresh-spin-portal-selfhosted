@@ -181,15 +181,15 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
   }
 
   return (
-    <div className="mt-4 space-y-3">
-      <div className="border-t border-border pt-4">
-        <div className="flex items-center space-x-2 mb-3">
+    <div className="mt-4 space-y-2">
+      <div className="border-t border-border pt-3">
+        <div className="flex items-center space-x-2 mb-2">
           <span className="text-lg">🧺</span>
           <h4 className="font-medium text-foreground">Wäschebestellung</h4>
         </div>
         
         {linenOrders.map((order) => (
-          <div key={order.id} className="bg-muted/30 rounded-lg p-4 space-y-3">
+          <div key={order.id} className="bg-accent rounded-lg p-3 space-y-2">
             {viewSettings.showOrderStatus && (
               <div className="flex items-center justify-between">
                 <Select value={order.status || 'pending'} onValueChange={(value) => handleStatusChange(order.id, value)}>
@@ -211,8 +211,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
                 {order.service_providers?.name && (
                   <div className="flex items-center space-x-2">
                     <span className="text-base">🚚</span>

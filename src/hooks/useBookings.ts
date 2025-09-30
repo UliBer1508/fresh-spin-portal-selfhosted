@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// v4 - Force rebuild to clear React instance cache
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Booking {

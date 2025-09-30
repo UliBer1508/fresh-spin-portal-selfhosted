@@ -1,4 +1,4 @@
-import React from "react";
+// v4 - Force rebuild to clear React instance cache
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";

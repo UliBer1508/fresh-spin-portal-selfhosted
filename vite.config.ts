@@ -1,3 +1,4 @@
+// v4 - Force cache clear
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";

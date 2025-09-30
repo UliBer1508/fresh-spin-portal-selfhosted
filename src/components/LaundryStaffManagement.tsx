@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Users, Star, Calendar, Mail, Phone, MapPin, Euro, Search, Filter, Edit, Trash2 } from "lucide-react";
+// v7 - Emojis statt Icons
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -210,7 +210,7 @@ const LaundryStaffManagement = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Gesamt</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <span className="text-2xl">👥</span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -220,7 +220,7 @@ const LaundryStaffManagement = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Aktiv</CardTitle>
-            <Users className="h-4 w-4 text-success" />
+            <span className="text-2xl">✅</span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">{stats.active}</div>
@@ -230,7 +230,7 @@ const LaundryStaffManagement = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Bewertung</CardTitle>
-            <Star className="h-4 w-4 text-warning" />
+            <span className="text-2xl">⭐</span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-warning">{stats.avgRating}</div>
@@ -240,7 +240,7 @@ const LaundryStaffManagement = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Aufträge</CardTitle>
-            <Calendar className="h-4 w-4 text-info" />
+            <span className="text-2xl">📅</span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-info">{stats.totalOrders}</div>
@@ -252,7 +252,8 @@ const LaundryStaffManagement = () => {
       <Card>
         <CardHeader>
           <div className="flex items-center space-x-2">
-            <Search className="h-5 w-5 text-muted-foreground" />
+            <span className="text-lg">🔍</span>
+            <span className="text-lg">🔽</span>
             <CardTitle className="text-lg">Suche & Filter</CardTitle>
             <Badge variant="secondary" className="bg-success text-success-foreground">
               {filteredStaff.filter(s => s.is_active).length} aktiv
@@ -261,12 +262,13 @@ const LaundryStaffManagement = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
+            <div className="flex-1 relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base">🔍</span>
               <Input
                 placeholder="Suche nach Name, E-Mail oder Adresse..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full"
+                className="w-full pl-10"
               />
             </div>
             <Select value={statusFilter} onValueChange={(value: "all" | "active" | "inactive") => setStatusFilter(value)}>
@@ -345,7 +347,7 @@ const LaundryStaffManagement = () => {
                     </Badge>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Star className="h-4 w-4 text-warning fill-warning" />
+                    <span className="text-base">⭐</span>
                     <span className="text-sm font-medium">{person.quality_rating.toFixed(1)}</span>
                   </div>
                 </div>
@@ -353,28 +355,28 @@ const LaundryStaffManagement = () => {
               <CardContent className="space-y-3">
                 {person.email && (
                   <div className="flex items-center space-x-2 text-sm">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-base">📧</span>
                     <span className="text-muted-foreground">{person.email}</span>
                   </div>
                 )}
                 
                 {person.phone && (
                   <div className="flex items-center space-x-2 text-sm">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-base">📞</span>
                     <span className="text-muted-foreground">{person.phone}</span>
                   </div>
                 )}
 
                 {person.address && (
                   <div className="flex items-center space-x-2 text-sm">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-base">📍</span>
                     <span className="text-muted-foreground">{person.address}</span>
                   </div>
                 )}
 
                 {person.hourly_rate && (
                   <div className="flex items-center space-x-2 text-sm">
-                    <Euro className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-base">💰</span>
                     <span className="text-muted-foreground">{person.hourly_rate.toFixed(2)} €/Std</span>
                   </div>
                 )}
@@ -416,7 +418,7 @@ const LaundryStaffManagement = () => {
                 {/* Action Buttons */}
                 <div className="flex justify-between pt-3 border-t space-x-2">
                   <Button variant="outline" size="sm" className="flex-1">
-                    <Edit className="h-4 w-4 mr-1" />
+                    <span className="text-base mr-1">✏️</span>
                     Bearbeiten
                   </Button>
                   <Button 
@@ -425,7 +427,7 @@ const LaundryStaffManagement = () => {
                     onClick={() => handleDeleteStaff(person.id)}
                     className="text-destructive hover:text-destructive"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <span className="text-base">🗑️</span>
                   </Button>
                 </div>
               </CardContent>

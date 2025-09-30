@@ -304,6 +304,9 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                             <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
                               ✅ Geliefert
                             </SelectItem>
+                            <SelectItem value="completed" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                              ✔️ Abgeschlossen
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       )}

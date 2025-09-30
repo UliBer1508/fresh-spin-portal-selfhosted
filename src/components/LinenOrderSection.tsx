@@ -290,7 +290,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                     size="sm"
                     onClick={() => handleShowItems(order)}
                   >
-                    <span className="text-base mr-1">📄</span>
+                    <span className="text-base mr-1">📋</span>
                     Artikel anzeigen
                   </Button>
                 )}
@@ -314,7 +314,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                     size="sm"
                     onClick={() => handleShowNotes(order)}
                   >
-                    <span className="text-base mr-1">🧺</span>
+                    <span className="text-base mr-1">📝</span>
                     Wäschenotizen anzeigen
                   </Button>
                 )}

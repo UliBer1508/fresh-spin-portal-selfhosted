@@ -229,29 +229,27 @@ const ViewSettingsDialog = ({ settings, onSettingsChange }: ViewSettingsDialogPr
         </div>
       </div>
 
-      {/* Mobile Einstellungen - ganz unten */}
-      {isMobile && (
-        <div className="space-y-2">
-          <h3 className="font-medium text-base">Mobile Einstellungen</h3>
-          <div className="bg-muted/30 rounded-lg p-4">
-            <div className="flex items-center justify-between py-3">
-              <div className="flex-1">
-                <Label className="text-sm font-medium">Einstellungsbutton auf Handy anzeigen</Label>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Zeige den "Ansicht anpassen" Button auf Mobilgeräten
-                </p>
-              </div>
-              <Switch
-                checked={showButtonOnMobile}
-                onCheckedChange={(checked) => {
-                  setShowButtonOnMobile(checked);
-                  localStorage.setItem('showViewSettingsButtonOnMobile', String(checked));
-                }}
-              />
+      {/* Mobile Einstellungen - immer sichtbar */}
+      <div className="space-y-2">
+        <h3 className="font-medium text-base">Mobile Einstellungen</h3>
+        <div className="bg-muted/30 rounded-lg p-4">
+          <div className="flex items-center justify-between py-3">
+            <div className="flex-1">
+              <Label className="text-sm font-medium">Einstellungsbutton auf Handy anzeigen</Label>
+              <p className="text-xs text-muted-foreground mt-1">
+                Zeige den "Ansicht anpassen" Button auf Mobilgeräten
+              </p>
             </div>
+            <Switch
+              checked={showButtonOnMobile}
+              onCheckedChange={(checked) => {
+                setShowButtonOnMobile(checked);
+                localStorage.setItem('showViewSettingsButtonOnMobile', String(checked));
+              }}
+            />
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 

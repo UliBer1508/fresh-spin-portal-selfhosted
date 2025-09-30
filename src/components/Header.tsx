@@ -1,5 +1,6 @@
 import React from "react";
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
+import { APP_VERSION } from "@/lib/version";
 
 interface HeaderProps {
   viewSettings?: ViewSettings;
@@ -14,9 +15,12 @@ const Header = ({ viewSettings, onViewSettingsChange }: HeaderProps) => {
           <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
             <span className="text-2xl">🧺</span>
           </div>
-          <h1 className="text-xl font-semibold text-foreground">
-            Teuni Wäscheportal
-          </h1>
+          <div>
+            <h1 className="text-xl font-semibold text-foreground">
+              Teuni Wäscheportal
+            </h1>
+            <p className="text-xs text-muted-foreground">v{APP_VERSION}</p>
+          </div>
         </div>
         
         <div className="flex items-center space-x-3">

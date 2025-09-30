@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Search, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking } from "@/hooks/useBookings";
 import { supabase } from "@/integrations/supabase/client";
+// v6 - Emoji-basiertes UI wie im Referenzbild
 
 interface LaundryStaff {
   id: string;
@@ -152,73 +150,87 @@ const SearchAndFilter = ({
   ].filter(Boolean).length;
 
   return (
-    <div className="space-y-4">
-      {/* Toggle Button */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="outline"
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="gap-2"
-        >
-          <Search className="w-4 h-4" />
-          <Filter className="w-4 h-4" />
-          Suche & Filter
-          {activeFiltersCount > 0 && (
-            <Badge variant="secondary" className="ml-2">
-              {activeFiltersCount}
-            </Badge>
-          )}
-          {isFilterOpen ? (
-            <ChevronUp className="w-4 h-4 ml-1" />
-          ) : (
-            <ChevronDown className="w-4 h-4 ml-1" />
-          )}
-        </Button>
-        
-        <Badge variant="secondary" className="text-primary bg-accent font-medium">
-          {filteredBookings.length} von {bookings.length} Wäsche-Aufträgen
-        </Badge>
+    <div className="bg-card rounded-lg border border-border p-4 space-y-4">
+      {/* Header mit Toggle */}
+      <div 
+        className="flex items-center justify-between cursor-pointer"
+        onClick={() => setIsFilterOpen(!isFilterOpen)}
+      >
+        <div className="flex items-center space-x-2">
+          <span className="text-lg">🔍</span>
+          <span className="text-lg">🔽</span>
+          <h3 className="font-semibold text-foreground">Such & Filter</h3>
+        </div>
+        <span className="text-2xl transition-transform duration-200" style={{ transform: isFilterOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+          ⌃
+        </span>
       </div>
 
       {/* Expandable Filter Section */}
       {isFilterOpen && (
-        <div className="space-y-4 animate-in slide-in-from-top-2 duration-200">
-          {/* Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary w-5 h-5" />
-            <Input
-              placeholder="Suche nach Gast, Haus oder Bestellnummer..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-12 text-base border-border focus:ring-primary focus:border-primary"
-            />
+        <div className="space-y-4 animate-in slide-in-from-top-2 duration-200 border-t border-border pt-4">
+          {/* Suche */}
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <span className="text-base">🔍</span>
+              <span className="font-medium text-foreground">Suche</span>
+            </div>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base">🔍</span>
+              <Input
+                placeholder="Nach Gast, Haus oder Adresse suchen..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-11 text-base border-border focus:ring-primary focus:border-primary"
+              />
+            </div>
           </div>
 
-          {/* Filters */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 flex-wrap gap-2">
-              <div className="flex items-center space-x-2">
-                <Filter className="w-4 h-4 text-primary" />
-                <span className="font-medium text-foreground">Filter</span>
-              </div>
-              
+          {/* Filter */}
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <span className="text-base">🔻</span>
+              <span className="font-medium text-foreground">Filter</span>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Alle Status" />
+                <SelectTrigger className="w-full h-11">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-base">📅</span>
+                    <SelectValue placeholder="Geplant" />
+                  </div>
                 </SelectTrigger>
-                <SelectContent className="bg-background border border-border shadow-md z-50">
-                  <SelectItem value="all">Alle Status</SelectItem>
-                  <SelectItem value="pending">Ausstehend</SelectItem>
+                <SelectContent className="bg-background border border-border shadow-md z-[100]">
+                  <SelectItem value="pending">Geplant</SelectItem>
                   <SelectItem value="in-progress">In Bearbeitung</SelectItem>
                   <SelectItem value="completed">Abgeschlossen</SelectItem>
+                  <SelectItem value="all">Alle Status</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={staffFilter} onValueChange={setStaffFilter}>
+                <SelectTrigger className="w-full h-11">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-base">👥</span>
+                    <SelectValue placeholder="Alle Putzkräfte" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border shadow-lg z-[100] max-h-60">
+                  <SelectItem value="all">Alle Putzkräfte</SelectItem>
+                  {laundryStaff.map((staff) => (
+                    <SelectItem key={staff.id} value={staff.id}>
+                      {staff.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
               <Select value={houseFilter} onValueChange={setHouseFilter}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full h-11">
                   <SelectValue placeholder="Alle Häuser" />
                 </SelectTrigger>
-                <SelectContent className="bg-background border border-border shadow-md z-50">
+                <SelectContent className="bg-background border border-border shadow-md z-[100]">
                   <SelectItem value="all">Alle Häuser</SelectItem>
                   {uniqueHouses.map(house => (
                     <SelectItem key={house} value={house?.toLowerCase().replace(/\s+/g, '-') || ''}>
@@ -229,39 +241,25 @@ const SearchAndFilter = ({
               </Select>
 
               <Select value={timeFilter} onValueChange={setTimeFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Alle Zeiten" />
+                <SelectTrigger className="w-full h-11">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-base">🕐</span>
+                    <SelectValue placeholder="Alle Zeiten" />
+                  </div>
                 </SelectTrigger>
-                <SelectContent className="bg-background border border-border shadow-md z-50">
+                <SelectContent className="bg-background border border-border shadow-md z-[100]">
                   <SelectItem value="all">Alle Zeiten</SelectItem>
                   <SelectItem value="today">Heute</SelectItem>
                   <SelectItem value="week">Diese Woche</SelectItem>
                   <SelectItem value="month">Dieser Monat</SelectItem>
                 </SelectContent>
               </Select>
-
-              <Select value={staffFilter} onValueChange={setStaffFilter}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Alle Wäschekräfte" />
-                </SelectTrigger>
-                <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
-                  <SelectItem value="all">Alle Wäschekräfte</SelectItem>
-                  {laundryStaff.map((staff) => (
-                    <SelectItem key={staff.id} value={staff.id}>
-                      <div className="flex items-center justify-between w-full">
-                        <span>{staff.name}</span>
-                        <Badge 
-                          className={`ml-2 ${staff.is_active ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}
-                          variant="outline"
-                        >
-                          {staff.is_active ? "Aktiv" : "Inaktiv"}
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
+          </div>
+
+          {/* Zähler */}
+          <div className="text-center text-sm text-muted-foreground pt-2">
+            {filteredBookings.length} von {bookings.length} Aufträgen
           </div>
         </div>
       )}

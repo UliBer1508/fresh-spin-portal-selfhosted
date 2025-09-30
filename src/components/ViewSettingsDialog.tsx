@@ -8,13 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -234,57 +227,28 @@ const ViewSettingsDialog = ({ settings, onSettingsChange }: ViewSettingsDialogPr
     </div>
   );
 
-  // Mobile: Hidden, only shows as Dialog when button is clicked
-  // Desktop: Always visible as Sheet (drawer)
-  if (isMobile) {
-    return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline" size="sm" className="gap-2">
-            <span className="text-base">⚙️</span>
-            <span className="hidden sm:inline">Ansicht anpassen</span>
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <span className="text-lg">⚙️</span>
-              Anzeigeeinstellungen anpassen
-            </DialogTitle>
-            <p className="text-sm text-muted-foreground">
-              Wählen Sie aus, welche Informationen in den Wäschebestellungen angezeigt werden sollen
-            </p>
-          </DialogHeader>
-          <SettingsContent />
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  // Desktop: Sheet (side panel)
+  // Always use Dialog for both mobile and desktop
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <span className="text-base">⚙️</span>
-          Ansicht anpassen
+          <span className="hidden sm:inline">Ansicht anpassen</span>
         </Button>
-      </SheetTrigger>
-      <SheetContent side="right" className="w-[500px] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
             <span className="text-lg">⚙️</span>
             Anzeigeeinstellungen anpassen
-          </SheetTitle>
+          </DialogTitle>
           <p className="text-sm text-muted-foreground">
             Wählen Sie aus, welche Informationen in den Wäschebestellungen angezeigt werden sollen
           </p>
-        </SheetHeader>
-        <div className="mt-6">
-          <SettingsContent />
-        </div>
-      </SheetContent>
-    </Sheet>
+        </DialogHeader>
+        <SettingsContent />
+      </DialogContent>
+    </Dialog>
   );
 };
 

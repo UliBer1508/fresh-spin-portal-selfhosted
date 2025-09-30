@@ -190,27 +190,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
         
         {linenOrders.map((order) => (
           <div key={order.id} className="bg-accent rounded-lg p-3 space-y-2">
-            {viewSettings.showOrderStatus && (
-              <div className="flex items-center justify-between">
-                <Select value={order.status || 'pending'} onValueChange={(value) => handleStatusChange(order.id, value)}>
-                  <SelectTrigger className={`w-48 ${getStatusColor(order.status)}`}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border border-border shadow-lg z-50">
-                    <SelectItem value="pending" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                      Ausstehend
-                    </SelectItem>
-                    <SelectItem value="in_progress" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                      In Bearbeitung
-                    </SelectItem>
-                    <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                      Geliefert
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 {order.service_providers?.name && (
@@ -318,6 +297,25 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                     <span className="text-base mr-1">📝</span>
                     Wäschenotizen anzeigen
                   </Button>
+                )}
+
+                {viewSettings.showOrderStatus && (
+                  <Select value={order.status || 'pending'} onValueChange={(value) => handleStatusChange(order.id, value)}>
+                    <SelectTrigger className={`w-48 ${getStatusColor(order.status)}`}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border border-border shadow-lg z-50">
+                      <SelectItem value="pending" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                        Ausstehend
+                      </SelectItem>
+                      <SelectItem value="in_progress" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                        In Bearbeitung
+                      </SelectItem>
+                      <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                        Geliefert
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 )}
               </div>
             </div>

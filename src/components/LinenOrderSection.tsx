@@ -120,13 +120,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
       case "delivered":
       case "geliefert":
       case "completed":
-        return "border-success text-success bg-success/10";
+        return "border-success text-success-foreground bg-success";
       case "in_progress":
       case "assigned":
-        return "border-warning text-warning bg-warning/10";
+        return "border-warning text-warning-foreground bg-warning";
       case "pending":
       default:
-        return "border-muted-foreground text-muted-foreground bg-muted/50";
+        return "border-border text-foreground bg-secondary";
     }
   };
 
@@ -135,14 +135,14 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
       case "delivered":
       case "geliefert":
       case "completed":
-        return "Geliefert";
+        return "✅ Geliefert";
       case "in_progress":
       case "assigned":
-        return "In Bearbeitung";
+        return "🔄 In Bearbeitung";
       case "pending":
-        return "Ausstehend";
+        return "⏳ Ausstehend";
       default:
-        return status || "Unbekannt";
+        return status || "❓ Unbekannt";
     }
   };
 
@@ -291,18 +291,18 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
 
                       {viewSettings.showOrderStatus && (
                         <Select value={order.status || 'pending'} onValueChange={(value) => handleStatusChange(order.id, value)}>
-                          <SelectTrigger className={`w-48 ${getStatusColor(order.status)}`}>
+                          <SelectTrigger className={`w-52 ${getStatusColor(order.status)}`}>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-background border border-border shadow-lg z-50">
                             <SelectItem value="pending" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                              Ausstehend
+                              ⏳ Ausstehend
                             </SelectItem>
                             <SelectItem value="in_progress" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                              In Bearbeitung
+                              🔄 In Bearbeitung
                             </SelectItem>
                             <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                              Geliefert
+                              ✅ Geliefert
                             </SelectItem>
                           </SelectContent>
                         </Select>

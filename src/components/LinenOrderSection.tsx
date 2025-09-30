@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 // v3 - Emojis statt Lucide Icons
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +29,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
   const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
+  const [editingNoteOrderId, setEditingNoteOrderId] = useState<string | null>(null);
+  const [editedNote, setEditedNote] = useState("");
 
   // Fetch laundry staff for assignment dropdown
   useEffect(() => {
@@ -113,6 +116,34 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
   const handleShowNotes = (order: LinenOrder) => {
     setSelectedOrder(order);
     setNotesDialogOpen(true);
+  };
+
+  const handleEditNote = (order: LinenOrder) => {
+    setEditingNoteOrderId(order.id);
+    setEditedNote(order.notes || "");
+  };
+
+  const handleSaveNote = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('linen_orders')
+        .update({ notes: editedNote })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      toast.success('Notiz erfolgreich gespeichert');
+      setEditingNoteOrderId(null);
+      onUpdate?.();
+    } catch (error) {
+      console.error('Error saving note:', error);
+      toast.error('Fehler beim Speichern der Notiz');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingNoteOrderId(null);
+    setEditedNote("");
   };
 
   const getStatusColor = (status?: string) => {
@@ -316,7 +347,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
               </div>
             </div>
 
-            {order.notes && viewSettings.showOrderNotes && (
+            {order.notes && viewSettings.showOrderNotes && !editingNoteOrderId && (
               <div className="mt-2 p-2 bg-background rounded border-l-4 border-l-info">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center space-x-2">
@@ -326,13 +357,44 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleShowNotes(order)}
+                    onClick={() => handleEditNote(order)}
                     className="h-auto py-1 px-2"
                   >
                     <span className="text-base">✏️</span>
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground ml-6">{order.notes}</p>
+              </div>
+            )}
+
+            {editingNoteOrderId === order.id && (
+              <div className="mt-2 p-3 bg-background rounded border-l-4 border-l-info">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-base">📝</span>
+                  <span className="text-sm font-medium text-foreground">Notizen bearbeiten:</span>
+                </div>
+                <Textarea
+                  value={editedNote}
+                  onChange={(e) => setEditedNote(e.target.value)}
+                  placeholder="Besondere Anweisungen oder Notizen..."
+                  rows={3}
+                  className="ml-6 mb-2"
+                />
+                <div className="flex justify-end space-x-2 ml-6">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCancelEdit}
+                  >
+                    Abbrechen
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => handleSaveNote(order.id)}
+                  >
+                    Speichern
+                  </Button>
+                </div>
               </div>
             )}
           </div>

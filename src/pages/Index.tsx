@@ -1,4 +1,3 @@
-// v4 - Force rebuild to clear React instance cache
 import { useState } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";

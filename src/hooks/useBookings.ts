@@ -1,4 +1,3 @@
-// v4 - Force rebuild to clear React instance cache
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -46,7 +45,6 @@ export const useBookings = () => {
   useEffect(() => {
     fetchBookings();
     
-    // Real-time subscription für automatische Updates
     const channel = supabase
       .channel('bookings-changes')
       .on(
@@ -84,7 +82,6 @@ export const useBookings = () => {
     try {
       if (showLoading) setLoading(true);
       
-      // Fetch nur Buchungen die Wäschebestellungen haben
       const { data: bookingsData, error: bookingsError } = await supabase
         .from('bookings')
         .select(`
@@ -116,7 +113,6 @@ export const useBookings = () => {
 
       if (bookingsError) throw bookingsError;
 
-      // Filtere nur Buchungen die tatsächlich Wäschebestellungen haben
       const bookingsWithLinenOrders = bookingsData?.filter(booking => 
         booking.linen_orders && booking.linen_orders.length > 0
       ) || [];

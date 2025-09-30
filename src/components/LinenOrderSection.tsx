@@ -322,9 +322,19 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
 
             {order.notes && viewSettings.showOrderNotes && (
               <div className="mt-2 p-2 bg-background rounded border-l-4 border-l-info">
-                <div className="flex items-center space-x-2 mb-1">
-                  <span className="text-base">📝</span>
-                  <span className="text-sm font-medium text-foreground">Notizen:</span>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-base">📝</span>
+                    <span className="text-sm font-medium text-foreground">Notizen:</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleShowNotes(order)}
+                    className="h-auto py-1 px-2"
+                  >
+                    <span className="text-base">✏️</span>
+                  </Button>
                 </div>
                 <p className="text-sm text-muted-foreground ml-6">{order.notes}</p>
               </div>

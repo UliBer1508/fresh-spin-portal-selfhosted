@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import LinenOrderSection from "./LinenOrderSection";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking } from "@/hooks/useBookings";
+// v3 - Emojis vollständig implementiert
 
 interface BookingCardProps {
   booking: Booking;

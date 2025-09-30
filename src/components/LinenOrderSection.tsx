@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
+// v3 - Emojis statt Lucide Icons
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ViewSettings } from "@/components/ViewSettingsDialog";

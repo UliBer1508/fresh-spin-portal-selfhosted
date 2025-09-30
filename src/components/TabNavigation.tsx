@@ -1,4 +1,3 @@
-import { Package, Calendar, Users, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TabNavigationProps {
@@ -8,10 +7,10 @@ interface TabNavigationProps {
 
 const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
   const tabs = [
-    { id: "waesche", label: "Wäsche (4)", icon: Package },
-    { id: "kalender", label: "Kalender", icon: Calendar },
-    { id: "waeschekraefte", label: "Wäschekräfte", icon: Users },
-    { id: "benachrichtigungen", label: "Benachrichtigungen", icon: Bell },
+    { id: "waesche", label: "Wäsche (4)", emoji: "🧺" },
+    { id: "kalender", label: "Kalender", emoji: "📅" },
+    { id: "waeschekraefte", label: "Wäschekräfte", emoji: "👥" },
+    { id: "benachrichtigungen", label: "Benachrichtigungen", emoji: "🔔" },
   ];
 
   return (
@@ -21,7 +20,6 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
         <div className="hidden md:flex items-center justify-between h-12">
           <div className="flex space-x-8">
             {tabs.map((tab) => {
-              const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
@@ -33,7 +31,7 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
                       : "text-muted-foreground border-transparent hover:text-foreground"
                   )}
                 >
-                  <Icon className="w-4 h-4 mr-2" />
+                  <span className="text-lg mr-2">{tab.emoji}</span>
                   {tab.label}
                 </button>
               );
@@ -45,7 +43,6 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
         <div className="md:hidden py-2">
           <div className="grid w-full grid-cols-2 gap-2">
             {tabs.map((tab) => {
-              const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
@@ -57,7 +54,7 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   )}
                 >
-                  <Icon className="w-4 h-4 mr-1" />
+                  <span className="text-sm mr-1">{tab.emoji}</span>
                   {tab.label}
                 </button>
               );

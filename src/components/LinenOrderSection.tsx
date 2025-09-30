@@ -285,8 +285,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                       >
                         <span className="text-base mr-1">⏰</span>
                         {(order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'geliefert' || order.status?.toLowerCase() === 'completed') 
-                          ? `${getDeliveryTypeText(order.delivery_type)}stermin ansehen`
-                          : `${getDeliveryTypeText(order.delivery_type)}stermin bearbeiten`}
+                          ? 'Liefertermin ansehen'
+                          : 'Liefertermin bearbeiten'}
                       </Button>
 
                       {viewSettings.showOrderStatus && (

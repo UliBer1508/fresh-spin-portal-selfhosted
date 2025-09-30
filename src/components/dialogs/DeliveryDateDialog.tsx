@@ -73,7 +73,9 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Liefertermin bearbeiten</DialogTitle>
+          <DialogTitle>
+            {isDelivered ? 'Liefertermin ansehen' : 'Liefertermin bearbeiten'}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           {isDelivered && (
@@ -85,6 +87,24 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
             </Alert>
           )}
           
+          {/* Aktueller Liefertermin Anzeige */}
+          {order.delivery_date && (
+            <div className="p-3 bg-accent rounded-lg border border-border">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="text-base">📅</span>
+                <span className="text-sm font-medium text-foreground">Aktueller Liefertermin:</span>
+              </div>
+              <div className="ml-6 space-y-1">
+                <p className="text-sm text-foreground">
+                  <span className="font-medium">Datum:</span> {new Date(order.delivery_date).toLocaleDateString('de-DE')}
+                </p>
+                <p className="text-sm text-foreground">
+                  <span className="font-medium">Zeit:</span> {order.delivery_time || '09:00'} Uhr
+                </p>
+              </div>
+            </div>
+          )}
+          
           <div className="space-y-2">
             <Label htmlFor="delivery-date">Lieferdatum</Label>
             <Input
@@ -93,6 +113,7 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
               value={deliveryDate}
               onChange={(e) => setDeliveryDate(e.target.value)}
               disabled={isDelivered}
+              placeholder="Wähle ein Datum"
             />
           </div>
           <div className="space-y-2">
@@ -103,6 +124,7 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
               value={deliveryTime}
               onChange={(e) => setDeliveryTime(e.target.value)}
               disabled={isDelivered}
+              placeholder="09:00"
             />
           </div>
         </div>

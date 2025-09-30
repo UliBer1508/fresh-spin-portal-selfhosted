@@ -1,3 +1,4 @@
+// v5 - Clear all caches
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 

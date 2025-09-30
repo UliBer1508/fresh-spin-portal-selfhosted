@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
+// Force rebuild - ensure single React instance
 const queryClient = new QueryClient();
 
 const App = () => (

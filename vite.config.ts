@@ -1,3 +1,4 @@
+// v6.1 - Force dependency rebuild
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -18,6 +19,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
+    force: true,
     include: ["react", "react-dom"],
   },
   build: {

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// v6 - Fix React imports consistency
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";

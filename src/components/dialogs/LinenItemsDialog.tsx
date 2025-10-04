@@ -1,4 +1,4 @@
-import React from "react";
+// v6 - Fix React imports consistency
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { LinenOrder } from "@/hooks/useBookings";

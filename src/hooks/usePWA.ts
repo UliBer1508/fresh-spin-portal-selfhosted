@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// v6 - Fix React imports consistency
+import { useState, useEffect } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];

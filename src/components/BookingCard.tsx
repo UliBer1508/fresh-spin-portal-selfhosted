@@ -1,4 +1,4 @@
-import React from "react";
+// v6 - Fix React imports consistency
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import LinenOrderSection from "./LinenOrderSection";

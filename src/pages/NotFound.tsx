@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+// v6 - Fix React imports consistency
+import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 const NotFound = () => {

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// v6 - Fix React imports consistency
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 // v3 - Emojis statt Lucide Icons
 import { Button } from "@/components/ui/button";

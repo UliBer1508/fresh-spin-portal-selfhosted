@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+// v6 - Fix React imports consistency
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { usePWA } from '@/hooks/usePWA';

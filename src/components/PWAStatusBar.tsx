@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// v6 - Fix React imports consistency
+import { useState, useEffect } from 'react';
 import { Wifi, WifiOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { usePWA } from '@/hooks/usePWA';

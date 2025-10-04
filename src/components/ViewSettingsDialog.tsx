@@ -55,7 +55,10 @@ const defaultSettings: ViewSettings = {
 const ViewSettingsDialog = ({ settings, onSettingsChange }: ViewSettingsDialogProps) => {
   const [localSettings, setLocalSettings] = useState<ViewSettings>(settings);
   const [open, setOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean | undefined>(() => {
+    if (typeof window === 'undefined') return undefined;
+    return window.innerWidth < 768;
+  });
   const [showButtonOnMobile, setShowButtonOnMobile] = useState(() => {
     const saved = localStorage.getItem('showViewSettingsButtonOnMobile');
     return saved === null ? true : saved === 'true';
@@ -101,6 +104,18 @@ const ViewSettingsDialog = ({ settings, onSettingsChange }: ViewSettingsDialogPr
   useEffect(() => {
     setLocalSettings(settings);
   }, [settings]);
+
+  // Sync localStorage changes across tabs
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'showViewSettingsButtonOnMobile') {
+        setShowButtonOnMobile(e.newValue === 'true');
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const SettingRow = ({ 
     label, 
@@ -255,6 +270,11 @@ const ViewSettingsDialog = ({ settings, onSettingsChange }: ViewSettingsDialogPr
     </div>
   );
 
+  // Don't render anything until we know if we're on mobile
+  if (isMobile === undefined) {
+    return null;
+  }
+  
   // Hide button on mobile if setting is disabled
   if (isMobile && !showButtonOnMobile) {
     return null;

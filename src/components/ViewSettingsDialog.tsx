@@ -55,10 +55,8 @@ const defaultSettings: ViewSettings = {
 const ViewSettingsDialog = ({ settings, onSettingsChange }: ViewSettingsDialogProps) => {
   const [localSettings, setLocalSettings] = useState<ViewSettings>(settings);
   const [open, setOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState<boolean | undefined>(() => {
-    if (typeof window === 'undefined') return undefined;
-    return window.innerWidth < 768;
-  });
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [showButtonOnMobile, setShowButtonOnMobile] = useState(() => {
     const saved = localStorage.getItem('showViewSettingsButtonOnMobile');
     return saved === null ? true : saved === 'true';
@@ -68,6 +66,7 @@ const ViewSettingsDialog = ({ settings, onSettingsChange }: ViewSettingsDialogPr
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
+      setIsInitialized(true);
     };
     
     checkMobile();
@@ -270,8 +269,8 @@ const ViewSettingsDialog = ({ settings, onSettingsChange }: ViewSettingsDialogPr
     </div>
   );
 
-  // Don't render anything until we know if we're on mobile
-  if (isMobile === undefined) {
+  // Don't render anything until we've checked the screen size
+  if (!isInitialized) {
     return null;
   }
   

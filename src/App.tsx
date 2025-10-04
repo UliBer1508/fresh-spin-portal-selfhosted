@@ -1,4 +1,4 @@
-// v6 - Fix React imports consistency
+// v6.1 - Force complete cache clear
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";

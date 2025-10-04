@@ -1,4 +1,4 @@
-import React from "react";
+// v6 - Fix React imports consistency
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { APP_VERSION } from "@/lib/version";
 

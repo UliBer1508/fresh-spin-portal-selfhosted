@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// v6 - Fix React imports consistency
+import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

@@ -1,6 +1,6 @@
-// v5 - Clear all caches
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+// v6 - Fix React imports consistency
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Booking {
   id: string;

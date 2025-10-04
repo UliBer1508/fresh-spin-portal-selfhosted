@@ -1,4 +1,4 @@
-// v5 - Clear all caches
+// v6 - Fix React imports consistency
 import { useState } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";

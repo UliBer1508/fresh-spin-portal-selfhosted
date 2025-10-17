@@ -195,7 +195,9 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
       sink_towels: "Handtücher",
       large_towels: "Große Handtücher",
       sauna_towels: "Saunahandtücher",
-      small_towels: "Kleine Handtücher"
+      small_towels: "Kleine Handtücher",
+      pillow_cases: "Kissenbezüge",
+      kitchen_towels: "Küchenhandtücher"
     };
     return labels[key] || key;
   };

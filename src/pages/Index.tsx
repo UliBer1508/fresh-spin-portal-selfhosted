@@ -1,5 +1,5 @@
-// v6 - Fix React imports consistency
-import { useState } from "react";
+// v7.0.1 - React import stability
+import React from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";
@@ -16,12 +16,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("waesche");
+  const [activeTab, setActiveTab] = React.useState("waesche");
   const { bookings, loading, error } = useBookings();
-  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
+  const [filteredBookings, setFilteredBookings] = React.useState<Booking[]>([]);
   
   // ViewSettings State mit localStorage
-  const [viewSettings, setViewSettings] = useState<ViewSettings>(() => {
+  const [viewSettings, setViewSettings] = React.useState<ViewSettings>(() => {
     try {
       const saved = localStorage.getItem('viewSettings');
       if (saved) {

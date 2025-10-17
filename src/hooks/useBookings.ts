@@ -1,5 +1,5 @@
-// v7.0 - Stable React hooks
-import { useState, useEffect } from "react";
+// v7.0.1 - React import fix
+import React from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Booking {
@@ -39,11 +39,11 @@ export interface LinenOrder {
 }
 
 export const useBookings = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [bookings, setBookings] = React.useState<Booking[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetchBookings();
     
     const channel = supabase

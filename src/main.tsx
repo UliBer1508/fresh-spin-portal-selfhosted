@@ -1,11 +1,14 @@
-// v7.0 - Complete cache clear for React hooks issue
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+// v7.0.1 - Force complete rebuild
+import React from "react";
+import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+const rootElement = document.getElementById("root");
+if (!rootElement) throw new Error("Failed to find root element");
+
+ReactDOM.createRoot(rootElement).render(
+  <React.StrictMode>
     <App />
-  </StrictMode>
+  </React.StrictMode>
 );

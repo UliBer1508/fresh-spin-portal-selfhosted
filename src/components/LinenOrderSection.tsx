@@ -5,13 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { LinenOrder } from "@/hooks/useBookings";
-import LinenItemsDialog from "@/components/dialogs/LinenItemsDialog";
 import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
-import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
 
 interface LaundryStaff {
   id: string;
@@ -26,9 +25,7 @@ interface LinenOrderSectionProps {
 
 const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSectionProps) => {
   const [selectedOrder, setSelectedOrder] = useState<LinenOrder | null>(null);
-  const [itemsDialogOpen, setItemsDialogOpen] = useState(false);
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
-  const [notesDialogOpen, setNotesDialogOpen] = useState(false);
   const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
   const [editingNoteOrderId, setEditingNoteOrderId] = useState<string | null>(null);
   const [editedNote, setEditedNote] = useState("");
@@ -104,19 +101,9 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
     }
   };
 
-  const handleShowItems = (order: LinenOrder) => {
-    setSelectedOrder(order);
-    setItemsDialogOpen(true);
-  };
-
   const handleEditDelivery = (order: LinenOrder) => {
     setSelectedOrder(order);
     setDeliveryDialogOpen(true);
-  };
-
-  const handleShowNotes = (order: LinenOrder) => {
-    setSelectedOrder(order);
-    setNotesDialogOpen(true);
   };
 
   const handleEditNote = (order: LinenOrder) => {
@@ -201,6 +188,22 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
     }
   };
 
+  const getItemLabel = (key: string): string => {
+    const labels: Record<string, string> = {
+      bedding: "Bettwäsche",
+      bath_mats: "Badematten", 
+      sink_towels: "Handtücher",
+      large_towels: "Große Handtücher",
+      sauna_towels: "Saunahandtücher",
+      small_towels: "Kleine Handtücher"
+    };
+    return labels[key] || key;
+  };
+
+  const getTotalItems = (items: Record<string, number>): number => {
+    return Object.values(items).reduce((sum, qty) => sum + qty, 0);
+  };
+
   if (!linenOrders || linenOrders.length === 0) {
     return (
       <div className="mt-4 p-4 bg-muted/30 rounded-lg border-l-4 border-l-warning">
@@ -221,60 +224,152 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
         </div>
         
         {linenOrders.map((order) => (
-          <div key={order.id} className="bg-accent rounded-lg p-3 space-y-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
+          <div key={order.id} className="bg-accent rounded-lg p-3 sm:p-4 mb-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              
+              {/* ========== LINKE SPALTE - Metadaten & Aktionen ========== */}
+              <div className="space-y-4">
+                
+                {/* Provider */}
                 {order.service_providers?.name && (
-                  <div className="flex items-center space-x-2">
-                    <span className="text-base">🚚</span>
-                    <span className="text-sm text-foreground">
-                      Provider: <span className="font-medium">{order.service_providers.name}</span>
-                    </span>
-                  </div>
-                )}
-
-                {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
-                  <div className="flex items-center space-x-2">
-                    <span className="text-base">📅</span>
-                    <span className="text-sm text-foreground">
-                      {viewSettings.showDeliveryType ? `${getDeliveryTypeText(order.delivery_type)}: ` : ''}
-                      {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) ? 
-                        formatDateTime(
-                          viewSettings.showDeliveryDate ? order.delivery_date : undefined,
-                          viewSettings.showDeliveryTime ? order.delivery_time : undefined
-                        ) : ''
-                      }
-                    </span>
-                  </div>
-                )}
-
-                {/* Staff Assignment */}
-                {viewSettings.showAssignedStaff && (
-                  <>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-base">👤</span>
-                      <span className="text-sm text-foreground">Zugewiesen:</span>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-lg flex-shrink-0">🚚</span>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm text-muted-foreground block mb-0.5">
+                        Provider:
+                      </span>
+                      <span className="text-sm font-medium text-foreground block truncate">
+                        {order.service_providers.name}
+                      </span>
                     </div>
-                    <div className="ml-6">
+                  </div>
+                )}
+
+                {/* Lieferung mit Bearbeiten-Button */}
+                {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg">📅</span>
+                      <span className="text-sm font-semibold text-foreground">Lieferung</span>
+                    </div>
+                    
+                    <div className="ml-8 space-y-2">
+                      {/* Liefertyp als Badge */}
+                      {viewSettings.showDeliveryType && (
+                        <Badge variant="outline" className="font-medium">
+                          {getDeliveryTypeText(order.delivery_type)}
+                        </Badge>
+                      )}
+                      
+                      {/* Datum und Zeit */}
+                      {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
+                        <div className="text-sm text-muted-foreground">
+                          {formatDateTime(
+                            viewSettings.showDeliveryDate ? order.delivery_date : undefined,
+                            viewSettings.showDeliveryTime ? order.delivery_time : undefined
+                          )}
+                        </div>
+                      )}
+                      
+                      {/* Bearbeiten-Button - größerer Touch-Target */}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEditDelivery(order)}
+                        className="w-full sm:w-auto min-h-[44px] touch-manipulation"
+                      >
+                        <span className="text-base mr-2">⏰</span>
+                        {(order.status?.toLowerCase() === 'delivered' || 
+                          order.status?.toLowerCase() === 'geliefert' || 
+                          order.status?.toLowerCase() === 'completed') 
+                          ? 'Ansehen'
+                          : 'Bearbeiten'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Status - Mobile-optimiertes Dropdown */}
+                {viewSettings.showOrderStatus && (
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg">📊</span>
+                      <span className="text-sm font-semibold text-foreground">Status</span>
+                    </div>
+                    
+                    <div className="ml-8">
+                      <Select 
+                        value={order.status || 'pending'} 
+                        onValueChange={(value) => handleStatusChange(order.id, value)}
+                      >
+                        <SelectTrigger className={`w-full min-h-[44px] touch-manipulation ${getStatusColor(order.status)}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border border-border shadow-lg z-50">
+                          <SelectItem 
+                            value="pending" 
+                            className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
+                          >
+                            ⏳ Ausstehend
+                          </SelectItem>
+                          <SelectItem 
+                            value="in_progress" 
+                            className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
+                          >
+                            🔄 In Bearbeitung
+                          </SelectItem>
+                          <SelectItem 
+                            value="delivered" 
+                            className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
+                          >
+                            ✅ Geliefert
+                          </SelectItem>
+                          <SelectItem 
+                            value="completed" 
+                            className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
+                          >
+                            ✔️ Abgeschlossen
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+
+                {/* Zugewiesene Wäschekraft */}
+                {viewSettings.showAssignedStaff && (
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg">👤</span>
+                      <span className="text-sm font-semibold text-foreground">Zugewiesen</span>
+                    </div>
+                    
+                    <div className="ml-8">
                       <Select
                         value={order.assigned_staff_id || "none"}
-                        onValueChange={(value) => value !== "none" && handleAssignStaff(order.id, value)}
+                        onValueChange={(value) => {
+                          if (value === "unassign") {
+                            handleUnassignStaff(order.id);
+                          } else if (value !== "none") {
+                            handleAssignStaff(order.id, value);
+                          }
+                        }}
                       >
-                        <SelectTrigger className="w-full max-w-sm">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-base">➕</span>
-                            <SelectValue placeholder="Wäschekraft zuweisen..." />
-                          </div>
+                        <SelectTrigger className="w-full min-h-[44px] touch-manipulation">
+                          <SelectValue placeholder="Wäschekraft zuweisen..." />
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
-                          <SelectItem value="none" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                          <SelectItem 
+                            value="none" 
+                            className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
+                          >
                             Keine Zuweisung
                           </SelectItem>
                           {laundryStaff.map((staff) => (
                             <SelectItem 
                               key={staff.id} 
                               value={staff.id}
-                              className="cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                              className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
                             >
                               {staff.name}
                             </SelectItem>
@@ -282,8 +377,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                           {order.assigned_staff_id && (
                             <SelectItem 
                               value="unassign" 
-                              className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
-                              onSelect={() => handleUnassignStaff(order.id)}
+                              className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground min-h-[44px]"
                             >
                               Zuweisung entfernen
                             </SelectItem>
@@ -291,134 +385,146 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                         </SelectContent>
                       </Select>
                     </div>
-                  </>
+                  </div>
+                )}
+
+                {/* Notizen - ANZEIGE mit Mobile-optimiertem Layout */}
+                {viewSettings.showOrderNotes && !editingNoteOrderId && (
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg">📝</span>
+                      <span className="text-sm font-semibold text-foreground">Notizen</span>
+                    </div>
+                    
+                    <div className="ml-8">
+                      {order.notes ? (
+                        <div className="p-3 bg-background rounded-lg border border-border">
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words mb-2">
+                            {order.notes}
+                          </p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditNote(order)}
+                            className="h-auto py-2 px-3 min-h-[40px] touch-manipulation"
+                          >
+                            <span className="text-base mr-2">✏️</span>
+                            Bearbeiten
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditNote(order)}
+                          className="w-full sm:w-auto min-h-[44px] touch-manipulation"
+                        >
+                          <span className="text-base mr-2">➕</span>
+                          Notiz hinzufügen
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Notizen - BEARBEITEN */}
+                {viewSettings.showOrderNotes && editingNoteOrderId === order.id && (
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg">📝</span>
+                      <span className="text-sm font-semibold text-foreground">Notizen bearbeiten</span>
+                    </div>
+                    
+                    <div className="ml-8 space-y-3">
+                      <Textarea
+                        value={editedNote}
+                        onChange={(e) => setEditedNote(e.target.value)}
+                        placeholder="Besondere Anweisungen oder Notizen..."
+                        rows={4}
+                        className="w-full resize-none"
+                        autoFocus
+                      />
+                      <div className="flex flex-col sm:flex-row justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCancelEdit}
+                          className="w-full sm:w-auto min-h-[44px] touch-manipulation"
+                        >
+                          Abbrechen
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleSaveNote(order.id)}
+                          className="w-full sm:w-auto min-h-[44px] touch-manipulation"
+                        >
+                          Speichern
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
 
-              <div className="flex flex-col gap-2">
-                <div className="flex flex-wrap gap-2">
-                  {viewSettings.showOrderItems && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleShowItems(order)}
-                    >
-                      <span className="text-base mr-1">📋</span>
-                      Artikel anzeigen
-                    </Button>
-                  )}
-                  
-                  {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
-                    <>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleEditDelivery(order)}
-                      >
-                        <span className="text-base mr-1">⏰</span>
-                        {(order.status?.toLowerCase() === 'delivered' || order.status?.toLowerCase() === 'geliefert' || order.status?.toLowerCase() === 'completed') 
-                          ? 'Liefertermin ansehen'
-                          : 'Liefertermin bearbeiten'}
-                      </Button>
-
-                      {viewSettings.showOrderStatus && (
-                        <Select value={order.status || 'pending'} onValueChange={(value) => handleStatusChange(order.id, value)}>
-                          <SelectTrigger className={`w-52 ${getStatusColor(order.status)}`}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-background border border-border shadow-lg z-50">
-                            <SelectItem value="pending" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                              ⏳ Ausstehend
-                            </SelectItem>
-                            <SelectItem value="in_progress" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                              🔄 In Bearbeitung
-                            </SelectItem>
-                            <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                              ✅ Geliefert
-                            </SelectItem>
-                            <SelectItem value="completed" className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
-                              ✔️ Abgeschlossen
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {order.notes && viewSettings.showOrderNotes && !editingNoteOrderId && (
-              <div className="mt-2 p-2 bg-background rounded border-l-4 border-l-info">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-base">📝</span>
-                    <span className="text-sm font-medium text-foreground">Notizen:</span>
+              {/* ========== RECHTE SPALTE - Artikel Tabelle ========== */}
+              {viewSettings.showOrderItems && (
+                <div className="space-y-3">
+                  {/* Sticky Header auf Mobile */}
+                  <div className="flex items-center justify-between sticky top-0 bg-accent py-2 -mx-3 px-3 sm:static sm:bg-transparent sm:p-0 sm:m-0 z-10 lg:static lg:bg-transparent lg:p-0 lg:m-0">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg">📋</span>
+                      <span className="text-sm font-semibold text-foreground">
+                        Artikel
+                      </span>
+                    </div>
+                    <Badge variant="secondary" className="ml-2">
+                      {getTotalItems(order.items as Record<string, number>)} gesamt
+                    </Badge>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEditNote(order)}
-                    className="h-auto py-1 px-2"
-                  >
-                    <span className="text-base">✏️</span>
-                  </Button>
+                  
+                  {/* Artikel-Tabelle mit Mobile-optimiertem Design */}
+                  <div className="bg-background rounded-lg border border-border overflow-hidden shadow-sm">
+                    {Object.values(order.items as Record<string, number>).some(qty => qty > 0) ? (
+                      <Table>
+                        <TableBody>
+                          {Object.entries(order.items as Record<string, number>)
+                            .filter(([_, quantity]) => quantity > 0)
+                            .map(([key, quantity]) => (
+                              <TableRow 
+                                key={key} 
+                                className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
+                              >
+                                <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
+                                  {getItemLabel(key)}
+                                </TableCell>
+                                <TableCell className="py-3 px-3 sm:px-4 text-right">
+                                  <Badge variant="outline" className="font-semibold tabular-nums">
+                                    {quantity}×
+                                  </Badge>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          }
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <div className="p-4 text-center text-sm text-muted-foreground">
+                        Keine Artikel in dieser Bestellung
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground ml-6">{order.notes}</p>
-              </div>
-            )}
+              )}
 
-            {editingNoteOrderId === order.id && (
-              <div className="mt-2 p-3 bg-background rounded border-l-4 border-l-info">
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className="text-base">📝</span>
-                  <span className="text-sm font-medium text-foreground">Notizen bearbeiten:</span>
-                </div>
-                <Textarea
-                  value={editedNote}
-                  onChange={(e) => setEditedNote(e.target.value)}
-                  placeholder="Besondere Anweisungen oder Notizen..."
-                  rows={3}
-                  className="ml-6 mb-2"
-                />
-                <div className="flex justify-end space-x-2 ml-6">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCancelEdit}
-                  >
-                    Abbrechen
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => handleSaveNote(order.id)}
-                  >
-                    Speichern
-                  </Button>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         ))}
       </div>
 
       {/* Dialogs */}
-      <LinenItemsDialog
-        open={itemsDialogOpen}
-        onOpenChange={setItemsDialogOpen}
-        order={selectedOrder}
-      />
-
       <DeliveryDateDialog
         open={deliveryDialogOpen}
         onOpenChange={setDeliveryDialogOpen}
-        order={selectedOrder}
-        onUpdate={onUpdate}
-      />
-
-      <LinenNotesDialog
-        open={notesDialogOpen}
-        onOpenChange={setNotesDialogOpen}
         order={selectedOrder}
         onUpdate={onUpdate}
       />

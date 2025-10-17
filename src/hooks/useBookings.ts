@@ -1,4 +1,4 @@
-// v6 - Fix React imports consistency
+// v7.0 - Stable React hooks
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 

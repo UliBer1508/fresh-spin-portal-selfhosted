@@ -263,30 +263,25 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                         </Badge>
                       )}
                       
-                      {/* Datum und Zeit */}
+                      {/* Anklickbare Datum und Zeit Anzeige */}
                       {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
-                        <div className="text-sm text-muted-foreground">
-                          {formatDateTime(
-                            viewSettings.showDeliveryDate ? order.delivery_date : undefined,
-                            viewSettings.showDeliveryTime ? order.delivery_time : undefined
-                          )}
-                        </div>
+                        <button
+                          onClick={() => handleEditDelivery(order)}
+                          className="w-full sm:w-auto text-left p-3 rounded-lg border border-border bg-background 
+                                   hover:bg-accent hover:border-accent-foreground transition-colors 
+                                   cursor-pointer touch-manipulation min-h-[44px]"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm text-foreground">
+                              {formatDateTime(
+                                viewSettings.showDeliveryDate ? order.delivery_date : undefined,
+                                viewSettings.showDeliveryTime ? order.delivery_time : undefined
+                              )}
+                            </span>
+                            <span className="text-base">⏰</span>
+                          </div>
+                        </button>
                       )}
-                      
-                      {/* Bearbeiten-Button - größerer Touch-Target */}
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleEditDelivery(order)}
-                        className="w-full sm:w-auto min-h-[44px] touch-manipulation"
-                      >
-                        <span className="text-base mr-2">⏰</span>
-                        {(order.status?.toLowerCase() === 'delivered' || 
-                          order.status?.toLowerCase() === 'geliefert' || 
-                          order.status?.toLowerCase() === 'completed') 
-                          ? 'Ansehen'
-                          : 'Bearbeiten'}
-                      </Button>
                     </div>
                   </div>
                 )}

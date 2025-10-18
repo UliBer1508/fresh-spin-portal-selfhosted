@@ -43,7 +43,7 @@ const BookingCard = ({ booking, viewSettings }: BookingCardProps) => {
   };
 
   return (
-    <Card className="w-full hover:shadow-md transition-shadow border-border">
+    <Card className="w-full hover:shadow-md transition-shadow border-border bg-booking-card">
       <CardContent className="p-6">
         <div className="space-y-4">
           {/* Header with accommodation and status */}

@@ -1,5 +1,5 @@
-const CACHE_NAME = 'teuni-waescheportal-v7.2';
-const RUNTIME_CACHE = 'teuni-runtime-v7.2';
+const CACHE_NAME = 'teuni-waescheportal-v7.3';
+const RUNTIME_CACHE = 'teuni-runtime-v7.3';
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [

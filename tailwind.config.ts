@@ -59,6 +59,10 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "booking-card": {
+          DEFAULT: "hsl(var(--booking-card))",
+          foreground: "hsl(var(--booking-card-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

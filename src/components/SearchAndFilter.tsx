@@ -214,11 +214,11 @@ const SearchAndFilter = ({
                 <SelectTrigger className="w-full h-11">
                   <div className="flex items-center space-x-2">
                     <span className="text-base">👥</span>
-                    <SelectValue placeholder="Alle Putzkräfte" />
+                    <SelectValue placeholder="Alle Wäschekräfte" />
                   </div>
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-lg z-[100] max-h-60">
-                  <SelectItem value="all">Alle Putzkräfte</SelectItem>
+                  <SelectItem value="all">Alle Wäschekräfte</SelectItem>
                   {laundryStaff.map((staff) => (
                     <SelectItem key={staff.id} value={staff.id}>
                       {staff.name}

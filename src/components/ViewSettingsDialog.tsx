@@ -60,7 +60,7 @@ const ViewSettingsDialog = ({ settings, onSettingsChange }: ViewSettingsDialogPr
   const [isInitialized, setIsInitialized] = useState(false);
   const [showButtonOnMobile, setShowButtonOnMobile] = useState(() => {
     const saved = localStorage.getItem('showViewSettingsButtonOnMobile');
-    return saved === null ? true : saved === 'true';
+    return saved === null ? false : saved === 'true';
   });
 
   // Detect mobile screen size

@@ -2,7 +2,7 @@
   "name": "Teuni Wäscheportal",
   "short_name": "Wäscheportal",
   "description": "Verwalten Sie alle Wäscheaufträge für Ihre Gäste",
-  "start_url": "/?v=7.4",
+  "start_url": "/?v=7.5",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#10b981",
@@ -10,7 +10,7 @@
   "scope": "/",
   "lang": "de",
   "categories": ["business", "utilities"],
-  "version": "7.4",
+  "version": "7.5",
   "screenshots": [
     {
       "src": "/icons/screenshot-wide.png",

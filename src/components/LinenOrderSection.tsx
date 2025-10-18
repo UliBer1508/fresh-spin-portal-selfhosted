@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { LinenOrder } from "@/hooks/useBookings";
 import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
+import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
 
 interface LaundryStaff {
   id: string;
@@ -26,9 +27,8 @@ interface LinenOrderSectionProps {
 const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSectionProps) => {
   const [selectedOrder, setSelectedOrder] = useState<LinenOrder | null>(null);
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
+  const [notesDialogOpen, setNotesDialogOpen] = useState(false);
   const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
-  const [editingNoteOrderId, setEditingNoteOrderId] = useState<string | null>(null);
-  const [editedNote, setEditedNote] = useState("");
 
   // Fetch laundry staff for assignment dropdown
   useEffect(() => {
@@ -106,32 +106,9 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
     setDeliveryDialogOpen(true);
   };
 
-  const handleEditNote = (order: LinenOrder) => {
-    setEditingNoteOrderId(order.id);
-    setEditedNote(order.notes || "");
-  };
-
-  const handleSaveNote = async (orderId: string) => {
-    try {
-      const { error } = await supabase
-        .from('linen_orders')
-        .update({ notes: editedNote })
-        .eq('id', orderId);
-
-      if (error) throw error;
-
-      toast.success('Notiz erfolgreich gespeichert');
-      setEditingNoteOrderId(null);
-      onUpdate?.();
-    } catch (error) {
-      console.error('Error saving note:', error);
-      toast.error('Fehler beim Speichern der Notiz');
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingNoteOrderId(null);
-    setEditedNote("");
+  const handleEditNotes = (order: LinenOrder) => {
+    setSelectedOrder(order);
+    setNotesDialogOpen(true);
   };
 
   const getStatusColor = (status?: string) => {
@@ -385,8 +362,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                   </div>
                 )}
 
-                {/* Notizen - ANZEIGE mit Mobile-optimiertem Layout */}
-                {viewSettings.showOrderNotes && !editingNoteOrderId && (
+                {/* Notizen - Kompakte anklickbare Anzeige */}
+                {viewSettings.showOrderNotes && (
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">📝</span>
@@ -394,70 +371,24 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                     </div>
                     
                     <div className="ml-8">
-                      {order.notes ? (
-                        <div className="p-3 bg-background rounded-lg border border-border">
-                          <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words mb-2">
-                            {order.notes}
-                          </p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditNote(order)}
-                            className="h-auto py-2 px-3 min-h-[40px] touch-manipulation"
-                          >
-                            <span className="text-base mr-2">✏️</span>
-                            Bearbeiten
-                          </Button>
+                      <button
+                        onClick={() => handleEditNotes(order)}
+                        className="w-full text-left p-3 rounded-lg border border-border bg-background 
+                                   hover:bg-accent hover:border-accent-foreground transition-colors 
+                                   cursor-pointer touch-manipulation min-h-[44px]"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm text-foreground truncate">
+                            {order.notes 
+                              ? (order.notes.length > 50 
+                                  ? order.notes.substring(0, 50) + '...' 
+                                  : order.notes)
+                              : 'Keine Notiz vorhanden'
+                            }
+                          </span>
+                          <span className="text-base flex-shrink-0">✏️</span>
                         </div>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditNote(order)}
-                          className="w-full sm:w-auto min-h-[44px] touch-manipulation"
-                        >
-                          <span className="text-base mr-2">➕</span>
-                          Notiz hinzufügen
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Notizen - BEARBEITEN */}
-                {viewSettings.showOrderNotes && editingNoteOrderId === order.id && (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg">📝</span>
-                      <span className="text-sm font-semibold text-foreground">Notizen bearbeiten</span>
-                    </div>
-                    
-                    <div className="ml-8 space-y-3">
-                      <Textarea
-                        value={editedNote}
-                        onChange={(e) => setEditedNote(e.target.value)}
-                        placeholder="Besondere Anweisungen oder Notizen..."
-                        rows={4}
-                        className="w-full resize-none"
-                        autoFocus
-                      />
-                      <div className="flex flex-col sm:flex-row justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleCancelEdit}
-                          className="w-full sm:w-auto min-h-[44px] touch-manipulation"
-                        >
-                          Abbrechen
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => handleSaveNote(order.id)}
-                          className="w-full sm:w-auto min-h-[44px] touch-manipulation"
-                        >
-                          Speichern
-                        </Button>
-                      </div>
+                      </button>
                     </div>
                   </div>
                 )}
@@ -522,6 +453,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
       <DeliveryDateDialog
         open={deliveryDialogOpen}
         onOpenChange={setDeliveryDialogOpen}
+        order={selectedOrder}
+        onUpdate={onUpdate}
+      />
+      
+      <LinenNotesDialog
+        open={notesDialogOpen}
+        onOpenChange={setNotesDialogOpen}
         order={selectedOrder}
         onUpdate={onUpdate}
       />

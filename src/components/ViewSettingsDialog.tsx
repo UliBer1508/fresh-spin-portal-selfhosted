@@ -111,6 +111,15 @@ const ViewSettingsDialog = ({ settings, onSettingsChange }: ViewSettingsDialogPr
       if (e.key === 'showViewSettingsButtonOnMobile') {
         setShowButtonOnMobile(e.newValue === 'true');
       }
+      // ViewSettings aus localStorage bei Storage-Events neu laden
+      if (e.key === 'viewSettings' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          setLocalSettings(parsed);
+        } catch (error) {
+          console.warn('Failed to parse viewSettings from storage event:', error);
+        }
+      }
     };
     
     window.addEventListener('storage', handleStorageChange);

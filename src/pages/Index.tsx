@@ -40,6 +40,7 @@ const Index = () => {
   });
 
   const handleViewSettingsChange = (settings: ViewSettings) => {
+    console.log('Saving viewSettings:', settings);
     setViewSettings(settings);
     localStorage.setItem('viewSettings', JSON.stringify(settings));
   };

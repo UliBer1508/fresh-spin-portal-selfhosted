@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { LinenOrder } from "@/hooks/useBookings";
 import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
 import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
+import { getLinenLabel } from "@/lib/linenLabels";
 
 interface LaundryStaff {
   id: string;
@@ -165,19 +166,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
     }
   };
 
-  const getItemLabel = (key: string): string => {
-    const labels: Record<string, string> = {
-      bedding: "Bettwäsche",
-      bath_mats: "Badematten", 
-      sink_towels: "Handtücher",
-      large_towels: "Große Handtücher",
-      sauna_towels: "Saunahandtücher",
-      small_towels: "Kleine Handtücher",
-      pillow_cases: "Kissenbezüge",
-      kitchen_towels: "Küchenhandtücher"
-    };
-    return labels[key] || key;
-  };
 
   const getTotalItems = (items: Record<string, number>): number => {
     return Object.values(items).reduce((sum, qty) => sum + qty, 0);
@@ -423,7 +411,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                                 className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
                               >
                                 <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
-                                  {getItemLabel(key)}
+                                  {getLinenLabel(key)}
                                 </TableCell>
                                 <TableCell className="py-3 px-3 sm:px-4 text-right">
                                   <Badge variant="outline" className="font-semibold tabular-nums">

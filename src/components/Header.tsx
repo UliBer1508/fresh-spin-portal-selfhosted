@@ -1,25 +1,19 @@
-// v9.0 - Separate Desktop/Mobile ViewSettings
+// v12.0 - Unified ViewSettings with Mobile Button Toggle
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { APP_VERSION } from "@/lib/version";
 
 interface HeaderProps {
-  desktopViewSettings?: ViewSettings;
-  mobileViewSettings?: ViewSettings;
-  onDesktopSettingsChange?: (settings: ViewSettings) => void;
-  onMobileSettingsChange?: (settings: ViewSettings) => void;
+  viewSettings?: ViewSettings;
+  onSettingsChange?: (settings: ViewSettings) => void;
   isMobileDevice?: boolean;
 }
 
 const Header = ({ 
-  desktopViewSettings, 
-  mobileViewSettings, 
-  onDesktopSettingsChange, 
-  onMobileSettingsChange,
+  viewSettings, 
+  onSettingsChange,
   isMobileDevice 
 }: HeaderProps) => {
-  const shouldShowButton = desktopViewSettings && mobileViewSettings && 
-                           onDesktopSettingsChange && onMobileSettingsChange &&
-                           isMobileDevice !== undefined;
+  const shouldShowButton = viewSettings && onSettingsChange && isMobileDevice !== undefined;
   return (
     <header className="bg-white border-b border-border px-6 py-4">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -38,10 +32,8 @@ const Header = ({
         <div className="flex items-center space-x-3">
           {shouldShowButton && (
             <ViewSettingsDialog
-              desktopSettings={desktopViewSettings!}
-              mobileSettings={mobileViewSettings!}
-              onDesktopSettingsChange={onDesktopSettingsChange!}
-              onMobileSettingsChange={onMobileSettingsChange!}
+              settings={viewSettings!}
+              onSettingsChange={onSettingsChange!}
               isMobileDevice={isMobileDevice!}
             />
           )}

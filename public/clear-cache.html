@@ -53,38 +53,9 @@
                 const registrations = await navigator.serviceWorker.getRegistrations();
                 await Promise.all(registrations.map(reg => reg.unregister()));
                 
-                // Backup settings before clearing
-                const desktopSettings = localStorage.getItem('viewSettings-desktop');
-                const mobileSettings = localStorage.getItem('viewSettings-mobile');
-                
                 // Clear local storage
                 localStorage.clear();
                 sessionStorage.clear();
-                
-                // Restore settings after clear
-                if (desktopSettings) {
-                    localStorage.setItem('viewSettings-desktop', desktopSettings);
-                }
-                if (mobileSettings) {
-                    localStorage.setItem('viewSettings-mobile', mobileSettings);
-                } else if (desktopSettings) {
-                    // Fallback: Copy desktop settings to mobile if mobile settings don't exist
-                    console.log('[Clear-Cache] Copying desktop settings to mobile');
-                    localStorage.setItem('viewSettings-mobile', desktopSettings);
-                }
-                
-                // Ensure settings button is visible on mobile
-                if (!localStorage.getItem('showViewSettingsButtonOnMobile')) {
-                    localStorage.setItem('showViewSettingsButtonOnMobile', 'true');
-                    console.log('[Clear-Cache] Set button visibility to true');
-                } else {
-                    localStorage.setItem('showViewSettingsButtonOnMobile', 'true');
-                    console.log('[Clear-Cache] Forced button visibility to true');
-                }
-                
-                console.log('[Clear-Cache] Mobile settings:', mobileSettings);
-                console.log('[Clear-Cache] Desktop settings:', desktopSettings);
-                console.log('[Clear-Cache] Button visibility:', localStorage.getItem('showViewSettingsButtonOnMobile'));
                 
                 // Redirect to home after 1 second
                 setTimeout(() => {

@@ -27,28 +27,6 @@ const Index = () => {
           console.log('[App] Received sync trigger from SW, refetching data');
           refetch();
         }
-        
-        if (event.data && event.data.type === 'SETTINGS_RELOAD') {
-          console.log('[App] Received settings reload trigger from SW');
-          try {
-            const desktopSettings = localStorage.getItem('viewSettings-desktop');
-            const mobileSettings = localStorage.getItem('viewSettings-mobile');
-            
-            if (desktopSettings) {
-              const parsed = JSON.parse(desktopSettings);
-              console.log('[App] Reloading desktop settings:', parsed);
-              setDesktopViewSettings({ ...defaultSettings, ...parsed });
-            }
-            
-            if (mobileSettings) {
-              const parsed = JSON.parse(mobileSettings);
-              console.log('[App] Reloading mobile settings:', parsed);
-              setMobileViewSettings({ ...defaultSettings, ...parsed });
-            }
-          } catch (error) {
-            console.error('[App] Failed to reload settings:', error);
-          }
-        }
       };
       
       navigator.serviceWorker.addEventListener('message', handleMessage);
@@ -59,21 +37,20 @@ const Index = () => {
     }
   }, [refetch]);
 
-  // Migration script - ensure settings from v10.0 are preserved (NO RELOAD!)
+  // Migration script - ensure settings from v10.0 are preserved
   useEffect(() => {
     const appVersion = localStorage.getItem('app-version');
-    if (!appVersion || appVersion !== '11.1') {
-      console.log('[Migration] Migrating to version 11.1 (no reload needed)');
-      localStorage.setItem('app-version', '11.1');
-    }
-  }, []);
-
-  // Migration: Ensure settings button is visible on mobile by default
-  useEffect(() => {
-    const buttonVisibility = localStorage.getItem('showViewSettingsButtonOnMobile');
-    if (buttonVisibility === null) {
-      console.log('[Migration] Setting showViewSettingsButtonOnMobile to true');
-      localStorage.setItem('showViewSettingsButtonOnMobile', 'true');
+    if (!appVersion || appVersion !== '11.0') {
+      console.log('[Migration] Migrating from version', appVersion, 'to 11.0');
+      
+      // Mark as migrated
+      localStorage.setItem('app-version', '11.0');
+      
+      // Force reload to ensure new code is active
+      if (appVersion && appVersion !== '11.0') {
+        console.log('[Migration] Reloading to apply new version');
+        window.location.reload();
+      }
     }
   }, []);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
@@ -125,34 +102,19 @@ const Index = () => {
   });
 
   const handleDesktopSettingsChange = (settings: ViewSettings) => {
-    // Force new object reference to trigger React re-render
-    const newSettings = { ...settings };
-    console.log('[Settings] Desktop settings changed:', newSettings);
-    setDesktopViewSettings(newSettings);
-    localStorage.setItem('viewSettings-desktop', JSON.stringify(newSettings));
+    console.log('Saving desktop viewSettings:', settings);
+    setDesktopViewSettings(settings);
+    localStorage.setItem('viewSettings-desktop', JSON.stringify(settings));
   };
 
   const handleMobileSettingsChange = (settings: ViewSettings) => {
-    // Force new object reference to trigger React re-render
-    const newSettings = { ...settings };
-    console.log('[Settings] Mobile settings changed:', newSettings);
-    setMobileViewSettings(newSettings);
-    localStorage.setItem('viewSettings-mobile', JSON.stringify(newSettings));
+    console.log('Saving mobile viewSettings:', settings);
+    setMobileViewSettings(settings);
+    localStorage.setItem('viewSettings-mobile', JSON.stringify(settings));
   };
 
   // Use the correct settings based on device
   const currentViewSettings = isMobile ? mobileViewSettings : desktopViewSettings;
-
-  // Debug: Log settings on app start
-  useEffect(() => {
-    console.log('=== APP START DEBUG ===');
-    console.log('isMobile:', isMobile);
-    console.log('desktopViewSettings:', desktopViewSettings);
-    console.log('mobileViewSettings:', mobileViewSettings);
-    console.log('currentViewSettings:', currentViewSettings);
-    console.log('showButtonOnMobile (localStorage):', localStorage.getItem('showViewSettingsButtonOnMobile'));
-    console.log('======================');
-  }, [isMobile, desktopViewSettings, mobileViewSettings, currentViewSettings]);
 
   const renderTabContent = () => {
     switch (activeTab) {

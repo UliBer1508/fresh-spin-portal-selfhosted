@@ -31,23 +31,41 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating new service worker');
+  console.log('[SW] Activating new service worker v11.2');
   event.waitUntil(
     caches.keys()
       .then(cacheNames => {
+        // Explicitly target and delete problematic old versions
+        const oldVersions = ['v11.0', 'v11.1'];
+        const cachesToDelete = cacheNames.filter(cacheName => {
+          // Delete if not current version
+          if (cacheName === CACHE_NAME || cacheName === RUNTIME_CACHE) {
+            return false;
+          }
+          
+          // Explicitly delete old problematic versions
+          const isOldVersion = oldVersions.some(oldVer => cacheName.includes(oldVer));
+          if (isOldVersion) {
+            console.log('[SW] 🔥 FORCE DELETING problematic cache:', cacheName);
+            return true;
+          }
+          
+          return true;
+        });
+        
         return Promise.all(
-          cacheNames
-            .filter(cacheName => {
-              return cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE;
-            })
-            .map(cacheName => {
-              console.log('[SW] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            })
+          cachesToDelete.map(cacheName => {
+            console.log('[SW] Deleting cache:', cacheName);
+            return caches.delete(cacheName);
+          })
         );
       })
-      .then(() => self.clients.claim())
       .then(() => {
+        console.log('[SW] All old caches deleted, claiming clients');
+        return self.clients.claim();
+      })
+      .then(() => {
+        console.log('[SW] Forcing reload of all clients');
         // Force reload all open tabs/windows
         return self.clients.matchAll({ type: 'window' }).then(clients => {
           clients.forEach(client => {

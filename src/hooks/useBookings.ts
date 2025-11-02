@@ -1,4 +1,4 @@
-// v10.1 - Add offline storage support
+// v10.2 - Aggressive React deduplication
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { 

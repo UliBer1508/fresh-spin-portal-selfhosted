@@ -1,4 +1,4 @@
-// v10.1 - Force rebuild to fix React duplication
+// v10.2 - Aggressive React deduplication
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";

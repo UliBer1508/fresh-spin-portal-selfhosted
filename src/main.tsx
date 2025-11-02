@@ -1,4 +1,4 @@
-// v10.1 - Force rebuild to fix React duplication
+// v10.2 - Aggressive React deduplication
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";

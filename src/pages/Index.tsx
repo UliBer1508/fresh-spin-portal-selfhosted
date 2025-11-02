@@ -1,4 +1,4 @@
-// v11.0 - Supabase-native PWA (removed idb dependency)
+// v11.1 - Cache fix after revert
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
@@ -37,17 +37,17 @@ const Index = () => {
     }
   }, [refetch]);
 
-  // Migration script - ensure settings from v10.0 are preserved
+  // Migration script - ensure settings are preserved
   useEffect(() => {
     const appVersion = localStorage.getItem('app-version');
-    if (!appVersion || appVersion !== '11.0') {
-      console.log('[Migration] Migrating from version', appVersion, 'to 11.0');
+    if (!appVersion || appVersion !== '11.1') {
+      console.log('[Migration] Migrating from version', appVersion, 'to 11.1');
       
       // Mark as migrated
-      localStorage.setItem('app-version', '11.0');
+      localStorage.setItem('app-version', '11.1');
       
       // Force reload to ensure new code is active
-      if (appVersion && appVersion !== '11.0') {
+      if (appVersion && appVersion !== '11.1') {
         console.log('[Migration] Reloading to apply new version');
         window.location.reload();
       }

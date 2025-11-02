@@ -1,4 +1,4 @@
-// v11.0 - Supabase-native PWA (removed idb dependency)
+// v11.1 - Cache fix after revert
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 

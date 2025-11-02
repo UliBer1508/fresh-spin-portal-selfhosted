@@ -1,4 +1,4 @@
-// v7.0 - Complete cache and dependency reset
+// v7.2 - React import fix with cache invalidation
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -19,9 +19,10 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom"],
   },
+  cacheDir: ".vite-cache-v7.2",
   optimizeDeps: {
     force: true,
-    include: ["react", "react-dom", "react/jsx-runtime"],
+    include: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
     esbuildOptions: {
       target: "esnext",
     },

@@ -1,4 +1,4 @@
-// v7.1 - Stable hooks
+// v8.0 - Force rebuild to fix React duplication
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 

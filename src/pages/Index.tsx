@@ -1,4 +1,4 @@
-// v7.1 - Stable build
+// v8.0 - Force rebuild to fix React duplication
 import { useState } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";

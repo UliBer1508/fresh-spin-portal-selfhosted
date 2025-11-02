@@ -1,4 +1,4 @@
-// v8.0 - Force rebuild to fix React duplication
+// v9.0 - Force rebuild to fix React duplication
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";

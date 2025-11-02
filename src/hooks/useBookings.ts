@@ -1,4 +1,4 @@
-// v8.0 - Force rebuild to fix React duplication
+// v9.0 - Force rebuild to fix React duplication
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 

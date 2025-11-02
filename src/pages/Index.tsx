@@ -1,5 +1,5 @@
-// v7.2 - React import fix
-import React, { useState, useEffect } from "react";
+// v7.1 - Stable build
+import { useState } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";
@@ -44,43 +44,6 @@ const Index = () => {
     setViewSettings(settings);
     localStorage.setItem('viewSettings', JSON.stringify(settings));
   };
-
-  // Explizit Settings beim Mount laden
-  useEffect(() => {
-    console.log('Loading viewSettings on mount...');
-    try {
-      const saved = localStorage.getItem('viewSettings');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (typeof parsed === 'object' && parsed !== null) {
-          const mergedSettings = { ...defaultSettings, ...parsed };
-          console.log('Loaded viewSettings:', mergedSettings);
-          setViewSettings(mergedSettings);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load viewSettings from localStorage:', error);
-    }
-  }, []);
-
-  // Settings über Tabs synchronisieren
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'viewSettings' && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          const mergedSettings = { ...defaultSettings, ...parsed };
-          console.log('ViewSettings updated from storage event:', mergedSettings);
-          setViewSettings(mergedSettings);
-        } catch (error) {
-          console.error('Failed to parse viewSettings from storage event:', error);
-        }
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
 
   const renderTabContent = () => {
     switch (activeTab) {

@@ -1,4 +1,4 @@
-// v7.3 - Complete React deduplication fix
+// v7.0 - Complete cache and dependency reset
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -17,18 +17,11 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    dedupe: ["react", "react-dom", "react/jsx-runtime"],
+    dedupe: ["react", "react-dom"],
   },
-  cacheDir: ".vite",
   optimizeDeps: {
     force: true,
-    exclude: [],
-    include: [
-      "react", 
-      "react-dom", 
-      "react/jsx-runtime",
-      "react/jsx-dev-runtime"
-    ],
+    include: ["react", "react-dom", "react/jsx-runtime"],
     esbuildOptions: {
       target: "esnext",
     },
@@ -40,9 +33,7 @@ export default defineConfig(({ mode }) => ({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react/jsx-runtime'],
-        },
+        manualChunks: undefined,
       },
     },
   },

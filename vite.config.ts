@@ -40,7 +40,9 @@ export default defineConfig(({ mode }) => ({
     },
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react/jsx-runtime'],
+        },
       },
     },
   },

@@ -1,4 +1,4 @@
-// v9.0 - Clean imports
+// v7.0 - React hooks stability fix
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";

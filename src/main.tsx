@@ -1,4 +1,4 @@
-// v9.0 - Simple import
+// v7.1 - Stable build
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";

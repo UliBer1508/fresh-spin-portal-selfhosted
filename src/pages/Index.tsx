@@ -1,4 +1,4 @@
-// v9.0 - Simple import
+// v7.1 - Stable build
 import { useState } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";

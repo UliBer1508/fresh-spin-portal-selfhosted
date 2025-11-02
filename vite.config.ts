@@ -1,4 +1,4 @@
-// v9.0 - Remove custom cache, use default
+// v7.0 - Complete cache and dependency reset
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     force: true,
-    include: ["react", "react-dom"],
+    include: ["react", "react-dom", "react/jsx-runtime"],
     esbuildOptions: {
       target: "esnext",
     },
@@ -30,6 +30,11 @@ export default defineConfig(({ mode }) => ({
     target: "esnext",
     commonjsOptions: {
       include: [/node_modules/],
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
     },
   },
 }));

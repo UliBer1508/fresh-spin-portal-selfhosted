@@ -1,4 +1,4 @@
-// v7.0 - Complete cache and dependency reset
+// v8.0 - Force complete cache reset
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  cacheDir: ".vite-v8",
   plugins: [
     react(),
     mode === "development" && componentTagger()
@@ -17,11 +18,11 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    dedupe: ["react", "react-dom"],
+    dedupe: ["react", "react-dom", "react/jsx-runtime"],
   },
   optimizeDeps: {
     force: true,
-    include: ["react", "react-dom", "react/jsx-runtime"],
+    include: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
     esbuildOptions: {
       target: "esnext",
     },
@@ -30,11 +31,6 @@ export default defineConfig(({ mode }) => ({
     target: "esnext",
     commonjsOptions: {
       include: [/node_modules/],
-    },
-    rollupOptions: {
-      output: {
-        manualChunks: undefined,
-      },
     },
   },
 }));

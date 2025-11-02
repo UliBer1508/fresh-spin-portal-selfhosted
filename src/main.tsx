@@ -1,5 +1,5 @@
-// v7.1 - Stable build
-import { StrictMode } from "react";
+// v8.0 - Explicit React import
+import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";

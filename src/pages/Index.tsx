@@ -1,5 +1,5 @@
-// v7.1 - Stable build
-import { useState } from "react";
+// v8.0 - Explicit React import
+import React, { useState } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";

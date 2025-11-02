@@ -1,11 +1,11 @@
-// v10.2 - Aggressive React deduplication fix
+// v11.0 - Supabase-native PWA (removed idb dependency)
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  cacheDir: ".vite-cache-v10.2",
+  cacheDir: ".vite-cache-v11.0",
   server: {
     host: "::",
     port: 8080,
@@ -28,7 +28,6 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     force: true,
     include: ["react", "react-dom", "react/jsx-runtime"],
-    exclude: ["idb"],
     esbuildOptions: {
       target: "esnext",
     },

@@ -1,4 +1,4 @@
-// v10.2 - Aggressive React deduplication
+// v11.0 - Supabase-native PWA (removed idb dependency)
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";

@@ -1,4 +1,4 @@
-// v9.0 - Separate Desktop/Mobile ViewSettings
+// v11.0 - Supabase-native PWA (removed idb dependency)
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
@@ -10,7 +10,6 @@ import NotificationSettings from "@/components/NotificationSettings";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import PWAStatusBar from "@/components/PWAStatusBar";
-import OfflineIndicator from "@/components/OfflineIndicator";
 import { ViewSettings, defaultSettings } from "@/components/ViewSettingsDialog";
 import { useBookings, Booking } from "@/hooks/useBookings";
 import { Toaster } from "@/components/ui/toaster";
@@ -170,7 +169,6 @@ const Index = () => {
 
       <PWAInstallPrompt />
       <PWAUpdatePrompt />
-      <OfflineIndicator />
       <Toaster />
       <Sonner />
     </div>

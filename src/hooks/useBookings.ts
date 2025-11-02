@@ -1,10 +1,6 @@
-// v10.2 - Aggressive React deduplication
+// v11.0 - Supabase-native PWA (removed idb dependency)
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { 
-  getOfflineBookings, 
-  saveBookingsOffline 
-} from "@/lib/offlineStorage";
 
 export interface Booking {
   id: string;
@@ -53,68 +49,46 @@ export const useBookings = () => {
       if (showLoading) setLoading(true);
       setError(null);
       
-      // Try to fetch from API if online
-      if (navigator.onLine) {
-        const { data: bookingsData, error: bookingsError } = await supabase
-          .from('bookings')
-          .select(`
-            *,
-            houses (
-              name,
-              address
+      const { data: bookingsData, error: bookingsError } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          houses (
+            name,
+            address
+          ),
+          linen_orders (
+            id,
+            status,
+            delivery_date,
+            delivery_time,
+            delivery_type,
+            notes,
+            items,
+            provider_id,
+            assigned_staff_id,
+            service_providers (
+              name
             ),
-            linen_orders (
-              id,
-              status,
-              delivery_date,
-              delivery_time,
-              delivery_type,
-              notes,
-              items,
-              provider_id,
-              assigned_staff_id,
-              service_providers (
-                name
-              ),
-              laundry_staff (
-                name
-              )
+            laundry_staff (
+              name
             )
-          `)
-          .not('linen_orders', 'is', null)
-          .order('check_in', { ascending: true });
+          )
+        `)
+        .not('linen_orders', 'is', null)
+        .order('check_in', { ascending: true });
 
-        if (bookingsError) throw bookingsError;
+      if (bookingsError) throw bookingsError;
 
-        const bookingsWithLinenOrders = bookingsData?.filter(booking => 
-          booking.linen_orders && booking.linen_orders.length > 0
-        ) || [];
+      const bookingsWithLinenOrders = bookingsData?.filter(booking => 
+        booking.linen_orders && booking.linen_orders.length > 0
+      ) || [];
 
-        setBookings(bookingsWithLinenOrders as unknown as Booking[]);
-        
-        // Cache bookings offline for future use
-        await saveBookingsOffline(bookingsWithLinenOrders as unknown as Booking[]);
-      } else {
-        // Load from offline storage when offline
-        const offlineBookings = await getOfflineBookings();
-        setBookings(offlineBookings);
-        setError(offlineBookings.length > 0 ? "Offline-Modus: Gecachte Daten" : null);
-      }
+      setBookings(bookingsWithLinenOrders as unknown as Booking[]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
       console.error('Error fetching bookings:', err);
-      
-      // Fallback to offline storage on error
-      try {
-        const offlineBookings = await getOfflineBookings();
-        if (offlineBookings.length > 0) {
-          setBookings(offlineBookings);
-          setError("Netzwerkfehler: Zeige gecachte Daten");
-        }
-      } catch (offlineErr) {
-        console.error('Error loading offline bookings:', offlineErr);
-      }
     } finally {
       if (showLoading) setLoading(false);
     }

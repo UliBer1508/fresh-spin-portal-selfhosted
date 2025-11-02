@@ -1,2 +1,2 @@
-// v10.2 - Aggressive React deduplication
-export const APP_VERSION = '10.2.0';
+// v11.0 - Supabase-native PWA (removed idb dependency)
+export const APP_VERSION = '11.0.0';

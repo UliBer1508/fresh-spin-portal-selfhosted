@@ -1,4 +1,4 @@
-// v10.0 - Add offline storage support
+// v10.1 - Add offline storage support
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { 

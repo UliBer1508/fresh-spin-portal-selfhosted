@@ -1,4 +1,4 @@
-// v11.1 - Cache fix after revert
+// v11.2 - Mobile ViewSettings Fix
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";

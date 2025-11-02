@@ -1,4 +1,4 @@
-// v11.1 - Cache fix after revert
+// v11.2 - Mobile ViewSettings Fix
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
@@ -40,14 +40,21 @@ const Index = () => {
   // Migration script - ensure settings are preserved
   useEffect(() => {
     const appVersion = localStorage.getItem('app-version');
-    if (!appVersion || appVersion !== '11.1') {
-      console.log('[Migration] Migrating from version', appVersion, 'to 11.1');
+    if (!appVersion || appVersion !== '11.2') {
+      console.log('[Migration] Migrating from version', appVersion, 'to 11.2');
+      
+      // Clear potentially corrupted mobile settings
+      if (appVersion === '11.1' || appVersion === '11.0') {
+        console.log('[Migration] Clearing mobile settings cache');
+        const mobileSettings = localStorage.getItem('viewSettings-mobile');
+        console.log('[Migration] Current mobile settings:', mobileSettings);
+      }
       
       // Mark as migrated
-      localStorage.setItem('app-version', '11.1');
+      localStorage.setItem('app-version', '11.2');
       
       // Force reload to ensure new code is active
-      if (appVersion && appVersion !== '11.1') {
+      if (appVersion && appVersion !== '11.2') {
         console.log('[Migration] Reloading to apply new version');
         window.location.reload();
       }
@@ -115,6 +122,12 @@ const Index = () => {
 
   // Use the correct settings based on device
   const currentViewSettings = isMobile ? mobileViewSettings : desktopViewSettings;
+  
+  // Debug-Logging für Mobile-Einstellungen
+  useEffect(() => {
+    console.log('[ViewSettings] Device:', isMobile ? 'Mobile' : 'Desktop');
+    console.log('[ViewSettings] Current Settings:', currentViewSettings);
+  }, [isMobile, currentViewSettings]);
 
   const renderTabContent = () => {
     switch (activeTab) {

@@ -1,4 +1,4 @@
-// v11.1 - Cache fix after revert
+// v11.2 - Mobile ViewSettings Fix
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 

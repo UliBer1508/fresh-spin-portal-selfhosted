@@ -1,5 +1,5 @@
-// v8.0 - Explicit React import
-import React, { StrictMode } from "react";
+// v9.0 - Simple import
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";

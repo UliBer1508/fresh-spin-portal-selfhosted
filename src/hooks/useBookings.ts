@@ -1,5 +1,5 @@
-// v8.0 - Explicit React import
-import React, { useState, useEffect } from "react";
+// v9.0 - Simple import
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Booking {

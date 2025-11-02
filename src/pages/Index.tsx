@@ -1,5 +1,5 @@
-// v8.0 - Explicit React import
-import React, { useState } from "react";
+// v9.0 - Simple import
+import { useState } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";

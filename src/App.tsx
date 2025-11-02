@@ -1,5 +1,4 @@
-// v8.0 - Explicit React import
-import React from "react";
+// v9.0 - Clean imports
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";

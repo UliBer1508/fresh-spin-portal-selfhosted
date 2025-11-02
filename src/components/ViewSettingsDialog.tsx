@@ -84,14 +84,17 @@ const ViewSettingsDialog = ({
     value: boolean, 
     profile: 'desktop' | 'mobile'
   ) => {
+    console.log(`[ViewSettings] Changing ${profile} setting "${key}" to ${value}`);
     if (profile === 'desktop') {
       const newSettings = { ...localDesktopSettings, [key]: value };
       setLocalDesktopSettings(newSettings);
+      console.log('[ViewSettings] Calling onDesktopSettingsChange with:', newSettings);
       onDesktopSettingsChange(newSettings);
       localStorage.setItem('viewSettings-desktop', JSON.stringify(newSettings));
     } else {
       const newSettings = { ...localMobileSettings, [key]: value };
       setLocalMobileSettings(newSettings);
+      console.log('[ViewSettings] Calling onMobileSettingsChange with:', newSettings);
       onMobileSettingsChange(newSettings);
       localStorage.setItem('viewSettings-mobile', JSON.stringify(newSettings));
     }

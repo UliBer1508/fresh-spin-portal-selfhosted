@@ -102,15 +102,19 @@ const Index = () => {
   });
 
   const handleDesktopSettingsChange = (settings: ViewSettings) => {
-    console.log('Saving desktop viewSettings:', settings);
-    setDesktopViewSettings(settings);
-    localStorage.setItem('viewSettings-desktop', JSON.stringify(settings));
+    // Force new object reference to trigger React re-render
+    const newSettings = { ...settings };
+    console.log('[Settings] Desktop settings changed:', newSettings);
+    setDesktopViewSettings(newSettings);
+    localStorage.setItem('viewSettings-desktop', JSON.stringify(newSettings));
   };
 
   const handleMobileSettingsChange = (settings: ViewSettings) => {
-    console.log('Saving mobile viewSettings:', settings);
-    setMobileViewSettings(settings);
-    localStorage.setItem('viewSettings-mobile', JSON.stringify(settings));
+    // Force new object reference to trigger React re-render
+    const newSettings = { ...settings };
+    console.log('[Settings] Mobile settings changed:', newSettings);
+    setMobileViewSettings(newSettings);
+    localStorage.setItem('viewSettings-mobile', JSON.stringify(newSettings));
   };
 
   // Use the correct settings based on device

@@ -1,11 +1,11 @@
-// v9.0 - Force complete cache reset to fix React duplication
+// v10.0 - Force complete cache reset to fix React duplication
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  cacheDir: ".vite-cache-v9",
+  cacheDir: ".vite-cache-v10",
   server: {
     host: "::",
     port: 8080,

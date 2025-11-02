@@ -1,5 +1,5 @@
-// v7.1 - Stable hooks
-import { useState, useEffect } from "react";
+// v7.2 - React import fix
+import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Booking {

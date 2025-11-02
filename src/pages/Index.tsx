@@ -1,5 +1,5 @@
-// v7.1 - Stable build
-import { useState, useEffect } from "react";
+// v7.2 - React import fix
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";

@@ -58,15 +58,6 @@ self.addEventListener('activate', (event) => {
           });
         });
       })
-      .then(() => {
-        // Force reload all open tabs/windows after settings notification
-        return self.clients.matchAll({ type: 'window' }).then(clients => {
-          clients.forEach(client => {
-            console.log('[SW] Force reloading client:', client.url);
-            client.navigate(client.url);
-          });
-        });
-      })
   );
 });
 

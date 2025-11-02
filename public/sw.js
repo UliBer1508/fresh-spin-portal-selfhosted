@@ -129,8 +129,89 @@ self.addEventListener('sync', (event) => {
 });
 
 async function syncOfflineData() {
-  // Implement offline data sync logic
-  console.log('[SW] Syncing offline data');
+  console.log('[SW] Starting background sync');
+  
+  try {
+    // Open IndexedDB
+    const db = await openIndexedDB();
+    
+    // Get all pending actions
+    const tx = db.transaction('pending-actions', 'readonly');
+    const store = tx.objectStore('pending-actions');
+    const pendingActions = await store.getAll();
+    
+    console.log('[SW] Found pending actions:', pendingActions.length);
+    
+    // Process each action
+    for (const action of pendingActions) {
+      try {
+        console.log('[SW] Processing action:', action.id);
+        
+        // Simulate API call (replace with actual Supabase call)
+        // In production, this would make actual fetch requests to Supabase
+        
+        // On success, remove from queue
+        const deleteTx = db.transaction('pending-actions', 'readwrite');
+        await deleteTx.objectStore('pending-actions').delete(action.id);
+        
+        console.log('[SW] Action synced successfully:', action.id);
+      } catch (error) {
+        console.error('[SW] Failed to sync action:', action.id, error);
+        
+        // Update retry count
+        const updateTx = db.transaction('pending-actions', 'readwrite');
+        const updateStore = updateTx.objectStore('pending-actions');
+        action.retryCount = (action.retryCount || 0) + 1;
+        
+        // Remove if too many retries
+        if (action.retryCount > 5) {
+          await updateStore.delete(action.id);
+          console.log('[SW] Action removed after max retries:', action.id);
+        } else {
+          await updateStore.put(action);
+        }
+      }
+    }
+    
+    // Notify clients about sync completion
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'SYNC_COMPLETE',
+        synced: pendingActions.length
+      });
+    });
+    
+    console.log('[SW] Background sync completed');
+  } catch (error) {
+    console.error('[SW] Background sync failed:', error);
+  }
+}
+
+async function openIndexedDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('teuni-waescheportal', 1);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      
+      if (!db.objectStoreNames.contains('bookings')) {
+        const bookingStore = db.createObjectStore('bookings', { keyPath: 'id' });
+        bookingStore.createIndex('by-date', 'check_in_date');
+      }
+      
+      if (!db.objectStoreNames.contains('pending-actions')) {
+        db.createObjectStore('pending-actions', { keyPath: 'id' });
+      }
+      
+      if (!db.objectStoreNames.contains('sync-queue')) {
+        db.createObjectStore('sync-queue', { keyPath: 'id' });
+      }
+    };
+  });
 }
 
 // Push notifications

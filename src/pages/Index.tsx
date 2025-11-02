@@ -27,6 +27,28 @@ const Index = () => {
           console.log('[App] Received sync trigger from SW, refetching data');
           refetch();
         }
+        
+        if (event.data && event.data.type === 'SETTINGS_RELOAD') {
+          console.log('[App] Received settings reload trigger from SW');
+          try {
+            const desktopSettings = localStorage.getItem('viewSettings-desktop');
+            const mobileSettings = localStorage.getItem('viewSettings-mobile');
+            
+            if (desktopSettings) {
+              const parsed = JSON.parse(desktopSettings);
+              console.log('[App] Reloading desktop settings:', parsed);
+              setDesktopViewSettings({ ...defaultSettings, ...parsed });
+            }
+            
+            if (mobileSettings) {
+              const parsed = JSON.parse(mobileSettings);
+              console.log('[App] Reloading mobile settings:', parsed);
+              setMobileViewSettings({ ...defaultSettings, ...parsed });
+            }
+          } catch (error) {
+            console.error('[App] Failed to reload settings:', error);
+          }
+        }
       };
       
       navigator.serviceWorker.addEventListener('message', handleMessage);

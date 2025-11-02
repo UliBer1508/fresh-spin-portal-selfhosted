@@ -48,7 +48,18 @@ self.addEventListener('activate', (event) => {
       })
       .then(() => self.clients.claim())
       .then(() => {
-        // Force reload all open tabs/windows
+        // Notify all clients to reload settings from localStorage
+        return self.clients.matchAll({ type: 'window' }).then(clients => {
+          clients.forEach(client => {
+            console.log('[SW] Notifying client to reload settings:', client.url);
+            client.postMessage({
+              type: 'SETTINGS_RELOAD'
+            });
+          });
+        });
+      })
+      .then(() => {
+        // Force reload all open tabs/windows after settings notification
         return self.clients.matchAll({ type: 'window' }).then(clients => {
           clients.forEach(client => {
             console.log('[SW] Force reloading client:', client.url);

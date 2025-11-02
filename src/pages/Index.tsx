@@ -36,6 +36,23 @@ const Index = () => {
       };
     }
   }, [refetch]);
+
+  // Migration script - ensure settings from v10.0 are preserved
+  useEffect(() => {
+    const appVersion = localStorage.getItem('app-version');
+    if (!appVersion || appVersion !== '11.0') {
+      console.log('[Migration] Migrating from version', appVersion, 'to 11.0');
+      
+      // Mark as migrated
+      localStorage.setItem('app-version', '11.0');
+      
+      // Force reload to ensure new code is active
+      if (appVersion && appVersion !== '11.0') {
+        console.log('[Migration] Reloading to apply new version');
+        window.location.reload();
+      }
+    }
+  }, []);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   
   // Mobile Detection

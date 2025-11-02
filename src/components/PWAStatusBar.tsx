@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { usePWA } from '@/hooks/usePWA';
 
 const PWAStatusBar = () => {
-  const { isOnline, isInstalled } = usePWA();
+  const { isOnline, isInstalled, updateAvailable } = usePWA();
   const [isMobile, setIsMobile] = useState(false);
 
   // Detect mobile screen size
@@ -30,9 +30,15 @@ const PWAStatusBar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className="text-xs">
-              PWA Modus
-            </Badge>
+            {updateAvailable ? (
+              <Badge variant="default" className="text-xs animate-pulse">
+                Aktualisiere...
+              </Badge>
+            ) : (
+              <Badge variant="secondary" className="text-xs">
+                PWA Modus
+              </Badge>
+            )}
           </div>
           
           <div className="flex items-center space-x-2">

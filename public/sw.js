@@ -62,6 +62,38 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
+  // Network first for app code (JS/CSS/HTML) - never serve stale app code
+  if (url.pathname.endsWith('.js') || 
+      url.pathname.endsWith('.css') || 
+      url.pathname === '/' || 
+      url.pathname.startsWith('/assets/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(RUNTIME_CACHE).then(cache => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache only for critical files
+          return caches.match(event.request).then(cachedResponse => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // Return offline page for navigation requests
+            if (event.request.destination === 'document') {
+              return caches.match('/offline.html');
+            }
+          });
+        })
+    );
+    return;
+  }
+
   // Network first for API calls (Supabase)
   if (url.hostname.includes('supabase.co')) {
     event.respondWith(
@@ -84,7 +116,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache first for static assets
+  // Cache first for other static assets (images, icons, etc.)
   event.respondWith(
     caches.match(event.request)
       .then(cachedResponse => {

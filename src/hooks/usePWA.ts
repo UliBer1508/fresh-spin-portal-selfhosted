@@ -36,6 +36,7 @@ export const usePWA = () => {
       setIsInstalled(true);
       setIsInstallable(false);
       setDeferredPrompt(null);
+      console.log('[PWA] App wurde installiert');
     };
 
     // Listen for online/offline events
@@ -60,6 +61,7 @@ export const usePWA = () => {
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('[PWA] Update available, will auto-apply');
                   setUpdateAvailable(true);
                 }
               });

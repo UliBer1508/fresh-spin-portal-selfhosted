@@ -1,4 +1,4 @@
-// v7.2 - React import fix with cache invalidation
+// v7.3 - Complete React deduplication fix
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -17,12 +17,18 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    dedupe: ["react", "react-dom"],
+    dedupe: ["react", "react-dom", "react/jsx-runtime"],
   },
-  cacheDir: ".vite-cache-v7.2",
+  cacheDir: ".vite",
   optimizeDeps: {
     force: true,
-    include: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
+    exclude: [],
+    include: [
+      "react", 
+      "react-dom", 
+      "react/jsx-runtime",
+      "react/jsx-dev-runtime"
+    ],
     esbuildOptions: {
       target: "esnext",
     },

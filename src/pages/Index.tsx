@@ -17,7 +17,25 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("waesche");
-  const { bookings, loading, error } = useBookings();
+  const { bookings, loading, error, refetch } = useBookings();
+  
+  // Listen for Service Worker sync messages
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      const handleMessage = (event: MessageEvent) => {
+        if (event.data && event.data.type === 'TRIGGER_SYNC') {
+          console.log('[App] Received sync trigger from SW, refetching data');
+          refetch();
+        }
+      };
+      
+      navigator.serviceWorker.addEventListener('message', handleMessage);
+      
+      return () => {
+        navigator.serviceWorker.removeEventListener('message', handleMessage);
+      };
+    }
+  }, [refetch]);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   
   // Mobile Detection

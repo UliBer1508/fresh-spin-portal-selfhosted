@@ -1,14 +1,25 @@
-// v7.1 - Mobile settings support
+// v9.0 - Separate Desktop/Mobile ViewSettings
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { APP_VERSION } from "@/lib/version";
 
 interface HeaderProps {
-  viewSettings?: ViewSettings;
-  onViewSettingsChange?: (settings: ViewSettings) => void;
+  desktopViewSettings?: ViewSettings;
+  mobileViewSettings?: ViewSettings;
+  onDesktopSettingsChange?: (settings: ViewSettings) => void;
+  onMobileSettingsChange?: (settings: ViewSettings) => void;
+  isMobileDevice?: boolean;
 }
 
-const Header = ({ viewSettings, onViewSettingsChange }: HeaderProps) => {
-  const shouldShowButton = viewSettings && onViewSettingsChange;
+const Header = ({ 
+  desktopViewSettings, 
+  mobileViewSettings, 
+  onDesktopSettingsChange, 
+  onMobileSettingsChange,
+  isMobileDevice 
+}: HeaderProps) => {
+  const shouldShowButton = desktopViewSettings && mobileViewSettings && 
+                           onDesktopSettingsChange && onMobileSettingsChange &&
+                           isMobileDevice !== undefined;
   return (
     <header className="bg-white border-b border-border px-6 py-4">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -27,8 +38,11 @@ const Header = ({ viewSettings, onViewSettingsChange }: HeaderProps) => {
         <div className="flex items-center space-x-3">
           {shouldShowButton && (
             <ViewSettingsDialog
-              settings={viewSettings!}
-              onSettingsChange={onViewSettingsChange!}
+              desktopSettings={desktopViewSettings!}
+              mobileSettings={mobileViewSettings!}
+              onDesktopSettingsChange={onDesktopSettingsChange!}
+              onMobileSettingsChange={onMobileSettingsChange!}
+              isMobileDevice={isMobileDevice!}
             />
           )}
         </div>

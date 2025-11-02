@@ -1,5 +1,5 @@
-// v8.0 - Force rebuild to fix React duplication
-import { useState } from "react";
+// v9.0 - Separate Desktop/Mobile ViewSettings
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";
@@ -20,30 +20,66 @@ const Index = () => {
   const { bookings, loading, error } = useBookings();
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   
-  // ViewSettings State mit localStorage
-  const [viewSettings, setViewSettings] = useState<ViewSettings>(() => {
+  // Mobile Detection
+  const [isMobile, setIsMobile] = useState<boolean>(() => window.innerWidth < 768);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  // Desktop ViewSettings State mit localStorage
+  const [desktopViewSettings, setDesktopViewSettings] = useState<ViewSettings>(() => {
     try {
-      const saved = localStorage.getItem('viewSettings');
+      const saved = localStorage.getItem('viewSettings-desktop');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Validate that it's a valid object with expected structure
         if (typeof parsed === 'object' && parsed !== null) {
           return { ...defaultSettings, ...parsed };
         }
       }
     } catch (error) {
-      console.warn('Failed to parse viewSettings from localStorage:', error);
-      // Clear corrupted data
-      localStorage.removeItem('viewSettings');
+      console.warn('Failed to parse desktop viewSettings from localStorage:', error);
+      localStorage.removeItem('viewSettings-desktop');
     }
     return defaultSettings;
   });
 
-  const handleViewSettingsChange = (settings: ViewSettings) => {
-    console.log('Saving viewSettings:', settings);
-    setViewSettings(settings);
-    localStorage.setItem('viewSettings', JSON.stringify(settings));
+  // Mobile ViewSettings State mit localStorage
+  const [mobileViewSettings, setMobileViewSettings] = useState<ViewSettings>(() => {
+    try {
+      const saved = localStorage.getItem('viewSettings-mobile');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (typeof parsed === 'object' && parsed !== null) {
+          return { ...defaultSettings, ...parsed };
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to parse mobile viewSettings from localStorage:', error);
+      localStorage.removeItem('viewSettings-mobile');
+    }
+    return defaultSettings;
+  });
+
+  const handleDesktopSettingsChange = (settings: ViewSettings) => {
+    console.log('Saving desktop viewSettings:', settings);
+    setDesktopViewSettings(settings);
+    localStorage.setItem('viewSettings-desktop', JSON.stringify(settings));
   };
+
+  const handleMobileSettingsChange = (settings: ViewSettings) => {
+    console.log('Saving mobile viewSettings:', settings);
+    setMobileViewSettings(settings);
+    localStorage.setItem('viewSettings-mobile', JSON.stringify(settings));
+  };
+
+  // Use the correct settings based on device
+  const currentViewSettings = isMobile ? mobileViewSettings : desktopViewSettings;
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -62,8 +98,8 @@ const Index = () => {
             <SearchAndFilter 
               bookings={bookings}
               onFilteredBookingsChange={setFilteredBookings}
-              viewSettings={viewSettings}
-              onViewSettingsChange={handleViewSettingsChange}
+              viewSettings={currentViewSettings}
+              onViewSettingsChange={isMobile ? handleMobileSettingsChange : handleDesktopSettingsChange}
             />
 
             {loading ? (
@@ -84,7 +120,7 @@ const Index = () => {
                   <BookingCard 
                     key={booking.id} 
                     booking={booking} 
-                    viewSettings={viewSettings}
+                    viewSettings={currentViewSettings}
                   />
                 ))}
               </div>
@@ -115,8 +151,11 @@ const Index = () => {
       <PWAStatusBar />
       <div className="pt-12 md:pt-0">
         <Header 
-          viewSettings={viewSettings}
-          onViewSettingsChange={handleViewSettingsChange}
+          desktopViewSettings={desktopViewSettings}
+          mobileViewSettings={mobileViewSettings}
+          onDesktopSettingsChange={handleDesktopSettingsChange}
+          onMobileSettingsChange={handleMobileSettingsChange}
+          isMobileDevice={isMobile}
         />
         <TabNavigation 
           activeTab={activeTab} 

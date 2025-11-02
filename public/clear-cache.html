@@ -74,7 +74,17 @@
                 }
                 
                 // Ensure settings button is visible on mobile
-                localStorage.setItem('showViewSettingsButtonOnMobile', 'true');
+                if (!localStorage.getItem('showViewSettingsButtonOnMobile')) {
+                    localStorage.setItem('showViewSettingsButtonOnMobile', 'true');
+                    console.log('[Clear-Cache] Set button visibility to true');
+                } else {
+                    localStorage.setItem('showViewSettingsButtonOnMobile', 'true');
+                    console.log('[Clear-Cache] Forced button visibility to true');
+                }
+                
+                console.log('[Clear-Cache] Mobile settings:', mobileSettings);
+                console.log('[Clear-Cache] Desktop settings:', desktopSettings);
+                console.log('[Clear-Cache] Button visibility:', localStorage.getItem('showViewSettingsButtonOnMobile'));
                 
                 // Redirect to home after 1 second
                 setTimeout(() => {

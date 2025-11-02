@@ -75,6 +75,15 @@ const Index = () => {
       }
     }
   }, []);
+
+  // Migration: Ensure settings button is visible on mobile by default
+  useEffect(() => {
+    const buttonVisibility = localStorage.getItem('showViewSettingsButtonOnMobile');
+    if (buttonVisibility === null) {
+      console.log('[Migration] Setting showViewSettingsButtonOnMobile to true');
+      localStorage.setItem('showViewSettingsButtonOnMobile', 'true');
+    }
+  }, []);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   
   // Mobile Detection
@@ -141,6 +150,17 @@ const Index = () => {
 
   // Use the correct settings based on device
   const currentViewSettings = isMobile ? mobileViewSettings : desktopViewSettings;
+
+  // Debug: Log settings on app start
+  useEffect(() => {
+    console.log('=== APP START DEBUG ===');
+    console.log('isMobile:', isMobile);
+    console.log('desktopViewSettings:', desktopViewSettings);
+    console.log('mobileViewSettings:', mobileViewSettings);
+    console.log('currentViewSettings:', currentViewSettings);
+    console.log('showButtonOnMobile (localStorage):', localStorage.getItem('showViewSettingsButtonOnMobile'));
+    console.log('======================');
+  }, [isMobile, desktopViewSettings, mobileViewSettings, currentViewSettings]);
 
   const renderTabContent = () => {
     switch (activeTab) {

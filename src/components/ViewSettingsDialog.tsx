@@ -71,7 +71,7 @@ const ViewSettingsDialog = ({
   const [activeTab, setActiveTab] = useState<"desktop" | "mobile">("desktop");
   const [showButtonOnMobile, setShowButtonOnMobile] = useState(() => {
     const saved = localStorage.getItem('showViewSettingsButtonOnMobile');
-    return saved === null ? false : saved === 'true';
+    return saved === null ? true : saved === 'true';
   });
 
   // Initialize component

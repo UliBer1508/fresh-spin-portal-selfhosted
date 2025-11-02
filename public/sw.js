@@ -1,11 +1,12 @@
-const CACHE_NAME = 'teuni-waescheportal-v11.0';
-const RUNTIME_CACHE = 'teuni-runtime-v11.0';
+const VERSION = '11.0';
+const CACHE_NAME = `teuni-waescheportal-v${VERSION}`;
+const RUNTIME_CACHE = `teuni-runtime-v${VERSION}`;
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
-  '/',
+  '/?v=11.0',
   '/offline.html',
-  '/manifest.json',
+  '/manifest.json?v=11.0',
   '/icons/icon-72x72.png',
   '/icons/icon-96x96.png',
   '/icons/icon-128x128.png',
@@ -30,6 +31,7 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  console.log('[SW] Activating new service worker');
   event.waitUntil(
     caches.keys()
       .then(cacheNames => {
@@ -45,6 +47,15 @@ self.addEventListener('activate', (event) => {
         );
       })
       .then(() => self.clients.claim())
+      .then(() => {
+        // Force reload all open tabs/windows
+        return self.clients.matchAll({ type: 'window' }).then(clients => {
+          clients.forEach(client => {
+            console.log('[SW] Force reloading client:', client.url);
+            client.navigate(client.url);
+          });
+        });
+      })
   );
 });
 

@@ -48,11 +48,11 @@ export const usePWA = () => {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Register service worker
+    // Access existing service worker (registered in index.html)
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
+      navigator.serviceWorker.ready
         .then((reg) => {
-          console.log('ServiceWorker registration successful with scope: ', reg.scope);
+          console.log('[PWA] SW ready with scope:', reg.scope);
           setRegistration(reg);
           
           // Check for updates
@@ -74,7 +74,7 @@ export const usePWA = () => {
           }, 60 * 60 * 1000);
         })
         .catch((error) => {
-          console.log('ServiceWorker registration failed: ', error);
+          console.log('[PWA] SW access failed:', error);
         });
     }
 

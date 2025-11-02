@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- v11.0 - Supabase-native PWA (removed idb dependency) -->
+    
+    <!-- Service Worker Registration with Cache-Busting -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js?v=11.0')
+          .then(reg => console.log('[PWA] SW registered with v11.0'))
+          .catch(err => console.error('[PWA] SW registration failed:', err));
+      }
+    </script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />

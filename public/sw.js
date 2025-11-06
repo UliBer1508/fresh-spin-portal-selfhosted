@@ -36,7 +36,7 @@ self.addEventListener('activate', (event) => {
     caches.keys()
       .then(cacheNames => {
         // Explicitly target and delete problematic old versions
-        const oldVersions = ['v11.0', 'v11.1'];
+        const oldVersions = ['v11.0', 'v11.1', 'v11.2'];
         const cachesToDelete = cacheNames.filter(cacheName => {
           // Delete if not current version
           if (cacheName === CACHE_NAME || cacheName === RUNTIME_CACHE) {

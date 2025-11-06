@@ -1,11 +1,11 @@
-// v11.0 - Supabase-native PWA (removed idb dependency)
+// v12.0 - Unified ViewSettings with Mobile Button Toggle
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  cacheDir: ".vite-cache-v11.0",
+  cacheDir: ".vite-cache-v12.0",
   server: {
     host: "::",
     port: 8080,

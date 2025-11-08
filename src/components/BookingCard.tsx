@@ -78,7 +78,7 @@ const BookingCard = ({ booking, viewSettings }: BookingCardProps) => {
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">📍</span>
                       <h3 className="font-semibold text-lg text-foreground">
-                        Unterkunft: {booking.houses?.name || 'Unbekannt'}
+                        {booking.houses?.name || 'Unbekannt'}
                       </h3>
                     </div>
                   )}

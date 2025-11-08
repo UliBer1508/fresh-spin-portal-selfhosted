@@ -197,21 +197,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
               {/* ========== LINKE SPALTE - Metadaten & Aktionen ========== */}
               <div className="space-y-4">
                 
-                {/* Provider */}
-                {order.service_providers?.name && (
-                  <div className="flex items-start space-x-2">
-                    <span className="text-lg flex-shrink-0">🚚</span>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-sm text-muted-foreground block mb-0.5">
-                        Provider:
-                      </span>
-                      <span className="text-sm font-medium text-foreground block truncate">
-                        {order.service_providers.name}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
                 {/* Lieferung mit Bearbeiten-Button */}
                 {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
                   <div className="space-y-2">

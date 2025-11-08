@@ -5,7 +5,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  cacheDir: ".vite-cache-v12.0",
+  cacheDir: ".vite-cache-v12.1",
   server: {
     host: "::",
     port: 8080,

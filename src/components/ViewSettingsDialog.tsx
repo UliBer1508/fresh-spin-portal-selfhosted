@@ -62,6 +62,7 @@ const ViewSettingsDialog = ({
   const [localSettings, setLocalSettings] = useState<ViewSettings>(settings);
   const [open, setOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showButtonOnMobile, setShowButtonOnMobile] = useState(() => {
     const saved = localStorage.getItem('showViewSettingsButtonOnMobile');
     return saved === null ? true : saved === 'true';
@@ -75,14 +76,33 @@ const ViewSettingsDialog = ({
   const handleSettingChange = (key: keyof ViewSettings, value: boolean) => {
     const newSettings = { ...localSettings, [key]: value };
     setLocalSettings(newSettings);
-    onSettingsChange(newSettings);
-    localStorage.setItem('viewSettings', JSON.stringify(newSettings));
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSave = () => {
+    onSettingsChange(localSettings);
+    localStorage.setItem('viewSettings', JSON.stringify(localSettings));
+    setHasUnsavedChanges(false);
+    
+    // Toast-Benachrichtigung
+    const event = new CustomEvent('show-toast', {
+      detail: {
+        title: '✓ Gespeichert',
+        description: 'Ihre Anzeigeeinstellungen wurden erfolgreich gespeichert',
+      }
+    });
+    window.dispatchEvent(event);
+  };
+
+  const handleCancel = () => {
+    setLocalSettings(settings);
+    setHasUnsavedChanges(false);
+    setOpen(false);
   };
 
   const resetToDefault = () => {
     setLocalSettings(defaultSettings);
-    onSettingsChange(defaultSettings);
-    localStorage.setItem('viewSettings', JSON.stringify(defaultSettings));
+    setHasUnsavedChanges(true);
   };
 
   const toggleAll = (enabled: boolean) => {
@@ -92,8 +112,7 @@ const ViewSettingsDialog = ({
     }, {} as ViewSettings);
     
     setLocalSettings(allEnabled);
-    onSettingsChange(allEnabled);
-    localStorage.setItem('viewSettings', JSON.stringify(allEnabled));
+    setHasUnsavedChanges(true);
   };
 
   useEffect(() => {
@@ -281,6 +300,23 @@ const ViewSettingsDialog = ({
             </p>
           </DialogHeader>
           <SettingsContent />
+          <div className="flex gap-2 mt-6 pt-4 border-t">
+            <Button 
+              variant="default" 
+              onClick={handleSave}
+              disabled={!hasUnsavedChanges}
+              className="flex-1"
+            >
+              Speichern
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={handleCancel}
+              className="flex-1"
+            >
+              Abbrechen
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     );
@@ -327,6 +363,24 @@ const ViewSettingsDialog = ({
           </div>
           
           <SettingsContent />
+          
+          <div className="flex gap-2 mt-6 pt-4 border-t">
+            <Button 
+              variant="default" 
+              onClick={handleSave}
+              disabled={!hasUnsavedChanges}
+              className="flex-1"
+            >
+              Änderungen speichern
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={handleCancel}
+              className="flex-1"
+            >
+              Abbrechen
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -6,6 +6,22 @@ import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking } from "@/hooks/useBookings";
 // v3 - Emojis vollständig implementiert
 
+// Farb-Palette für Buchungsrand
+const BOOKING_COLORS = [
+  'border-blue-500',
+  'border-purple-500',
+  'border-pink-500',
+  'border-green-500',
+  'border-orange-500',
+  'border-teal-500',
+  'border-indigo-500',
+  'border-rose-500',
+  'border-cyan-500',
+  'border-amber-500',
+  'border-emerald-500',
+  'border-violet-500',
+];
+
 interface BookingCardProps {
   booking: Booking;
   viewSettings: ViewSettings;
@@ -42,8 +58,15 @@ const BookingCard = ({ booking, viewSettings }: BookingCardProps) => {
     return new Date(dateString).toLocaleDateString('de-DE');
   };
 
+  const getBookingColor = (bookingId: string) => {
+    // Einfacher Hash basierend auf der ID
+    const hash = bookingId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const index = hash % BOOKING_COLORS.length;
+    return BOOKING_COLORS[index];
+  };
+
   return (
-    <Card className="w-full hover:shadow-md transition-shadow border-border bg-yellow-50">
+    <Card className={`w-full hover:shadow-md transition-shadow border-border bg-yellow-50 border-l-8 ${getBookingColor(booking.id)}`}>
       <CardContent className="p-6">
         <div className="space-y-4">
           {/* Header with accommodation and status */}

@@ -1,4 +1,4 @@
-// v11.2 - Error Boundary for cache conflicts
+// v12.1 - React Cache Fix
 import { StrictMode, Component, ErrorInfo, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
@@ -31,14 +31,17 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       error.message.includes("Cannot read properties of null") ||
       error.message.includes("Invalid hook call") ||
       error.message.includes("useState") ||
-      error.message.includes("useContext");
+      error.message.includes("useContext") ||
+      error.message.includes("useEffect") ||
+      error.message.includes("useRef");
     
     if (isReactError) {
-      console.error('[ErrorBoundary] 🔥 Detected React cache conflict - clearing cache and reloading');
+      console.error('[ErrorBoundary] 🔥 Detected React cache conflict - forcing hard reset');
       
-      // Clear all caches and reload
+      // Clear all caches and force hard reload
       const clearAndReload = async () => {
         try {
+          // 1. Clear all browser caches
           if ('caches' in window) {
             const cacheNames = await caches.keys();
             await Promise.all(
@@ -47,12 +50,25 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
                 return caches.delete(cacheName);
               })
             );
-            console.log('[ErrorBoundary] Cache cleared, reloading...');
           }
+          
+          // 2. Clear Service Worker caches via message
+          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_ALL_CACHES' });
+          }
+          
+          // 3. Unregister all service workers
+          if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(registrations.map(reg => reg.unregister()));
+          }
+          
+          console.log('[ErrorBoundary] All caches cleared, forcing hard reload...');
         } catch (err) {
           console.error('[ErrorBoundary] Cache clear failed:', err);
         } finally {
-          window.location.reload();
+          // Hard reload with cache bypass
+          window.location.href = window.location.href + '?_=' + Date.now();
         }
       };
       

@@ -1,4 +1,4 @@
-// v12.0 - Unified ViewSettings with Mobile Button Toggle
+// v12.1 - React Cache Fix
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";

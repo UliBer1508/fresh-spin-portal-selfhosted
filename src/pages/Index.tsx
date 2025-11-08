@@ -1,4 +1,4 @@
-// v12.0 - Unified ViewSettings with Mobile Button Toggle
+// v12.1 - React Cache Fix
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";

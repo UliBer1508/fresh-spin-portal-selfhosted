@@ -65,7 +65,13 @@ const ViewSettingsDialog = ({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showButtonOnMobile, setShowButtonOnMobile] = useState(() => {
     const saved = localStorage.getItem('showViewSettingsButtonOnMobile');
-    return saved === null ? false : saved === 'true';
+    // Default to false (hidden on mobile)
+    const initialValue = saved === null ? false : saved === 'true';
+    // Save the default value if nothing was saved before
+    if (saved === null) {
+      localStorage.setItem('showViewSettingsButtonOnMobile', 'false');
+    }
+    return initialValue;
   });
 
   // Initialize component

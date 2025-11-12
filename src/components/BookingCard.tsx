@@ -83,9 +83,9 @@ const BookingCard = ({ booking, viewSettings }: BookingCardProps) => {
                     </div>
                   )}
                   {viewSettings.showAccommodationAddress && (
-                    <div className="flex items-center space-x-2 text-muted-foreground ml-7">
-                      <span className="text-sm">Adresse: {booking.houses?.address || 'Keine Adresse'}</span>
-                    </div>
+                  <div className="flex items-center space-x-2 text-muted-foreground ml-3 sm:ml-7">
+                    <span className="text-sm">Adresse: {booking.houses?.address || 'Keine Adresse'}</span>
+                  </div>
                   )}
                 </div>
               )}
@@ -99,7 +99,7 @@ const BookingCard = ({ booking, viewSettings }: BookingCardProps) => {
 
           {/* Guest information */}
           {(viewSettings.showGuestName || viewSettings.showGuestCount) && (
-            <div className="space-y-2 ml-7">
+            <div className="space-y-2 ml-3 sm:ml-7">
               {viewSettings.showGuestName && (
                 <div className="flex items-center space-x-2">
                   <span className="text-base">👤</span>
@@ -117,7 +117,7 @@ const BookingCard = ({ booking, viewSettings }: BookingCardProps) => {
 
           {/* Check-in and Check-out dates */}
           {(viewSettings.showCheckInDate || viewSettings.showCheckOutDate) && (
-            <div className="flex items-center space-x-6 ml-7">
+            <div className="flex flex-col space-y-2 ml-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-6 sm:ml-7">
               {viewSettings.showCheckInDate && (
                 <div className="flex items-center space-x-2">
                   <span className="text-base">📅</span>

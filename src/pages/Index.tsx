@@ -14,10 +14,16 @@ import { ViewSettings, defaultSettings } from "@/components/ViewSettingsDialog";
 import { useBookings, Booking } from "@/hooks/useBookings";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("waesche");
-  const { bookings, loading, error, refetch } = useBookings();
+  const [hasNewOrders, setHasNewOrders] = useState(false);
+  
+  const { bookings, loading, error, refetch } = useBookings(() => {
+    setHasNewOrders(true);
+    toast.info("Neue Bestellung eingegangen!");
+  });
   
   // Listen for Service Worker sync messages
   useEffect(() => {
@@ -89,6 +95,13 @@ const Index = () => {
     console.log('Saving viewSettings:', settings);
     setViewSettings(settings);
     localStorage.setItem('viewSettings', JSON.stringify(settings));
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (tab === 'benachrichtigungen' && hasNewOrders) {
+      setHasNewOrders(false);
+    }
   };
 
   const renderTabContent = () => {
@@ -167,7 +180,8 @@ const Index = () => {
         />
         <TabNavigation 
           activeTab={activeTab} 
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
+          hasNewOrders={hasNewOrders}
         />
         
         <main className="max-w-7xl mx-auto px-6 py-8">

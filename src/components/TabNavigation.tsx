@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils";
 interface TabNavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  hasNewOrders?: boolean;
 }
 
-const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
+const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationProps) => {
   const tabs = [
     { id: "waesche", label: "Wäsche (4)", emoji: "🧺" },
     { id: "kalender", label: "Kalender", emoji: "📅" },
@@ -33,8 +34,18 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
                       : "text-muted-foreground border-transparent hover:text-foreground"
                   )}
                 >
-                  <span className="text-xl" role="img" aria-label={tab.label}>
+                  <span 
+                    className={cn(
+                      "text-xl relative",
+                      tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
+                    )} 
+                    role="img" 
+                    aria-label={tab.label}
+                  >
                     {tab.emoji}
+                    {tab.id === "benachrichtigungen" && hasNewOrders && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    )}
                   </span>
                   <span>{tab.label}</span>
                 </button>
@@ -58,8 +69,18 @@ const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) => {
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   )}
                 >
-                  <span className="text-base" role="img" aria-label={tab.label}>
+                  <span 
+                    className={cn(
+                      "text-base relative",
+                      tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
+                    )} 
+                    role="img" 
+                    aria-label={tab.label}
+                  >
                     {tab.emoji}
+                    {tab.id === "benachrichtigungen" && hasNewOrders && (
+                      <span className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                    )}
                   </span>
                   <span>{tab.label}</span>
                 </button>

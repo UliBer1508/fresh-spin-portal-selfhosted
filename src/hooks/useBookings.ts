@@ -38,7 +38,7 @@ export interface LinenOrder {
   };
 }
 
-export const useBookings = () => {
+export const useBookings = (onNewOrder?: () => void) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -139,6 +139,20 @@ export const useBookings = () => {
         () => {
           console.log('Linen order change detected, refetching...');
           fetchBookings(false);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'linen_orders'
+        },
+        (payload) => {
+          console.log('Neue Bestellung eingegangen!', payload);
+          if (onNewOrder) {
+            onNewOrder();
+          }
         }
       )
       .subscribe();

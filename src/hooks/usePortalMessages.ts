@@ -47,6 +47,7 @@ export const usePortalMessages = () => {
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['portal-unread-count', TEUNI_PROVIDER_ID],
     queryFn: async () => {
+      console.log('🔔 Fetching unread count...');
       const { count, error } = await supabase
         .from('provider_messages')
         .select('*', { count: 'exact', head: true })
@@ -55,8 +56,11 @@ export const usePortalMessages = () => {
         .eq('is_read', false);
 
       if (error) throw error;
+      console.log('🔔 Unread count:', count);
       return count || 0;
     },
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   // Nachricht senden (als Provider)

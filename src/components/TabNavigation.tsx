@@ -1,4 +1,4 @@
-// v6 - Fix React imports consistency
+// v7 - Force cache refresh - icons-only horizontal layout on mobile
 import { cn } from "@/lib/utils";
 // Cache bust v2 - emojis fixed
 

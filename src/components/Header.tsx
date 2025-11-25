@@ -50,13 +50,13 @@ const Header = ({
           {/* Chat Icon mit Badge */}
           <button 
             onClick={onChatOpen}
-            className="relative hover:opacity-80 transition-opacity"
+            className="relative transition-transform hover:scale-110"
             aria-label="Chat öffnen"
           >
-            <img src={chatIcon} alt="Chat" className="w-12 h-12 md:w-14 md:h-14" />
+            <img src={chatIcon} alt="Chat" className="w-20 h-20 md:w-24 md:h-24 drop-shadow-lg" />
             {unreadCount > 0 && (
               <Badge 
-                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-destructive text-destructive-foreground animate-pulse text-xs"
+                className="absolute top-0 right-0 h-5 w-5 flex items-center justify-center p-0 bg-destructive text-destructive-foreground animate-pulse text-xs"
               >
                 {unreadCount}
               </Badge>

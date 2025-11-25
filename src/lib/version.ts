@@ -1,2 +1,2 @@
-// v12.0 - Unified ViewSettings with Mobile Button Toggle
-export const APP_VERSION = '12.0.0';
+// v12.2 - Chat Icon Update (Lucide React)
+export const APP_VERSION = '12.2.0';

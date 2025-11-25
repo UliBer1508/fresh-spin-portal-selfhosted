@@ -1,7 +1,10 @@
 // v12.0 - Unified ViewSettings with Mobile Button Toggle
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { APP_VERSION } from "@/lib/version";
+import { Badge } from "@/components/ui/badge";
+import { usePortalMessages } from "@/hooks/usePortalMessages";
+import chatIcon from "@/assets/chat-icon.png";
 
 interface HeaderProps {
   viewSettings?: ViewSettings;
@@ -9,6 +12,7 @@ interface HeaderProps {
   isMobileDevice?: boolean;
   showButtonOnMobile?: boolean;
   onShowButtonOnMobileChange?: (value: boolean) => void;
+  onChatOpen?: () => void;
 }
 
 const Header = ({ 
@@ -16,13 +20,17 @@ const Header = ({
   onSettingsChange,
   isMobileDevice,
   showButtonOnMobile = false,
-  onShowButtonOnMobileChange
+  onShowButtonOnMobileChange,
+  onChatOpen
 }: HeaderProps) => {
+  const { unreadCount } = usePortalMessages();
+  
   const shouldShowButton = 
     viewSettings && 
     onSettingsChange && 
     isMobileDevice !== undefined &&
     (!isMobileDevice || showButtonOnMobile);
+  
   return (
     <header className="bg-white border-b border-border px-6 py-4">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -36,6 +44,22 @@ const Header = ({
             </h1>
             <p className="text-xs text-muted-foreground hidden sm:block">v{APP_VERSION}</p>
           </div>
+          
+          {/* Chat Icon mit Badge */}
+          <button 
+            onClick={onChatOpen}
+            className="relative ml-2 hover:opacity-80 transition-opacity"
+            aria-label="Chat öffnen"
+          >
+            <img src={chatIcon} alt="Chat" className="w-10 h-10" />
+            {unreadCount > 0 && (
+              <Badge 
+                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-destructive text-destructive-foreground animate-pulse text-xs"
+              >
+                {unreadCount}
+              </Badge>
+            )}
+          </button>
         </div>
         
         <div className="flex items-center space-x-3">

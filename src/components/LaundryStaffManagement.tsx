@@ -197,83 +197,83 @@ const LaundryStaffManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="text-center md:text-left">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+      <div className="text-center md:text-left px-2 sm:px-0">
+        <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
           Wäschekräfte verwalten
         </h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-sm sm:text-lg">
           Übersicht und Verwaltung aller Wäschekräfte
         </p>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 px-2 sm:px-0">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Gesamt</CardTitle>
-            <span className="text-2xl">👥</span>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Gesamt</CardTitle>
+            <span className="text-lg sm:text-2xl">👥</span>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Aktiv</CardTitle>
-            <span className="text-2xl">✅</span>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Aktiv</CardTitle>
+            <span className="text-lg sm:text-2xl">✅</span>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{stats.active}</div>
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-success">{stats.active}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Bewertung</CardTitle>
-            <span className="text-2xl">⭐</span>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Bewertung</CardTitle>
+            <span className="text-lg sm:text-2xl">⭐</span>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-warning">{stats.avgRating}</div>
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-warning">{stats.avgRating}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Aufträge</CardTitle>
-            <span className="text-2xl">📅</span>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Aufträge</CardTitle>
+            <span className="text-lg sm:text-2xl">📅</span>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-info">{stats.totalOrders}</div>
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-info">{stats.totalOrders}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Search and Filter */}
-      <Card>
-        <CardHeader>
+      <Card className="mx-2 sm:mx-0">
+        <CardHeader className="p-4 sm:p-6">
           <div className="flex items-center space-x-2">
-            <span className="text-lg">🔍</span>
-            <span className="text-lg">🔽</span>
-            <CardTitle className="text-lg">Suche & Filter</CardTitle>
-            <Badge variant="secondary" className="bg-success text-success-foreground">
+            <span className="text-base sm:text-lg">🔍</span>
+            <span className="text-base sm:text-lg">🔽</span>
+            <CardTitle className="text-base sm:text-lg">Suche & Filter</CardTitle>
+            <Badge variant="secondary" className="bg-success text-success-foreground text-xs">
               {filteredStaff.filter(s => s.is_active).length} aktiv
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
+        <CardContent className="space-y-2 sm:space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
+          <div className="flex flex-col md:flex-row gap-2 sm:gap-4">
             <div className="flex-1 relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base">🔍</span>
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm sm:text-base">🔍</span>
               <Input
-                placeholder="Suche nach Name, E-Mail oder Adresse..."
+                placeholder="Suche nach Name, E-Mail..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10"
+                className="w-full pl-10 text-sm sm:text-base h-9 sm:h-10"
               />
             </div>
             <Select value={statusFilter} onValueChange={(value: "all" | "active" | "inactive") => setStatusFilter(value)}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full sm:w-32 md:w-48 text-sm sm:text-base h-9 sm:h-10">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-background border border-border shadow-lg z-50">
@@ -283,7 +283,7 @@ const LaundryStaffManagement = () => {
               </SelectContent>
             </Select>
             <Select value={sortBy} onValueChange={(value: "name" | "rating" | "orders") => setSortBy(value)}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full sm:w-32 md:w-48 text-sm sm:text-base h-9 sm:h-10">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-background border border-border shadow-lg z-50">
@@ -301,16 +301,16 @@ const LaundryStaffManagement = () => {
                 }
               }
             }}>
-              <SelectTrigger className="w-full md:w-56">
+              <SelectTrigger className="w-full md:w-56 text-sm sm:text-base h-9 sm:h-10">
                 <SelectValue placeholder="Wäschekraft auswählen" />
               </SelectTrigger>
               <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
                 {staff.map((person) => (
                   <SelectItem key={person.id} value={person.id}>
                     <div className="flex items-center justify-between w-full">
-                      <span>{person.name}</span>
+                      <span className="text-sm sm:text-base">{person.name}</span>
                       <Badge 
-                        className={`ml-2 ${person.is_active ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}
+                        className={`ml-2 text-xs ${person.is_active ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}
                         variant="outline"
                       >
                         {person.is_active ? "Aktiv" : "Inaktiv"}
@@ -320,11 +320,11 @@ const LaundryStaffManagement = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" onClick={resetFilters}>
+            <Button variant="outline" onClick={resetFilters} className="text-sm sm:text-base h-9 sm:h-10">
               Alle zeigen
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {filteredStaff.length} von {staff.length} Wäschekräften
           </p>
         </CardContent>

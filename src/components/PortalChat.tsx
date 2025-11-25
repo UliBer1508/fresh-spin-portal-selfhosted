@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { usePortalMessages } from '@/hooks/usePortalMessages';
-import chatIcon from '@/assets/chat-icon.png';
 
 interface ChatButtonProps {
   onClick: () => void;
@@ -13,20 +12,16 @@ interface ChatButtonProps {
 }
 
 export const ChatButton = ({ onClick, unreadCount }: ChatButtonProps) => (
-  <button 
+  <button
     onClick={onClick}
-    className="relative transition-transform hover:scale-105"
+    className="relative w-16 h-16 md:w-18 md:h-18 flex-shrink-0 bg-primary rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center"
     aria-label="Chat öffnen"
   >
-    <img 
-      src={chatIcon} 
-      alt="Chat" 
-      className="w-12 h-12 md:w-14 md:h-14 drop-shadow-lg" 
-    />
+    <MessageCircle className="w-8 h-8 md:w-9 md:h-9 text-primary-foreground" />
     {unreadCount > 0 && (
       <Badge 
         variant="destructive" 
-        className="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center px-1 text-xs animate-pulse"
+        className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 text-sm font-bold animate-pulse"
       >
         {unreadCount}
       </Badge>

@@ -4,7 +4,7 @@ import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialo
 import { APP_VERSION } from "@/lib/version";
 import { Badge } from "@/components/ui/badge";
 import { usePortalMessages } from "@/hooks/usePortalMessages";
-import chatIcon from "@/assets/chat-icon.png";
+import { MessageCircle } from "lucide-react";
 
 interface HeaderProps {
   viewSettings?: ViewSettings;
@@ -53,7 +53,11 @@ const Header = ({
             className="relative transition-transform hover:scale-110"
             aria-label="Chat öffnen"
           >
-            <img src={chatIcon} alt="Chat" className="w-20 h-20 md:w-24 md:h-24 drop-shadow-lg" />
+            <MessageCircle 
+              className="w-16 h-16 md:w-20 md:h-20 text-primary drop-shadow-lg" 
+              strokeWidth={1.5}
+              fill="currentColor"
+            />
             {unreadCount > 0 && (
               <Badge 
                 className="absolute top-0 right-0 h-5 w-5 flex items-center justify-center p-0 bg-destructive text-destructive-foreground animate-pulse text-xs"

@@ -79,7 +79,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-background border-0 shadow-2xl flex flex-col h-[100dvh] sm:inset-auto sm:bottom-6 sm:right-6 sm:left-auto sm:w-[380px] sm:h-[500px] sm:rounded-lg sm:border"
+      className="fixed inset-0 z-50 bg-background border-0 shadow-2xl flex flex-col w-full max-w-full overflow-hidden h-[100dvh] sm:inset-auto sm:bottom-6 sm:right-6 sm:left-auto sm:w-[380px] sm:h-[500px] sm:rounded-lg sm:border"
       style={{ 
         height: viewportHeight && window.innerWidth < 640 
           ? `${viewportHeight}px` 
@@ -147,17 +147,17 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
       </div>
 
       {/* Input */}
-      <div className="p-3 sm:p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:pb-4 border-t bg-card sm:rounded-b-lg flex gap-2">
+      <div className="p-3 sm:p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:pb-4 border-t bg-card sm:rounded-b-lg flex gap-2 flex-shrink-0">
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
           placeholder="Nachricht schreiben..."
-          className="min-h-[44px] max-h-[100px] resize-none"
+          className="min-h-[44px] max-h-[100px] resize-none flex-1 min-w-0"
           rows={1}
         />
-        <Button onClick={handleSend} disabled={!input.trim()} size="icon" className="h-[44px] w-[44px]">
+        <Button onClick={handleSend} disabled={!input.trim()} size="icon" className="h-[44px] w-[44px] flex-shrink-0">
           <Send className="h-4 w-4" />
         </Button>
       </div>

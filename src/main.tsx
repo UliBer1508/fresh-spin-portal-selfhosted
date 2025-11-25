@@ -1,4 +1,4 @@
-// v12.1 - React Cache Fix
+// v12.2 - Chat Icon Update (Lucide React)
 import { StrictMode, Component, ErrorInfo, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";

@@ -1,4 +1,4 @@
-// v12.0 - Unified ViewSettings with Mobile Button Toggle
+// v12.2 - Chat Icon Update (Lucide React)
 import { useState } from "react";
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { APP_VERSION } from "@/lib/version";

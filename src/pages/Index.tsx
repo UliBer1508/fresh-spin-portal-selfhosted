@@ -125,16 +125,7 @@ const Index = () => {
       case "waesche":
         return (
           <div className="space-y-6">
-            <div className="text-center md:text-left">
-              <h1 className="text-3xl font-bold text-foreground mb-2">
-                Alle Buchungen mit Wäschebestellungen
-              </h1>
-              <p className="text-muted-foreground text-lg">
-                Verwalten Sie alle Wäscheaufträge für Ihre Gäste
-              </p>
-            </div>
-
-            <SearchAndFilter 
+            <SearchAndFilter
               bookings={bookings}
               onFilteredBookingsChange={setFilteredBookings}
               viewSettings={viewSettings}

@@ -96,27 +96,27 @@ const NotificationSettings = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center md:text-left">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="text-center md:text-left px-2 sm:px-0">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
           Benachrichtigungseinstellungen
         </h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-sm sm:text-base">
           Verwalten Sie Ihre Benachrichtigungseinstellungen für {preferences.user_name}
         </p>
       </div>
 
-      <div className="bg-white rounded-lg border border-border p-6 space-y-6">
+      <div className="bg-white rounded-lg border border-border p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Benachrichtigungsarten */}
         <div>
-          <h3 className="font-medium mb-4">Benachrichtigungsarten</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Bell className="w-4 h-4 text-blue-500" />
-                <div>
-                  <div className="font-medium">Popup-Benachrichtigungen</div>
-                  <div className="text-sm text-muted-foreground">
+          <h3 className="font-medium mb-3 sm:mb-4 text-sm sm:text-base">Benachrichtigungsarten</h3>
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <Bell className="w-5 h-5 sm:w-4 sm:h-4 text-blue-500 flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-medium text-sm sm:text-base">Popup-Benachrichtigungen</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     Sofortige Benachrichtigungen im Browser
                   </div>
                 </div>
@@ -126,15 +126,16 @@ const NotificationSettings = () => {
                 onCheckedChange={(checked) =>
                   updatePreferences({ ...preferences, toast_notifications: checked })
                 }
+                className="flex-shrink-0"
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-green-500" />
-                <div>
-                  <div className="font-medium">E-Mail-Benachrichtigungen</div>
-                  <div className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <Mail className="w-5 h-5 sm:w-4 sm:h-4 text-green-500 flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-medium text-sm sm:text-base">E-Mail-Benachrichtigungen</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     Benachrichtigungen per E-Mail erhalten
                   </div>
                 </div>
@@ -144,15 +145,16 @@ const NotificationSettings = () => {
                 onCheckedChange={(checked) =>
                   updatePreferences({ ...preferences, email_notifications: checked })
                 }
+                className="flex-shrink-0"
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Smartphone className="w-4 h-4 text-purple-500" />
-                <div>
-                  <div className="font-medium">Push-Benachrichtigungen</div>
-                  <div className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <Smartphone className="w-5 h-5 sm:w-4 sm:h-4 text-purple-500 flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-medium text-sm sm:text-base">Push-Benachrichtigungen</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     Mobile Push-Benachrichtigungen
                   </div>
                 </div>
@@ -162,15 +164,16 @@ const NotificationSettings = () => {
                 onCheckedChange={(checked) =>
                   updatePreferences({ ...preferences, push_notifications: checked })
                 }
+                className="flex-shrink-0"
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Volume2 className="w-4 h-4 text-orange-500" />
-                <div>
-                  <div className="font-medium">Ton-Benachrichtigungen</div>
-                  <div className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <Volume2 className="w-5 h-5 sm:w-4 sm:h-4 text-orange-500 flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-medium text-sm sm:text-base">Ton-Benachrichtigungen</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     Akustische Signale bei neuen Benachrichtigungen
                   </div>
                 </div>
@@ -180,6 +183,7 @@ const NotificationSettings = () => {
                 onCheckedChange={(checked) =>
                   updatePreferences({ ...preferences, sound_notifications: checked })
                 }
+                className="flex-shrink-0"
               />
             </div>
           </div>
@@ -187,12 +191,12 @@ const NotificationSettings = () => {
 
         {/* Benachrichtigen bei */}
         <div>
-          <h3 className="font-medium mb-4">Benachrichtigen bei</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium">Neue Aufgaben</div>
-                <div className="text-sm text-muted-foreground">
+          <h3 className="font-medium mb-3 sm:mb-4 text-sm sm:text-base">Benachrichtigen bei</h3>
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-medium text-sm sm:text-base">Neue Aufgaben</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   Bei neuen Wäscheaufträgen benachrichtigen
                 </div>
               </div>
@@ -201,13 +205,14 @@ const NotificationSettings = () => {
                 onCheckedChange={(checked) =>
                   updatePreferences({ ...preferences, notify_new_tasks: checked })
                 }
+                className="flex-shrink-0"
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium">Aufgaben-Änderungen</div>
-                <div className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-medium text-sm sm:text-base">Aufgaben-Änderungen</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   Bei Änderungen an bestehenden Aufträgen
                 </div>
               </div>
@@ -216,13 +221,14 @@ const NotificationSettings = () => {
                 onCheckedChange={(checked) =>
                   updatePreferences({ ...preferences, notify_task_changes: checked })
                 }
+                className="flex-shrink-0"
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium">Status-Updates</div>
-                <div className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-medium text-sm sm:text-base">Status-Updates</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   Bei Änderungen des Auftragsstatus
                 </div>
               </div>
@@ -231,13 +237,14 @@ const NotificationSettings = () => {
                 onCheckedChange={(checked) =>
                   updatePreferences({ ...preferences, notify_status_updates: checked })
                 }
+                className="flex-shrink-0"
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium">Dringende Aufgaben</div>
-                <div className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-medium text-sm sm:text-base">Dringende Aufgaben</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   Bei besonders wichtigen oder dringenden Aufträgen
                 </div>
               </div>
@@ -246,6 +253,7 @@ const NotificationSettings = () => {
                 onCheckedChange={(checked) =>
                   updatePreferences({ ...preferences, notify_urgent_tasks: checked })
                 }
+                className="flex-shrink-0"
               />
             </div>
           </div>

@@ -54,24 +54,24 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationPr
           </div>
         </div>
 
-        {/* Mobile Layout - 4 Tabs im 2x2 Grid */}
+        {/* Mobile Layout - Icon-Only Horizontal */}
         <div className="md:hidden py-2">
-          <div className="grid w-full grid-cols-2 gap-2">
+          <div className="flex justify-around w-full">
             {tabs.map((tab) => {
               return (
                 <button
                   key={tab.id}
                   onClick={() => onTabChange(tab.id)}
                   className={cn(
-                    "flex items-center justify-center gap-1.5 rounded-lg h-10 px-3 font-medium text-xs transition-colors",
+                    "flex flex-col items-center justify-center w-14 h-14 rounded-full transition-colors relative",
                     activeTab === tab.id
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   <span 
                     className={cn(
-                      "text-base relative",
+                      "text-2xl relative",
                       tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
                     )} 
                     role="img" 
@@ -79,10 +79,12 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationPr
                   >
                     {tab.emoji}
                     {tab.id === "benachrichtigungen" && hasNewOrders && (
-                      <span className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                     )}
                   </span>
-                  <span>{tab.label}</span>
+                  {activeTab === tab.id && (
+                    <span className="absolute bottom-2 w-6 h-0.5 bg-primary rounded-full" />
+                  )}
                 </button>
               );
             })}

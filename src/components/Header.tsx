@@ -25,7 +25,7 @@ const Header = ({
             <h1 className="text-xl font-semibold text-foreground">
               Teuni Wäscheportal
             </h1>
-            <p className="text-xs text-muted-foreground">v{APP_VERSION}</p>
+            <p className="text-xs text-muted-foreground hidden sm:block">v{APP_VERSION}</p>
           </div>
         </div>
         

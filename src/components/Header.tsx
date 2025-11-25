@@ -1,10 +1,10 @@
-// v12.2 - Chat Icon Update (Lucide React)
+// v12.2 - Chat Icon Update (Asset Image)
 import { useState } from "react";
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { APP_VERSION } from "@/lib/version";
 import { Badge } from "@/components/ui/badge";
 import { usePortalMessages } from "@/hooks/usePortalMessages";
-import { MessageCircle } from "lucide-react";
+import chatIcon from "@/assets/chat-icon.png";
 
 interface HeaderProps {
   viewSettings?: ViewSettings;
@@ -53,10 +53,10 @@ const Header = ({
             className="relative transition-transform hover:scale-110"
             aria-label="Chat öffnen"
           >
-            <MessageCircle 
-              className="w-16 h-16 md:w-20 md:h-20 text-primary drop-shadow-lg" 
-              strokeWidth={1.5}
-              fill="currentColor"
+            <img 
+              src={chatIcon} 
+              alt="Chat" 
+              className="w-16 h-16 md:w-20 md:h-20 drop-shadow-lg" 
             />
             {unreadCount > 0 && (
               <Badge 

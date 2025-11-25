@@ -10,6 +10,7 @@ import NotificationSettings from "@/components/NotificationSettings";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import PWAStatusBar from "@/components/PWAStatusBar";
+import PortalChat from "@/components/PortalChat";
 import { useBookings, Booking } from "@/hooks/useBookings";
 import { useViewSettings } from "@/hooks/useViewSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -20,6 +21,7 @@ import { toast } from "sonner";
 const Index = () => {
   const [activeTab, setActiveTab] = useState("waesche");
   const [hasNewOrders, setHasNewOrders] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   
   const { bookings, loading, error, refetch } = useBookings(() => {
     setHasNewOrders(true);
@@ -188,6 +190,7 @@ const Index = () => {
         isMobileDevice={isMobile}
         showButtonOnMobile={showButtonOnMobile}
         onShowButtonOnMobileChange={handleShowButtonOnMobileChange}
+        onChatOpen={() => setIsChatOpen(true)}
       />
         <TabNavigation 
           activeTab={activeTab} 
@@ -202,6 +205,7 @@ const Index = () => {
 
       <PWAInstallPrompt />
       <PWAUpdatePrompt />
+      <PortalChat isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       <Toaster />
       <Sonner />
     </div>

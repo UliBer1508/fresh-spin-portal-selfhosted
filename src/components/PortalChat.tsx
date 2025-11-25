@@ -12,6 +12,7 @@ interface PortalChatProps {
 
 const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
   const [input, setInput] = useState('');
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { messages, isLoading, error, markAsRead, sendMessage } = usePortalMessages();
@@ -20,6 +21,27 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // VisualViewport API für Tastatur-Handhabung
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.visualViewport) {
+        setViewportHeight(window.visualViewport.height);
+      }
+    };
+
+    // Initial setzen
+    handleResize();
+
+    // Auf Tastatur-Events reagieren
+    window.visualViewport?.addEventListener('resize', handleResize);
+    window.visualViewport?.addEventListener('scroll', handleResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleResize);
+      window.visualViewport?.removeEventListener('scroll', handleResize);
+    };
+  }, []);
 
   // Admin-Nachrichten als gelesen markieren wenn Chat geöffnet
   useEffect(() => {
@@ -49,14 +71,21 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
 
   const handleFocus = () => {
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 300); // Warten bis Tastatur erscheint
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 100);
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-background border-0 shadow-2xl flex flex-col h-[100dvh] sm:inset-auto sm:bottom-6 sm:right-6 sm:left-auto sm:w-[380px] sm:h-[500px] sm:rounded-lg sm:border">
+    <div 
+      className="fixed inset-0 z-50 bg-background border-0 shadow-2xl flex flex-col h-[100dvh] sm:inset-auto sm:bottom-6 sm:right-6 sm:left-auto sm:w-[380px] sm:h-[500px] sm:rounded-lg sm:border"
+      style={{ 
+        height: viewportHeight && window.innerWidth < 640 
+          ? `${viewportHeight}px` 
+          : undefined 
+      }}
+    >
       {/* Header */}
       <div className="p-4 pt-[calc(1rem+env(safe-area-inset-top))] sm:pt-4 border-b bg-card sm:rounded-t-lg flex items-center justify-between">
         <div className="flex items-center gap-2">

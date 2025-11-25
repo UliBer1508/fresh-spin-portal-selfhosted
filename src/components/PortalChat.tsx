@@ -52,9 +52,9 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed z-50 bg-background border shadow-2xl flex flex-col inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[380px] sm:h-[500px] sm:rounded-lg">
+    <div className="fixed z-50 bg-background border shadow-2xl rounded-lg flex flex-col bottom-4 right-4 left-4 h-[70vh] max-h-[500px] sm:left-auto sm:bottom-6 sm:right-6 sm:w-[380px] sm:h-[500px]">
       {/* Header */}
-      <div className="p-4 border-b bg-card sm:rounded-t-lg flex items-center justify-between">
+      <div className="p-4 border-b bg-card rounded-t-lg flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MessageCircle className="h-5 w-5 text-primary" />
           <h2 className="font-semibold">Nachrichten vom Admin</h2>
@@ -109,7 +109,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
       </div>
 
       {/* Input */}
-      <div className="p-3 sm:p-4 border-t bg-card sm:rounded-b-lg flex gap-2 pb-safe">
+      <div className="p-3 sm:p-4 border-t bg-card rounded-b-lg flex gap-2 pb-safe">
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}

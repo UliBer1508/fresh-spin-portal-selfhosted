@@ -10,8 +10,8 @@ import NotificationSettings from "@/components/NotificationSettings";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import PWAStatusBar from "@/components/PWAStatusBar";
-import { ViewSettings, defaultSettings } from "@/components/ViewSettingsDialog";
 import { useBookings, Booking } from "@/hooks/useBookings";
+import { useViewSettings } from "@/hooks/useViewSettings";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { toast } from "sonner";
@@ -24,6 +24,13 @@ const Index = () => {
     setHasNewOrders(true);
     toast.info("Neue Bestellung eingegangen!");
   });
+
+  const { 
+    settings: viewSettings, 
+    showButtonOnMobile,
+    loading: settingsLoading,
+    saveSettings 
+  } = useViewSettings();
   
   // Listen for Service Worker sync messages
   useEffect(() => {
@@ -73,28 +80,36 @@ const Index = () => {
   
   // Mobile Detection (simple check for button visibility logic)
   const [isMobile] = useState<boolean>(() => window.innerWidth < 768);
-  
-  // Unified ViewSettings State mit localStorage
-  const [viewSettings, setViewSettings] = useState<ViewSettings>(() => {
-    try {
-      const saved = localStorage.getItem('viewSettings');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (typeof parsed === 'object' && parsed !== null) {
-          return { ...defaultSettings, ...parsed };
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to parse viewSettings from localStorage:', error);
-      localStorage.removeItem('viewSettings');
-    }
-    return defaultSettings;
-  });
 
-  const handleSettingsChange = (settings: ViewSettings) => {
-    console.log('Saving viewSettings:', settings);
-    setViewSettings(settings);
-    localStorage.setItem('viewSettings', JSON.stringify(settings));
+  const handleSettingsChange = async (newSettings: typeof viewSettings) => {
+    try {
+      await saveSettings(newSettings);
+      
+      // Toast-Benachrichtigung
+      const event = new CustomEvent('show-toast', {
+        detail: {
+          title: '✓ Gespeichert',
+          description: 'Ihre Anzeigeeinstellungen wurden gespeichert',
+        }
+      });
+      window.dispatchEvent(event);
+    } catch (error) {
+      const event = new CustomEvent('show-toast', {
+        detail: {
+          title: '❌ Fehler',
+          description: 'Einstellungen konnten nicht gespeichert werden',
+        }
+      });
+      window.dispatchEvent(event);
+    }
+  };
+
+  const handleShowButtonOnMobileChange = async (value: boolean) => {
+    try {
+      await saveSettings(viewSettings, value);
+    } catch (error) {
+      console.error('Error saving mobile button setting:', error);
+    }
   };
 
   const handleTabChange = (tab: string) => {
@@ -123,6 +138,8 @@ const Index = () => {
               onFilteredBookingsChange={setFilteredBookings}
               viewSettings={viewSettings}
               onViewSettingsChange={handleSettingsChange}
+              showButtonOnMobile={showButtonOnMobile}
+              onShowButtonOnMobileChange={handleShowButtonOnMobileChange}
             />
 
             {loading ? (
@@ -177,6 +194,7 @@ const Index = () => {
           viewSettings={viewSettings}
           onSettingsChange={handleSettingsChange}
           isMobileDevice={isMobile}
+          showButtonOnMobile={showButtonOnMobile}
         />
         <TabNavigation 
           activeTab={activeTab} 

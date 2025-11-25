@@ -7,29 +7,15 @@ interface HeaderProps {
   viewSettings?: ViewSettings;
   onSettingsChange?: (settings: ViewSettings) => void;
   isMobileDevice?: boolean;
+  showButtonOnMobile?: boolean;
 }
 
 const Header = ({ 
   viewSettings, 
   onSettingsChange,
-  isMobileDevice 
+  isMobileDevice,
+  showButtonOnMobile = false
 }: HeaderProps) => {
-  const [showButtonOnMobile, setShowButtonOnMobile] = useState(() => {
-    const saved = localStorage.getItem('showViewSettingsButtonOnMobile');
-    return saved === 'true';
-  });
-
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'showViewSettingsButtonOnMobile') {
-        setShowButtonOnMobile(e.newValue === 'true');
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
   const shouldShowButton = 
     viewSettings && 
     onSettingsChange && 

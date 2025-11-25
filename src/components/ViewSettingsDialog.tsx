@@ -34,6 +34,8 @@ interface ViewSettingsDialogProps {
   settings: ViewSettings;
   onSettingsChange: (settings: ViewSettings) => void;
   isMobileDevice: boolean;
+  showButtonOnMobile?: boolean;
+  onShowButtonOnMobileChange?: (value: boolean) => void;
 }
 
 const defaultSettings: ViewSettings = {
@@ -57,22 +59,14 @@ const defaultSettings: ViewSettings = {
 const ViewSettingsDialog = ({ 
   settings, 
   onSettingsChange,
-  isMobileDevice 
+  isMobileDevice,
+  showButtonOnMobile = false,
+  onShowButtonOnMobileChange
 }: ViewSettingsDialogProps) => {
   const [localSettings, setLocalSettings] = useState<ViewSettings>(settings);
   const [open, setOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [showButtonOnMobile, setShowButtonOnMobile] = useState(() => {
-    const saved = localStorage.getItem('showViewSettingsButtonOnMobile');
-    // Default to false (hidden on mobile)
-    const initialValue = saved === null ? false : saved === 'true';
-    // Save the default value if nothing was saved before
-    if (saved === null) {
-      localStorage.setItem('showViewSettingsButtonOnMobile', 'false');
-    }
-    return initialValue;
-  });
 
   // Initialize component
   useEffect(() => {
@@ -87,17 +81,8 @@ const ViewSettingsDialog = ({
 
   const handleSave = () => {
     onSettingsChange(localSettings);
-    localStorage.setItem('viewSettings', JSON.stringify(localSettings));
     setHasUnsavedChanges(false);
-    
-    // Toast-Benachrichtigung
-    const event = new CustomEvent('show-toast', {
-      detail: {
-        title: '✓ Gespeichert',
-        description: 'Ihre Anzeigeeinstellungen wurden erfolgreich gespeichert',
-      }
-    });
-    window.dispatchEvent(event);
+    setOpen(false);
   };
 
   const handleCancel = () => {
@@ -122,28 +107,13 @@ const ViewSettingsDialog = ({
   };
 
   useEffect(() => {
-    setLocalSettings(settings);
-  }, [settings]);
+    if (open) {
+      // Beim Öffnen: Lade aktuellste Werte aus Props
+      setLocalSettings(settings);
+      setHasUnsavedChanges(false);
+    }
+  }, [open, settings]);
 
-  // Sync localStorage changes across tabs
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'showViewSettingsButtonOnMobile') {
-        setShowButtonOnMobile(e.newValue === 'true');
-      }
-      if (e.key === 'viewSettings' && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          setLocalSettings(parsed);
-        } catch (error) {
-          console.warn('Failed to parse viewSettings from storage event:', error);
-        }
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
 
   const SettingRow = ({ 
     label, 
@@ -361,8 +331,7 @@ const ViewSettingsDialog = ({
               <Switch
                 checked={showButtonOnMobile}
                 onCheckedChange={(checked) => {
-                  setShowButtonOnMobile(checked);
-                  localStorage.setItem('showViewSettingsButtonOnMobile', String(checked));
+                  onShowButtonOnMobileChange?.(checked);
                 }}
               />
             </div>

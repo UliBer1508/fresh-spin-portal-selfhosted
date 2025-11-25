@@ -1,4 +1,5 @@
 // v12.0 - Unified ViewSettings with Mobile Button Toggle
+import { useState, useEffect } from "react";
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { APP_VERSION } from "@/lib/version";
 
@@ -13,7 +14,27 @@ const Header = ({
   onSettingsChange,
   isMobileDevice 
 }: HeaderProps) => {
-  const shouldShowButton = viewSettings && onSettingsChange && isMobileDevice !== undefined;
+  const [showButtonOnMobile, setShowButtonOnMobile] = useState(() => {
+    const saved = localStorage.getItem('showViewSettingsButtonOnMobile');
+    return saved === 'true';
+  });
+
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'showViewSettingsButtonOnMobile') {
+        setShowButtonOnMobile(e.newValue === 'true');
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  const shouldShowButton = 
+    viewSettings && 
+    onSettingsChange && 
+    isMobileDevice !== undefined &&
+    (!isMobileDevice || showButtonOnMobile);
   return (
     <header className="bg-white border-b border-border px-6 py-4">
       <div className="flex items-center justify-between max-w-7xl mx-auto">

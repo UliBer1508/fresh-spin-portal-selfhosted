@@ -1,10 +1,9 @@
-// v12.2 - Chat Icon Update (Asset Image)
+// v12.3 - Chat Button Component
 import { useState } from "react";
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { APP_VERSION } from "@/lib/version";
-import { Badge } from "@/components/ui/badge";
+import { ChatButton } from "@/components/PortalChat";
 import { usePortalMessages } from "@/hooks/usePortalMessages";
-import chatIcon from "@/assets/chat-icon.png";
 
 interface HeaderProps {
   viewSettings?: ViewSettings;
@@ -47,25 +46,8 @@ const Header = ({
         </div>
         
         <div className="flex items-center space-x-3">
-          {/* Chat Icon mit Badge */}
-          <button 
-            onClick={onChatOpen}
-            className="relative transition-transform hover:scale-110"
-            aria-label="Chat öffnen"
-          >
-            <img 
-              src={chatIcon} 
-              alt="Chat" 
-              className="w-16 h-16 md:w-20 md:h-20 drop-shadow-lg" 
-            />
-            {unreadCount > 0 && (
-              <Badge 
-                className="absolute top-0 right-0 h-5 w-5 flex items-center justify-center p-0 bg-destructive text-destructive-foreground animate-pulse text-xs"
-              >
-                {unreadCount}
-              </Badge>
-            )}
-          </button>
+          {/* Chat Button */}
+          <ChatButton onClick={onChatOpen} unreadCount={unreadCount} />
           
           {shouldShowButton && (
             <ViewSettingsDialog

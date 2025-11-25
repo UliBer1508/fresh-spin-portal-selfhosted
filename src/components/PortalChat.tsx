@@ -3,7 +3,36 @@ import { MessageCircle, X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { usePortalMessages } from '@/hooks/usePortalMessages';
+import chatIcon from '@/assets/chat-icon.png';
+
+interface ChatButtonProps {
+  onClick: () => void;
+  unreadCount: number;
+}
+
+export const ChatButton = ({ onClick, unreadCount }: ChatButtonProps) => (
+  <button 
+    onClick={onClick}
+    className="relative transition-transform hover:scale-105"
+    aria-label="Chat öffnen"
+  >
+    <img 
+      src={chatIcon} 
+      alt="Chat" 
+      className="w-12 h-12 md:w-14 md:h-14 drop-shadow-lg" 
+    />
+    {unreadCount > 0 && (
+      <Badge 
+        variant="destructive" 
+        className="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center px-1 text-xs animate-pulse"
+      >
+        {unreadCount}
+      </Badge>
+    )}
+  </button>
+);
 
 interface PortalChatProps {
   isOpen: boolean;
@@ -87,18 +116,19 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
       }}
     >
       {/* Header */}
-      <div className="p-4 pt-[calc(1rem+env(safe-area-inset-top))] md:pt-4 border-b bg-card md:rounded-t-lg flex items-center justify-between">
+      <div className="p-4 pt-[calc(1rem+env(safe-area-inset-top))] md:pt-4 border-b bg-primary text-primary-foreground md:rounded-t-lg flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <MessageCircle className="h-5 w-5 text-primary" />
+          <MessageCircle className="h-5 w-5" />
           <h2 className="font-semibold">Nachrichten vom Admin</h2>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
+        <Button variant="ghost" size="icon" onClick={onClose} className="text-primary-foreground hover:bg-primary-foreground/20">
           <X className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <ScrollArea className="flex-1 p-4">
+        <div className="space-y-3">
         {error && (
           <div className="flex items-center justify-center h-full text-center text-destructive">
             <p className="text-sm">Fehler beim Laden: {error.message}</p>
@@ -144,7 +174,8 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
           ))
         )}
         <div ref={messagesEndRef} />
-      </div>
+        </div>
+      </ScrollArea>
 
       {/* Input */}
       <div className="p-3 md:p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-4 border-t bg-card md:rounded-b-lg flex gap-2 flex-shrink-0">

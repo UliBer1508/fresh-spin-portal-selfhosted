@@ -1,4 +1,4 @@
-// v6 - Fix React imports consistency
+// v8 - Mobile optimization complete
 import { useState, useEffect } from "react";
 // v7 - Emojis statt Icons
 import { Badge } from "@/components/ui/badge";
@@ -195,85 +195,87 @@ const LaundryStaffManagement = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-6 px-2 sm:px-0">
       {/* Header */}
-      <div className="text-center md:text-left px-2 sm:px-0">
+      <div className="text-center sm:text-left">
         <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
           Wäschekräfte verwalten
         </h1>
-        <p className="text-muted-foreground text-sm sm:text-lg">
+        <p className="text-muted-foreground text-sm sm:text-base">
           Übersicht und Verwaltung aller Wäschekräfte
         </p>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 px-2 sm:px-0">
+      {/* Statistics Cards - Ultra compact on mobile */}
+      <div className="grid grid-cols-4 gap-1.5 sm:gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Gesamt</CardTitle>
-            <span className="text-lg sm:text-2xl">👥</span>
-          </CardHeader>
-          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
-            <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
+          <CardContent className="p-2 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:pb-2">
+              <div className="hidden sm:block text-xs sm:text-sm font-medium text-muted-foreground">Gesamt</div>
+              <span className="text-base sm:text-2xl">👥</span>
+            </div>
+            <div className="text-base sm:text-2xl font-bold mt-1 sm:mt-0">{stats.total}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Aktiv</CardTitle>
-            <span className="text-lg sm:text-2xl">✅</span>
-          </CardHeader>
-          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
-            <div className="text-xl sm:text-2xl font-bold text-success">{stats.active}</div>
+          <CardContent className="p-2 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:pb-2">
+              <div className="hidden sm:block text-xs sm:text-sm font-medium text-muted-foreground">Aktiv</div>
+              <span className="text-base sm:text-2xl">✅</span>
+            </div>
+            <div className="text-base sm:text-2xl font-bold text-success mt-1 sm:mt-0">{stats.active}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Bewertung</CardTitle>
-            <span className="text-lg sm:text-2xl">⭐</span>
-          </CardHeader>
-          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
-            <div className="text-xl sm:text-2xl font-bold text-warning">{stats.avgRating}</div>
+          <CardContent className="p-2 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:pb-2">
+              <div className="hidden sm:block text-xs sm:text-sm font-medium text-muted-foreground">Bewertung</div>
+              <span className="text-base sm:text-2xl">⭐</span>
+            </div>
+            <div className="text-base sm:text-2xl font-bold text-warning mt-1 sm:mt-0">{stats.avgRating}</div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Aufträge</CardTitle>
-            <span className="text-lg sm:text-2xl">📅</span>
-          </CardHeader>
-          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
-            <div className="text-xl sm:text-2xl font-bold text-info">{stats.totalOrders}</div>
+          <CardContent className="p-2 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between sm:space-y-0 sm:pb-2">
+              <div className="hidden sm:block text-xs sm:text-sm font-medium text-muted-foreground">Aufträge</div>
+              <span className="text-base sm:text-2xl">📅</span>
+            </div>
+            <div className="text-base sm:text-2xl font-bold text-info mt-1 sm:mt-0">{stats.totalOrders}</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Search and Filter */}
-      <Card className="mx-2 sm:mx-0">
-        <CardHeader className="p-4 sm:p-6">
-          <div className="flex items-center space-x-2">
-            <span className="text-base sm:text-lg">🔍</span>
-            <span className="text-base sm:text-lg">🔽</span>
-            <CardTitle className="text-base sm:text-lg">Suche & Filter</CardTitle>
-            <Badge variant="secondary" className="bg-success text-success-foreground text-xs">
+      {/* Search and Filter - Compact on mobile */}
+      <Card>
+        <CardHeader className="p-3 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm sm:text-lg">🔍</span>
+            <CardTitle className="text-sm sm:text-lg">Suche & Filter</CardTitle>
+            <Badge variant="secondary" className="bg-success text-success-foreground text-[10px] sm:text-xs">
               {filteredStaff.filter(s => s.is_active).length} aktiv
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-2 sm:space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
-          <div className="flex flex-col md:flex-row gap-2 sm:gap-4">
-            <div className="flex-1 relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm sm:text-base">🔍</span>
-              <Input
-                placeholder="Suche nach Name, E-Mail..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 text-sm sm:text-base h-9 sm:h-10"
-              />
-            </div>
+        <CardContent className="space-y-2 p-3 pt-0 sm:p-6 sm:pt-0">
+          {/* Search field */}
+          <div className="relative">
+            <span className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-xs sm:text-base">🔍</span>
+            <Input
+              placeholder="Suche nach Name, E-Mail..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-8 sm:pl-10 text-xs sm:text-base h-8 sm:h-10"
+            />
+          </div>
+          
+          {/* Filters in 2 columns on mobile */}
+          <div className="grid grid-cols-2 gap-2">
             <Select value={statusFilter} onValueChange={(value: "all" | "active" | "inactive") => setStatusFilter(value)}>
-              <SelectTrigger className="w-full sm:w-32 md:w-48 text-sm sm:text-base h-9 sm:h-10">
+              <SelectTrigger className="text-xs sm:text-base h-8 sm:h-10">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-background border border-border shadow-lg z-50">
@@ -283,7 +285,7 @@ const LaundryStaffManagement = () => {
               </SelectContent>
             </Select>
             <Select value={sortBy} onValueChange={(value: "name" | "rating" | "orders") => setSortBy(value)}>
-              <SelectTrigger className="w-full sm:w-32 md:w-48 text-sm sm:text-base h-9 sm:h-10">
+              <SelectTrigger className="text-xs sm:text-base h-8 sm:h-10">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-background border border-border shadow-lg z-50">
@@ -292,6 +294,10 @@ const LaundryStaffManagement = () => {
                 <SelectItem value="orders">Nach Aufträgen</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Staff picker - hidden on mobile */}
+          <div className="hidden sm:flex gap-2">
             <Select onValueChange={(value) => {
               if (value) {
                 const selectedStaff = staff.find(s => s.id === value);
@@ -301,7 +307,7 @@ const LaundryStaffManagement = () => {
                 }
               }
             }}>
-              <SelectTrigger className="w-full md:w-56 text-sm sm:text-base h-9 sm:h-10">
+              <SelectTrigger className="flex-1 text-sm sm:text-base h-8 sm:h-10">
                 <SelectValue placeholder="Wäschekraft auswählen" />
               </SelectTrigger>
               <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
@@ -320,94 +326,104 @@ const LaundryStaffManagement = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" onClick={resetFilters} className="text-sm sm:text-base h-9 sm:h-10">
+            <Button variant="outline" onClick={resetFilters} className="text-xs sm:text-base h-8 sm:h-10">
               Alle zeigen
             </Button>
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground">
+
+          {/* Reset button on mobile */}
+          <Button 
+            variant="outline" 
+            onClick={resetFilters} 
+            className="w-full text-xs h-8 sm:hidden"
+          >
+            Alle zeigen
+          </Button>
+
+          <p className="text-[10px] sm:text-sm text-muted-foreground">
             {filteredStaff.length} von {staff.length} Wäschekräften
           </p>
         </CardContent>
       </Card>
 
-      {/* Staff Cards */}
+      {/* Staff Cards - Compact on mobile */}
       {filteredStaff.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-muted-foreground">Keine Wäschekräfte gefunden.</p>
+          <p className="text-muted-foreground text-sm">Keine Wäschekräfte gefunden.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {filteredStaff.map((person) => (
             <Card key={person.id} className="relative">
-              <CardHeader>
+              <CardHeader className="p-3 sm:p-6">
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-lg">{person.name}</CardTitle>
-                    <Badge className={person.is_active ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}>
+                    <CardTitle className="text-base sm:text-lg">{person.name}</CardTitle>
+                    <Badge className={`text-[10px] sm:text-xs ${person.is_active ? "bg-success text-success-foreground" : "bg-muted text-muted-foreground"}`}>
                       {person.is_active ? "Aktiv" : "Inaktiv"}
                     </Badge>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <span className="text-base">⭐</span>
-                    <span className="text-sm font-medium">{person.quality_rating.toFixed(1)}</span>
+                    <span className="text-sm sm:text-base">⭐</span>
+                    <span className="text-xs sm:text-sm font-medium">{person.quality_rating.toFixed(1)}</span>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2 sm:space-y-3 p-3 pt-0 sm:p-6 sm:pt-0">
                 {person.email && (
-                  <div className="flex items-center space-x-2 text-sm">
-                    <span className="text-base">📧</span>
-                    <span className="text-muted-foreground">{person.email}</span>
+                  <div className="flex items-center space-x-1.5 sm:space-x-2 text-xs sm:text-sm">
+                    <span className="text-sm sm:text-base">📧</span>
+                    <span className="text-muted-foreground truncate">{person.email}</span>
                   </div>
                 )}
                 
                 {person.phone && (
-                  <div className="flex items-center space-x-2 text-sm">
-                    <span className="text-base">📞</span>
+                  <div className="flex items-center space-x-1.5 sm:space-x-2 text-xs sm:text-sm">
+                    <span className="text-sm sm:text-base">📞</span>
                     <span className="text-muted-foreground">{person.phone}</span>
                   </div>
                 )}
 
                 {person.address && (
-                  <div className="flex items-center space-x-2 text-sm">
-                    <span className="text-base">📍</span>
-                    <span className="text-muted-foreground">{person.address}</span>
+                  <div className="flex items-center space-x-1.5 sm:space-x-2 text-xs sm:text-sm">
+                    <span className="text-sm sm:text-base">📍</span>
+                    <span className="text-muted-foreground truncate">{person.address}</span>
                   </div>
                 )}
 
                 {person.hourly_rate && (
-                  <div className="flex items-center space-x-2 text-sm">
-                    <span className="text-base">💰</span>
+                  <div className="flex items-center space-x-1.5 sm:space-x-2 text-xs sm:text-sm">
+                    <span className="text-sm sm:text-base">💰</span>
                     <span className="text-muted-foreground">{person.hourly_rate.toFixed(2)} €/Std</span>
                   </div>
                 )}
 
-                {/* Statistics */}
+                {/* Statistics - Compact on mobile */}
                 <div className="flex justify-between items-center pt-2 border-t">
                   <div className="text-center">
-                    <div className="text-lg font-bold">{person.completed_orders}</div>
-                    <div className="text-xs text-muted-foreground">Abgeschlossen</div>
+                    <div className="text-sm sm:text-lg font-bold">{person.completed_orders}</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Abgeschlossen</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-bold">{person.total_orders}</div>
-                    <div className="text-xs text-muted-foreground">Aufträge gesamt</div>
+                    <div className="text-sm sm:text-lg font-bold">{person.total_orders}</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Gesamt</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-bold">{person.total_orders - person.completed_orders}</div>
-                    <div className="text-xs text-muted-foreground">Aktiv</div>
+                    <div className="text-sm sm:text-lg font-bold">{person.total_orders - person.completed_orders}</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">Aktiv</div>
                   </div>
                 </div>
 
-                {/* Available Days */}
+                {/* Available Days - Compact badges on mobile */}
                 {person.availability_days && person.availability_days.length > 0 && (
                   <div>
-                    <div className="text-sm text-muted-foreground mb-2">Verfügbare Tage:</div>
-                    <div className="flex flex-wrap gap-1">
+                    <div className="text-xs sm:text-sm text-muted-foreground mb-1.5 sm:mb-2 hidden sm:block">Verfügbare Tage:</div>
+                    <div className="flex flex-wrap gap-0.5 sm:gap-1">
                       {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
                         <Badge
                           key={day}
                           variant={person.availability_days?.includes(day) ? "default" : "outline"}
-                          className="text-xs"
+                          className="text-[10px] sm:text-xs px-1 sm:px-2"
                         >
                           {dayLabels[day as keyof typeof dayLabels]}
                         </Badge>
@@ -416,19 +432,19 @@ const LaundryStaffManagement = () => {
                   </div>
                 )}
 
-                {/* Action Buttons */}
-                <div className="flex justify-between pt-3 border-t space-x-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <span className="text-base mr-1">✏️</span>
-                    Bearbeiten
+                {/* Action Buttons - Icon only on mobile */}
+                <div className="flex justify-between pt-2 sm:pt-3 border-t space-x-2">
+                  <Button variant="outline" size="sm" className="flex-1 h-8 sm:h-9 text-xs sm:text-sm">
+                    <span className="text-sm sm:text-base mr-0 sm:mr-1">✏️</span>
+                    <span className="hidden sm:inline">Bearbeiten</span>
                   </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => handleDeleteStaff(person.id)}
-                    className="text-destructive hover:text-destructive"
+                    className="text-destructive hover:text-destructive h-8 sm:h-9"
                   >
-                    <span className="text-base">🗑️</span>
+                    <span className="text-sm sm:text-base">🗑️</span>
                   </Button>
                 </div>
               </CardContent>

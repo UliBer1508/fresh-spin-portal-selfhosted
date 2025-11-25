@@ -12,6 +12,7 @@ import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import PWAStatusBar from "@/components/PWAStatusBar";
 import { useBookings, Booking } from "@/hooks/useBookings";
 import { useViewSettings } from "@/hooks/useViewSettings";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { toast } from "sonner";
@@ -79,7 +80,7 @@ const Index = () => {
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   
   // Mobile Detection (simple check for button visibility logic)
-  const [isMobile] = useState<boolean>(() => window.innerWidth < 768);
+  const isMobile = useIsMobile();
 
   const handleSettingsChange = async (newSettings: typeof viewSettings) => {
     try {
@@ -190,12 +191,13 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <PWAStatusBar />
       <div className="pt-12 md:pt-0">
-        <Header 
-          viewSettings={viewSettings}
-          onSettingsChange={handleSettingsChange}
-          isMobileDevice={isMobile}
-          showButtonOnMobile={showButtonOnMobile}
-        />
+      <Header 
+        viewSettings={viewSettings}
+        onSettingsChange={handleSettingsChange}
+        isMobileDevice={isMobile}
+        showButtonOnMobile={showButtonOnMobile}
+        onShowButtonOnMobileChange={handleShowButtonOnMobileChange}
+      />
         <TabNavigation 
           activeTab={activeTab} 
           onTabChange={handleTabChange}

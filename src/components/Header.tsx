@@ -8,13 +8,15 @@ interface HeaderProps {
   onSettingsChange?: (settings: ViewSettings) => void;
   isMobileDevice?: boolean;
   showButtonOnMobile?: boolean;
+  onShowButtonOnMobileChange?: (value: boolean) => void;
 }
 
 const Header = ({ 
   viewSettings, 
   onSettingsChange,
   isMobileDevice,
-  showButtonOnMobile = false
+  showButtonOnMobile = false,
+  onShowButtonOnMobileChange
 }: HeaderProps) => {
   const shouldShowButton = 
     viewSettings && 
@@ -42,6 +44,8 @@ const Header = ({
               settings={viewSettings!}
               onSettingsChange={onSettingsChange!}
               isMobileDevice={isMobileDevice!}
+              showButtonOnMobile={showButtonOnMobile}
+              onShowButtonOnMobileChange={onShowButtonOnMobileChange}
             />
           )}
         </div>

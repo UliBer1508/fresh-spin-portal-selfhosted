@@ -22,18 +22,25 @@ export const usePortalMessages = () => {
   const queryClient = useQueryClient();
 
   // Nachrichten laden
-  const { data: messages = [], isLoading } = useQuery({
+  const { data: messages = [], isLoading, error } = useQuery({
     queryKey: ['portal-messages', TEUNI_PROVIDER_ID],
     queryFn: async () => {
+      console.log('📩 Fetching portal messages...');
       const { data, error } = await supabase
         .from('provider_messages')
         .select('*')
         .eq('provider_id', TEUNI_PROVIDER_ID)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error fetching messages:', error);
+        throw error;
+      }
+      console.log('✅ Messages loaded:', data?.length, 'messages');
       return data as PortalMessage[];
     },
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   // Ungelesene Admin-Nachrichten zählen
@@ -99,6 +106,8 @@ export const usePortalMessages = () => {
 
   // Realtime Subscription für Live-Updates
   useEffect(() => {
+    console.log('🔌 Setting up realtime subscription...');
+    
     const channel = supabase
       .channel('teuni-portal-messages')
       .on(
@@ -109,14 +118,18 @@ export const usePortalMessages = () => {
           table: 'provider_messages',
           filter: `provider_id=eq.${TEUNI_PROVIDER_ID}`,
         },
-        () => {
+        (payload) => {
+          console.log('📬 Realtime update received:', payload);
           queryClient.invalidateQueries({ queryKey: ['portal-messages', TEUNI_PROVIDER_ID] });
           queryClient.invalidateQueries({ queryKey: ['portal-unread-count', TEUNI_PROVIDER_ID] });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Subscription status:', status);
+      });
 
     return () => {
+      console.log('🔌 Removing realtime subscription');
       supabase.removeChannel(channel);
     };
   }, [queryClient]);
@@ -124,6 +137,7 @@ export const usePortalMessages = () => {
   return {
     messages,
     isLoading,
+    error,
     unreadCount,
     sendMessage: sendMessageMutation.mutate,
     markAsRead: markAsReadMutation.mutate,

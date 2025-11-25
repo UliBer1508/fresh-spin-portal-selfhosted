@@ -14,7 +14,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  const { messages, isLoading, markAsRead } = usePortalMessages();
+  const { messages, isLoading, error, markAsRead, sendMessage } = usePortalMessages();
 
   // Auto-scroll zu neuen Nachrichten
   useEffect(() => {
@@ -33,8 +33,6 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
       }
     }
   }, [isOpen, messages, markAsRead]);
-
-  const { sendMessage } = usePortalMessages();
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -66,6 +64,11 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {error && (
+          <div className="flex items-center justify-center h-full text-center text-destructive">
+            <p className="text-sm">Fehler beim Laden: {error.message}</p>
+          </div>
+        )}
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="flex gap-1">

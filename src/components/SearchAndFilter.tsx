@@ -18,13 +18,17 @@ interface SearchAndFilterProps {
   onFilteredBookingsChange: (filteredBookings: Booking[]) => void;
   viewSettings: ViewSettings;
   onViewSettingsChange: (settings: ViewSettings) => void;
+  showButtonOnMobile?: boolean;
+  onShowButtonOnMobileChange?: (value: boolean) => void;
 }
 
 const SearchAndFilter = ({ 
   bookings, 
   onFilteredBookingsChange, 
   viewSettings, 
-  onViewSettingsChange 
+  onViewSettingsChange,
+  showButtonOnMobile,
+  onShowButtonOnMobileChange
 }: SearchAndFilterProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("pending");

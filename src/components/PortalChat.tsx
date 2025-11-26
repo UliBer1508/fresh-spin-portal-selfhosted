@@ -97,7 +97,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
 
   return (
     <div 
-      className="fixed inset-0 z-[100] bg-background border-0 shadow-2xl flex flex-col w-full max-w-full overflow-hidden h-[100dvh] md:inset-auto md:top-20 md:right-6 md:left-auto md:w-96 md:h-[500px] md:rounded-lg md:border"
+      className="fixed top-0 left-0 right-0 bottom-0 z-[100] bg-background border-0 shadow-2xl flex flex-col w-screen max-w-screen overflow-hidden h-[100dvh] md:inset-auto md:top-20 md:right-6 md:left-auto md:w-96 md:h-[500px] md:rounded-lg md:border"
       style={{ 
         height: viewportHeight && window.innerWidth < 768 
           ? `${viewportHeight}px` 
@@ -176,6 +176,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
           placeholder="Nachricht schreiben..."
           className="min-h-[44px] max-h-[100px] resize-none flex-1 min-w-0"
           rows={1}
+          enterKeyHint="send"
         />
         <Button onClick={handleSend} disabled={!input.trim()} size="icon" className="h-[44px] w-[44px] flex-shrink-0">
           <Send className="h-4 w-4" />

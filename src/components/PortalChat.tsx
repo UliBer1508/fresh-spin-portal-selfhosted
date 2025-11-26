@@ -36,7 +36,7 @@ interface PortalChatProps {
 
 const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
   const [input, setInput] = useState('');
-  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { messages, isLoading, error, markAsRead, sendMessage } = usePortalMessages();
@@ -46,26 +46,6 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // VisualViewport API für Tastatur-Handhabung
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.visualViewport) {
-        setViewportHeight(window.visualViewport.height);
-      }
-    };
-
-    // Initial setzen
-    handleResize();
-
-    // Auf Tastatur-Events reagieren
-    window.visualViewport?.addEventListener('resize', handleResize);
-    window.visualViewport?.addEventListener('scroll', handleResize);
-
-    return () => {
-      window.visualViewport?.removeEventListener('resize', handleResize);
-      window.visualViewport?.removeEventListener('scroll', handleResize);
-    };
-  }, []);
 
   // Admin-Nachrichten als gelesen markieren wenn Chat geöffnet
   useEffect(() => {
@@ -89,7 +69,9 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
 
   const handleFocus = () => {
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
     }, 300);
   };
 
@@ -98,11 +80,6 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
   return (
     <div 
       className="fixed inset-0 md:top-20 md:right-6 md:inset-auto md:w-96 h-[100dvh] md:h-[500px] bg-background border-0 md:border md:rounded-lg shadow-xl z-[100] flex flex-col"
-      style={{ 
-        height: viewportHeight && window.innerWidth < 768 
-          ? `${viewportHeight}px` 
-          : undefined 
-      }}
     >
       {/* Header */}
       <div className="p-4 pt-[calc(1rem+env(safe-area-inset-top))] md:pt-4 border-b bg-primary text-primary-foreground md:rounded-t-lg flex items-center justify-between">
@@ -116,7 +93,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4">
         <div className="space-y-3">
         {error && (
           <div className="flex items-center justify-center h-full text-center text-destructive">
@@ -164,7 +141,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
         )}
         <div ref={messagesEndRef} />
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Input */}
       <div className="p-3 md:p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-4 border-t bg-card md:rounded-b-lg flex gap-2 flex-shrink-0">

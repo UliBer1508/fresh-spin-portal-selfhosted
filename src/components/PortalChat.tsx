@@ -69,16 +69,10 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
 
   // Admin-Nachrichten als gelesen markieren wenn Chat geöffnet
   useEffect(() => {
-    if (isOpen && messages.length > 0) {
-      const unreadAdminMessages = messages
-        .filter((msg) => msg.sender_type === 'admin' && !msg.is_read)
-        .map((msg) => msg.id);
-      
-      if (unreadAdminMessages.length > 0) {
-        markAsRead(unreadAdminMessages);
-      }
+    if (isOpen) {
+      markAsRead();
     }
-  }, [isOpen, messages, markAsRead]);
+  }, [isOpen, markAsRead]);
 
   const handleSend = () => {
     if (!input.trim()) return;

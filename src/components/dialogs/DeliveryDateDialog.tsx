@@ -72,7 +72,7 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {isDelivered ? 'Liefertermin ansehen' : 'Liefertermin bearbeiten'}

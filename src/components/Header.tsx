@@ -47,7 +47,7 @@ const Header = ({
         
         <div className="flex items-center space-x-3">
           {/* Chat Button */}
-          <ChatButton onClick={onChatOpen} unreadCount={unreadCount} />
+          <ChatButton onClick={() => onChatOpen?.()} unreadCount={unreadCount} />
           
           {shouldShowButton && (
             <ViewSettingsDialog

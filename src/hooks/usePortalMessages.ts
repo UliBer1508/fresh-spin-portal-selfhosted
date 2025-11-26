@@ -94,11 +94,13 @@ export const usePortalMessages = () => {
 
   // Admin-Nachrichten als gelesen markieren
   const markAsReadMutation = useMutation({
-    mutationFn: async (messageIds: string[]) => {
+    mutationFn: async () => {
       const { error } = await supabase
         .from('provider_messages')
         .update({ is_read: true })
-        .in('id', messageIds);
+        .eq('provider_id', TEUNI_PROVIDER_ID)
+        .eq('sender_type', 'admin')
+        .eq('is_read', false);
 
       if (error) throw error;
     },

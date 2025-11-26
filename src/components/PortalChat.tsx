@@ -97,7 +97,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
 
   return (
     <div 
-      className="fixed inset-0 z-[100] bg-background border-0 shadow-2xl flex flex-col w-full overflow-hidden h-[100dvh] md:inset-auto md:top-20 md:right-6 md:left-auto md:w-96 md:h-[500px] md:rounded-lg md:border"
+      className="fixed inset-0 md:top-20 md:right-6 md:inset-auto md:w-96 h-[100dvh] md:h-[500px] bg-background border-0 md:border md:rounded-lg shadow-xl z-[100] flex flex-col"
       style={{ 
         height: viewportHeight && window.innerWidth < 768 
           ? `${viewportHeight}px` 

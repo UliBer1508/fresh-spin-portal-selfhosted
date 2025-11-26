@@ -198,7 +198,7 @@ const Index = () => {
           hasNewOrders={hasNewOrders}
         />
         
-        <main className="max-w-7xl mx-auto px-6 py-8">
+        <main className="max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-8 pb-[env(safe-area-inset-bottom)]">
           {renderTabContent()}
         </main>
       </div>

@@ -56,27 +56,36 @@ const Index = () => {
   // Migration script - migrate to unified ViewSettings
   useEffect(() => {
     const appVersion = localStorage.getItem('app-version');
-    if (!appVersion || appVersion !== '12.0') {
-      console.log('[Migration] Migrating from version', appVersion, 'to 12.0');
+    if (!appVersion || appVersion !== '12.2') {
+      console.log('[Migration] Migrating from version', appVersion, 'to 12.2');
+      
+      let migrated = false;
       
       // Migrate from Desktop-Settings as basis
       const desktopSettings = localStorage.getItem('viewSettings-desktop');
       if (desktopSettings && !localStorage.getItem('viewSettings')) {
         localStorage.setItem('viewSettings', desktopSettings);
         console.log('[Migration] Migrated desktop settings to unified settings');
+        migrated = true;
       }
       
       // Remove old keys
-      localStorage.removeItem('viewSettings-desktop');
-      localStorage.removeItem('viewSettings-mobile');
-      // Keep: showViewSettingsButtonOnMobile
+      if (localStorage.getItem('viewSettings-desktop') || localStorage.getItem('viewSettings-mobile')) {
+        localStorage.removeItem('viewSettings-desktop');
+        localStorage.removeItem('viewSettings-mobile');
+        migrated = true;
+      }
       
       // Mark as migrated
-      localStorage.setItem('app-version', '12.0');
+      localStorage.setItem('app-version', '12.2');
       
-      // Force reload to ensure new code is active
-      console.log('[Migration] Reloading to apply new version');
-      window.location.reload();
+      // Only reload if we actually migrated something
+      if (migrated) {
+        console.log('[Migration] Reloading to apply migrated settings');
+        window.location.reload();
+      } else {
+        console.log('[Migration] Version updated, no reload needed');
+      }
     }
   }, []);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);

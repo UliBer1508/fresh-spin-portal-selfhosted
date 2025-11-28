@@ -64,16 +64,6 @@ self.addEventListener('activate', (event) => {
         console.log('[SW] All old caches deleted, claiming clients');
         return self.clients.claim();
       })
-      .then(() => {
-        console.log('[SW] Forcing reload of all clients');
-        // Force reload all open tabs/windows
-        return self.clients.matchAll({ type: 'window' }).then(clients => {
-          clients.forEach(client => {
-            console.log('[SW] Force reloading client:', client.url);
-            client.navigate(client.url);
-          });
-        });
-      })
   );
 });
 

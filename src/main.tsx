@@ -1,8 +1,46 @@
-// v12.2 - Chat Icon Update (Lucide React)
+// v12.3 - React Cache Fix
 import { StrictMode, Component, ErrorInfo, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+
+// Preemptive cache check and clear on startup
+const performPreemptiveCacheCheck = async () => {
+  const lastVersion = localStorage.getItem('app-version');
+  const currentVersion = '12.3';
+  
+  if (lastVersion !== currentVersion) {
+    console.log('[Startup] Version changed from', lastVersion, 'to', currentVersion, '- clearing all caches');
+    
+    try {
+      // Clear all browser caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
+        console.log('[Startup] Cleared', cacheNames.length, 'cache(s)');
+      }
+      
+      // Unregister service workers
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map(reg => reg.unregister()));
+        console.log('[Startup] Unregistered', registrations.length, 'service worker(s)');
+      }
+      
+      // Clear session storage error counters
+      sessionStorage.removeItem('errorBoundaryReloadCount');
+      
+      // Update version
+      localStorage.setItem('app-version', currentVersion);
+      console.log('[Startup] Cache cleanup complete');
+    } catch (err) {
+      console.error('[Startup] Cache cleanup failed:', err);
+    }
+  }
+};
+
+// Run preemptive cache check
+performPreemptiveCacheCheck();
 
 interface ErrorBoundaryProps {
   children: ReactNode;

@@ -152,7 +152,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
             onKeyDown={handleKeyDown}
             onFocus={handleFocus}
             placeholder="Nachricht schreiben..."
-            className="min-h-[44px] max-h-[100px] resize-none"
+            className="min-h-[44px] max-h-[100px] resize-none text-base"
             rows={1}
             enterKeyHint="send"
           />

@@ -79,7 +79,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
 
   return (
     <div 
-      className="fixed inset-0 md:top-20 md:right-6 md:inset-auto md:w-96 h-[100dvh] md:h-[500px] bg-background border-0 md:border md:rounded-lg shadow-xl z-[100] flex flex-col"
+      className="fixed inset-0 md:top-20 md:right-6 md:inset-auto md:w-96 h-[100dvh] md:h-[500px] bg-background border-0 md:border md:rounded-lg shadow-xl z-[100] flex flex-col overflow-hidden"
     >
       {/* Header */}
       <div className="p-4 pt-[calc(1rem+env(safe-area-inset-top))] md:pt-4 border-b bg-primary text-primary-foreground md:rounded-t-lg flex items-center justify-between">
@@ -144,14 +144,14 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
       </div>
 
       {/* Input */}
-      <div className="p-3 md:p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-4 border-t bg-card md:rounded-b-lg flex gap-2 flex-shrink-0">
+      <div className="p-3 md:p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-4 border-t bg-card md:rounded-b-lg flex gap-2 flex-shrink-0 w-full overflow-hidden">
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
           placeholder="Nachricht schreiben..."
-          className="min-h-[44px] max-h-[100px] resize-none flex-1 min-w-0"
+          className="min-h-[44px] max-h-[100px] resize-none flex-1 min-w-0 w-full"
           rows={1}
           enterKeyHint="send"
         />

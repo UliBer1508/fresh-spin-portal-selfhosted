@@ -155,7 +155,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
           rows={1}
           enterKeyHint="send"
         />
-        <Button onClick={handleSend} disabled={!input.trim()} size="icon" className="h-[44px] w-[44px] flex-shrink-0">
+        <Button onClick={handleSend} disabled={!input.trim()} size="icon" className="hidden md:flex h-[44px] w-[44px] flex-shrink-0">
           <Send className="h-4 w-4" />
         </Button>
       </div>

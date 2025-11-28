@@ -79,7 +79,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
 
   return (
     <div 
-      className="fixed inset-0 md:top-20 md:right-6 md:inset-auto md:w-96 h-[100dvh] md:h-[500px] bg-background border-0 md:border md:rounded-lg shadow-xl z-[100] flex flex-col overflow-hidden"
+      className="fixed inset-0 w-screen max-w-[100vw] md:top-20 md:right-6 md:left-auto md:inset-auto md:w-96 md:max-w-96 h-[100dvh] md:h-[500px] bg-background border-0 md:border md:rounded-lg shadow-xl z-[100] flex flex-col overflow-hidden"
     >
       {/* Header */}
       <div className="p-4 pt-[calc(1rem+env(safe-area-inset-top))] md:pt-4 border-b bg-primary text-primary-foreground md:rounded-t-lg flex items-center justify-between">
@@ -93,7 +93,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden p-4">
         <div className="space-y-3">
         {error && (
           <div className="flex items-center justify-center h-full text-center text-destructive">
@@ -151,7 +151,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
           placeholder="Nachricht schreiben..."
-          className="min-h-[44px] max-h-[100px] resize-none flex-1 min-w-0 w-full"
+          className="min-h-[44px] max-h-[100px] resize-none flex-1 min-w-0 w-full max-w-full overflow-x-hidden"
           rows={1}
           enterKeyHint="send"
         />

@@ -1,4 +1,4 @@
-// v12.2 - Chat Icon Update (Lucide React)
+// v12.3 - React Cache Fix
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";

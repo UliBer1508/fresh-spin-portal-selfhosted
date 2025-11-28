@@ -123,16 +123,4 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
-
-  /* iOS Safari Textarea Overflow Fix */
-  textarea {
-    -webkit-text-size-adjust: 100%;
-    max-width: 100% !important;
-    box-sizing: border-box;
-  }
-  
-  /* Prevent horizontal scroll on fixed chat containers */
-  .fixed {
-    -webkit-overflow-scrolling: touch;
-  }
 }

@@ -79,7 +79,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
 
   return (
     <div 
-      className="fixed inset-0 w-screen max-w-[100vw] md:top-20 md:right-6 md:left-auto md:inset-auto md:w-96 md:max-w-96 h-[100dvh] md:h-[500px] bg-background border-0 md:border md:rounded-lg shadow-xl z-[100] flex flex-col overflow-hidden"
+      className="fixed inset-0 md:top-20 md:right-6 md:inset-auto md:w-96 h-[100dvh] md:h-[500px] bg-background border-0 md:border md:rounded-lg shadow-xl z-[100] flex flex-col"
     >
       {/* Header */}
       <div className="p-4 pt-[calc(1rem+env(safe-area-inset-top))] md:pt-4 border-b bg-primary text-primary-foreground md:rounded-t-lg flex items-center justify-between">
@@ -93,7 +93,7 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden p-4">
+      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         <div className="space-y-3">
         {error && (
           <div className="flex items-center justify-center h-full text-center text-destructive">
@@ -141,23 +141,25 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
         )}
         <div ref={messagesEndRef} />
         </div>
-      </div>
+      </ScrollArea>
 
       {/* Input */}
-      <div className="p-3 md:p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:pb-4 border-t bg-card md:rounded-b-lg flex gap-2 flex-shrink-0 w-full overflow-hidden">
-        <Textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={handleFocus}
-          placeholder="Nachricht schreiben..."
-          className="min-h-[44px] max-h-[100px] resize-none flex-1 min-w-0 w-full max-w-full overflow-x-hidden"
-          rows={1}
-          enterKeyHint="send"
-        />
-        <Button onClick={handleSend} disabled={!input.trim()} size="icon" className="hidden md:flex h-[44px] w-[44px] flex-shrink-0">
-          <Send className="h-4 w-4" />
-        </Button>
+      <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t">
+        <div className="flex gap-2">
+          <Textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
+            placeholder="Nachricht schreiben..."
+            className="min-h-[44px] max-h-[100px] resize-none"
+            rows={1}
+            enterKeyHint="send"
+          />
+          <Button onClick={handleSend} disabled={!input.trim()} size="icon" className="shrink-0 h-[44px] w-[44px]">
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

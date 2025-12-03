@@ -189,8 +189,11 @@ const LaundryStaffManagement = () => {
   };
 
   const handleEditStaff = (person: LaundryStaff) => {
-    setEditingStaff(person);
-    setEditDialogOpen(true);
+    // requestAnimationFrame verhindert Touch-Event-Konflikte auf Mobile
+    requestAnimationFrame(() => {
+      setEditingStaff(person);
+      setEditDialogOpen(true);
+    });
   };
 
   const handleUpdateStaff = async (updatedData: Partial<LaundryStaff>) => {
@@ -460,10 +463,15 @@ const LaundryStaffManagement = () => {
 
                 {/* Action Buttons - Icon only on mobile */}
                 <div className="flex justify-between pt-2 sm:pt-3 border-t space-x-2">
-                  <Button 
+                <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => handleEditStaff(person)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleEditStaff(person);
+                    }}
+                    onTouchEnd={(e) => e.stopPropagation()}
                     className="flex-1 h-8 sm:h-9 text-xs sm:text-sm"
                   >
                     <span className="text-sm sm:text-base mr-0 sm:mr-1">✏️</span>

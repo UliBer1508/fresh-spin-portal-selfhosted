@@ -5,11 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- v11.0 - Supabase-native PWA (removed idb dependency) -->
     
-    <!-- Service Worker Registration with Cache-Busting -->
+    <!-- Service Worker Registration with Auto-Update -->
     <script>
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js?v=12.0')
-          .then(reg => console.log('[PWA] SW registered with v12.0'))
+        // Auto-reload when new service worker takes control
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          console.log('[PWA] New SW active, reloading for updates...');
+          window.location.reload();
+        });
+        
+        navigator.serviceWorker.register('/sw.js?v=12.3')
+          .then(reg => {
+            console.log('[PWA] SW registered v12.3');
+            
+            // Check for updates immediately
+            reg.update();
+            
+            // Check for updates every 5 minutes
+            setInterval(() => reg.update(), 5 * 60 * 1000);
+            
+            // Auto-apply waiting SW
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('[PWA] Update found, auto-applying...');
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                });
+              }
+            });
+          })
           .catch(err => console.error('[PWA] SW registration failed:', err));
       }
     </script>

@@ -31,6 +31,7 @@ interface EditLaundryStaffDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdate: (data: Partial<LaundryStaff>) => Promise<void>;
+  mode?: 'edit' | 'create';
 }
 
 const DAYS = [
@@ -48,6 +49,7 @@ export function EditLaundryStaffDialog({
   open,
   onOpenChange,
   onUpdate,
+  mode = 'edit',
 }: EditLaundryStaffDialogProps) {
   const [formData, setFormData] = useState({
     name: "",
@@ -62,8 +64,23 @@ export function EditLaundryStaffDialog({
   });
   const [saving, setSaving] = useState(false);
 
+  const isCreateMode = mode === 'create';
+
   useEffect(() => {
-    if (staff) {
+    if (isCreateMode) {
+      // Reset form for new staff
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        address: "",
+        hourly_rate: "",
+        quality_rating: "0",
+        is_active: true,
+        availability_days: [],
+        notes: "",
+      });
+    } else if (staff) {
       setFormData({
         name: staff.name || "",
         email: staff.email || "",
@@ -76,7 +93,7 @@ export function EditLaundryStaffDialog({
         notes: staff.notes || "",
       });
     }
-  }, [staff]);
+  }, [staff, isCreateMode, open]);
 
   const handleDayToggle = (day: string) => {
     setFormData((prev) => ({
@@ -117,7 +134,9 @@ export function EditLaundryStaffDialog({
         onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle className="text-lg">Wäschekraft bearbeiten</DialogTitle>
+          <DialogTitle className="text-lg">
+            {isCreateMode ? 'Neue Wäschekraft anlegen' : 'Wäschekraft bearbeiten'}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
@@ -254,7 +273,7 @@ export function EditLaundryStaffDialog({
             Abbrechen
           </Button>
           <Button onClick={handleSubmit} disabled={saving || !formData.name.trim()}>
-            {saving ? "Speichere..." : "Speichern"}
+            {saving ? "Speichere..." : isCreateMode ? "Erstellen" : "Speichern"}
           </Button>
         </DialogFooter>
       </DialogContent>

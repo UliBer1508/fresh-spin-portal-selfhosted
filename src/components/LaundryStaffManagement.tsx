@@ -35,6 +35,7 @@ const LaundryStaffManagement = () => {
   const [sortBy, setSortBy] = useState<"name" | "rating" | "orders">("name");
   const [editingStaff, setEditingStaff] = useState<LaundryStaff | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
 
   const dayLabels = {
     monday: 'mo',
@@ -191,9 +192,43 @@ const LaundryStaffManagement = () => {
   const handleEditStaff = (person: LaundryStaff) => {
     // requestAnimationFrame verhindert Touch-Event-Konflikte auf Mobile
     requestAnimationFrame(() => {
+      setIsCreatingNew(false);
       setEditingStaff(person);
       setEditDialogOpen(true);
     });
+  };
+
+  const handleAddNewStaff = () => {
+    setEditingStaff(null);
+    setIsCreatingNew(true);
+    setEditDialogOpen(true);
+  };
+
+  const handleCreateStaff = async (newData: Partial<LaundryStaff>) => {
+    try {
+      const { error } = await supabase
+        .from('laundry_staff')
+        .insert({
+          name: newData.name,
+          email: newData.email,
+          phone: newData.phone,
+          address: newData.address,
+          hourly_rate: newData.hourly_rate,
+          quality_rating: newData.quality_rating || 0,
+          is_active: newData.is_active ?? true,
+          availability_days: newData.availability_days || [],
+          notes: newData.notes,
+        });
+
+      if (error) throw error;
+      
+      toast.success('Neue Wäschekraft erfolgreich erstellt');
+      setIsCreatingNew(false);
+      fetchStaff();
+    } catch (error) {
+      console.error('Error creating staff:', error);
+      toast.error('Fehler beim Erstellen der Wäschekraft');
+    }
   };
 
   const handleUpdateStaff = async (updatedData: Partial<LaundryStaff>) => {
@@ -226,13 +261,20 @@ const LaundryStaffManagement = () => {
   return (
     <div className="space-y-3 sm:space-y-6 px-2 sm:px-0">
       {/* Header */}
-      <div className="text-center sm:text-left">
-        <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
-          Wäschekräfte verwalten
-        </h1>
-        <p className="text-muted-foreground text-sm sm:text-base">
-          Übersicht und Verwaltung aller Wäschekräfte
-        </p>
+      <div className="flex justify-between items-start sm:items-center">
+        <div className="text-center sm:text-left">
+          <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
+            Wäschekräfte verwalten
+          </h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Übersicht und Verwaltung aller Wäschekräfte
+          </p>
+        </div>
+        <Button onClick={handleAddNewStaff} className="h-8 sm:h-10 text-xs sm:text-sm">
+          <span className="mr-1">➕</span>
+          <span className="hidden sm:inline">Neue Wäschekraft</span>
+          <span className="sm:hidden">Neu</span>
+        </Button>
       </div>
 
       {/* Statistics Cards - Ultra compact on mobile */}
@@ -495,8 +537,12 @@ const LaundryStaffManagement = () => {
       <EditLaundryStaffDialog
         staff={editingStaff}
         open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
-        onUpdate={handleUpdateStaff}
+        onOpenChange={(open) => {
+          setEditDialogOpen(open);
+          if (!open) setIsCreatingNew(false);
+        }}
+        onUpdate={isCreatingNew ? handleCreateStaff : handleUpdateStaff}
+        mode={isCreatingNew ? 'create' : 'edit'}
       />
     </div>
   );

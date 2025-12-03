@@ -1,12 +1,12 @@
-const VERSION = '12.2';
+const VERSION = '12.3';
 const CACHE_NAME = `teuni-waescheportal-v${VERSION}`;
 const RUNTIME_CACHE = `teuni-runtime-v${VERSION}`;
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
-  '/?v=12.2',
+  '/?v=12.3',
   '/offline.html',
-  '/manifest.json?v=12.2',
+  '/manifest.json?v=12.3',
   '/icons/icon-72x72.png',
   '/icons/icon-96x96.png',
   '/icons/icon-128x128.png',
@@ -31,31 +31,18 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating new service worker v12.0');
+  console.log('[SW] Activating new service worker v12.3');
   event.waitUntil(
     caches.keys()
       .then(cacheNames => {
-        // Explicitly target and delete problematic old versions
-        const oldVersions = ['v11.0', 'v11.1', 'v11.2'];
+        // Delete all caches that are not current version
         const cachesToDelete = cacheNames.filter(cacheName => {
-          // Delete if not current version
-          if (cacheName === CACHE_NAME || cacheName === RUNTIME_CACHE) {
-            return false;
-          }
-          
-          // Explicitly delete old problematic versions
-          const isOldVersion = oldVersions.some(oldVer => cacheName.includes(oldVer));
-          if (isOldVersion) {
-            console.log('[SW] 🔥 FORCE DELETING problematic cache:', cacheName);
-            return true;
-          }
-          
-          return true;
+          return cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE;
         });
         
         return Promise.all(
           cachesToDelete.map(cacheName => {
-            console.log('[SW] Deleting cache:', cacheName);
+            console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           })
         );

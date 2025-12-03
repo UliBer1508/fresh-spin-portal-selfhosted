@@ -1,4 +1,4 @@
-// v6 - Fix React imports consistency
+// v7 - Auto-update PWA
 import { useState, useEffect } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -55,23 +55,13 @@ export const usePWA = () => {
           console.log('[PWA] SW ready with scope:', reg.scope);
           setRegistration(reg);
           
-          // Check for updates
-          reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  console.log('[PWA] Update available, will auto-apply');
-                  setUpdateAvailable(true);
-                }
-              });
-            }
-          });
-
-          // Check for updates every hour
+          // Check for updates immediately
+          reg.update();
+          
+          // Check for updates every 5 minutes
           setInterval(() => {
             reg.update();
-          }, 60 * 60 * 1000);
+          }, 5 * 60 * 1000);
         })
         .catch((error) => {
           console.log('[PWA] SW access failed:', error);

@@ -1,6 +1,5 @@
-// v8 - Mobile optimization complete
+// v9 - Edit functionality added
 import { useState, useEffect } from "react";
-// v7 - Emojis statt Icons
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { EditLaundryStaffDialog } from "@/components/dialogs/EditLaundryStaffDialog";
 
 interface LaundryStaff {
   id: string;
@@ -33,6 +33,8 @@ const LaundryStaffManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [sortBy, setSortBy] = useState<"name" | "rating" | "orders">("name");
+  const [editingStaff, setEditingStaff] = useState<LaundryStaff | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const dayLabels = {
     monday: 'mo',
@@ -183,6 +185,30 @@ const LaundryStaffManagement = () => {
         console.error('Error deleting staff:', error);
         toast.error('Fehler beim Löschen der Wäschekraft');
       }
+    }
+  };
+
+  const handleEditStaff = (person: LaundryStaff) => {
+    setEditingStaff(person);
+    setEditDialogOpen(true);
+  };
+
+  const handleUpdateStaff = async (updatedData: Partial<LaundryStaff>) => {
+    if (!editingStaff) return;
+
+    try {
+      const { error } = await supabase
+        .from('laundry_staff')
+        .update(updatedData)
+        .eq('id', editingStaff.id);
+
+      if (error) throw error;
+      
+      toast.success('Wäschekraft erfolgreich aktualisiert');
+      fetchStaff();
+    } catch (error) {
+      console.error('Error updating staff:', error);
+      toast.error('Fehler beim Aktualisieren der Wäschekraft');
     }
   };
 
@@ -434,7 +460,12 @@ const LaundryStaffManagement = () => {
 
                 {/* Action Buttons - Icon only on mobile */}
                 <div className="flex justify-between pt-2 sm:pt-3 border-t space-x-2">
-                  <Button variant="outline" size="sm" className="flex-1 h-8 sm:h-9 text-xs sm:text-sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleEditStaff(person)}
+                    className="flex-1 h-8 sm:h-9 text-xs sm:text-sm"
+                  >
                     <span className="text-sm sm:text-base mr-0 sm:mr-1">✏️</span>
                     <span className="hidden sm:inline">Bearbeiten</span>
                   </Button>
@@ -452,6 +483,13 @@ const LaundryStaffManagement = () => {
           ))}
         </div>
       )}
+
+      <EditLaundryStaffDialog
+        staff={editingStaff}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onUpdate={handleUpdateStaff}
+      />
     </div>
   );
 };

@@ -17,6 +17,9 @@ export const getLinenLabel = (key: string): string => {
 
 export const LINEN_COLOR_LABELS: Record<string, string> = {
   white_striped: "Weiß gestreift",
+  white: "Weiß",
+  grey: "Grau",
+  grey_striped: "Grau gestreift",
   colorful: "Bunt"
 };
 

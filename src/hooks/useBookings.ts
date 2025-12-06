@@ -35,6 +35,7 @@ export interface LinenOrder {
   delivery_type?: string;
   notes?: string;
   items: any;
+  item_variants?: Record<string, string>;
   provider_id?: string;
   assigned_staff_id?: string;
   linen_color?: string;
@@ -73,6 +74,7 @@ export const useBookings = (onNewOrder?: () => void) => {
             delivery_type,
             notes,
             items,
+            item_variants,
             provider_id,
             assigned_staff_id,
             linen_color,

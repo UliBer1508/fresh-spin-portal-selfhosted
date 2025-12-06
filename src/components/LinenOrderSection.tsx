@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -387,6 +387,19 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                   <div className="bg-background rounded-lg border border-border overflow-hidden shadow-sm">
                     {Object.values(order.items as Record<string, number>).some(qty => qty > 0) ? (
                       <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="py-2 px-3 sm:px-4 text-left text-xs font-medium text-muted-foreground">
+                              Artikel
+                            </TableHead>
+                            <TableHead className="py-2 px-3 sm:px-4 text-left text-xs font-medium text-muted-foreground">
+                              Farbe
+                            </TableHead>
+                            <TableHead className="py-2 px-3 sm:px-4 text-right text-xs font-medium text-muted-foreground">
+                              Anzahl
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
                         <TableBody>
                           {Object.entries(order.items as Record<string, number>)
                             .filter(([_, quantity]) => quantity > 0)
@@ -397,11 +410,9 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                               >
                                 <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
                                   {getLinenLabel(key)}
-                                  {order.linen_color && (
-                                    <span className="text-muted-foreground font-normal ml-1">
-                                      ({getLinenColorLabel(order.linen_color)})
-                                    </span>
-                                  )}
+                                </TableCell>
+                                <TableCell className="py-3 px-3 sm:px-4 text-sm text-muted-foreground">
+                                  {order.linen_color ? getLinenColorLabel(order.linen_color) : '-'}
                                 </TableCell>
                                 <TableCell className="py-3 px-3 sm:px-4 text-right">
                                   <Badge variant="outline" className="font-semibold tabular-nums">

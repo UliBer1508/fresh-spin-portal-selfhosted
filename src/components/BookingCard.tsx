@@ -133,6 +133,16 @@ const BookingCard = ({ booking, viewSettings }: BookingCardProps) => {
             </div>
           )}
 
+          {/* Reinigungsdatum */}
+          {booking.service_tasks?.find(t => t.service_type === 'cleaning') && (
+            <div className="flex items-center space-x-2 ml-3 sm:ml-7">
+              <span className="text-base">🧹</span>
+              <span className="text-foreground">
+                Reinigung am: {formatDate(booking.service_tasks.find(t => t.service_type === 'cleaning')!.scheduled_date)}
+              </span>
+            </div>
+          )}
+
           {/* Linen Orders Section */}
           {viewSettings.showLinenOrders && (
             <LinenOrderSection 

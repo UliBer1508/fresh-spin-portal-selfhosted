@@ -2,6 +2,12 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface ServiceTask {
+  scheduled_date: string;
+  scheduled_time?: string;
+  service_type: string;
+}
+
 export interface Booking {
   id: string;
   guest_name: string;
@@ -17,6 +23,7 @@ export interface Booking {
     address: string;
   };
   linen_orders?: LinenOrder[];
+  service_tasks?: ServiceTask[];
 }
 
 export interface LinenOrder {
@@ -73,6 +80,11 @@ export const useBookings = (onNewOrder?: () => void) => {
             laundry_staff (
               name
             )
+          ),
+          service_tasks (
+            scheduled_date,
+            scheduled_time,
+            service_type
           )
         `)
         .not('linen_orders', 'is', null)

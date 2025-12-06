@@ -1,4 +1,4 @@
-// v6 - Fix React imports consistency
+// v7 - House colors and abbreviations
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,9 +6,25 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, parseISO, isWithinInterval, startOfWeek, endOfWeek, addWeeks, subWeeks, startOfDay } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks } from "date-fns";
 import { de } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+
+// House colors matching BookingCard.tsx
+const HOUSE_COLORS = [
+  { bg: 'bg-blue-500', text: 'text-white' },
+  { bg: 'bg-purple-500', text: 'text-white' },
+  { bg: 'bg-pink-500', text: 'text-white' },
+  { bg: 'bg-green-500', text: 'text-white' },
+  { bg: 'bg-orange-500', text: 'text-white' },
+  { bg: 'bg-teal-500', text: 'text-white' },
+  { bg: 'bg-indigo-500', text: 'text-white' },
+  { bg: 'bg-rose-500', text: 'text-white' },
+  { bg: 'bg-cyan-500', text: 'text-white' },
+  { bg: 'bg-amber-500', text: 'text-white' },
+  { bg: 'bg-emerald-500', text: 'text-white' },
+  { bg: 'bg-violet-500', text: 'text-white' },
+];
 
 interface CalendarEvent {
   id: string;
@@ -16,6 +32,7 @@ interface CalendarEvent {
   date: Date;
   title: string;
   house?: string;
+  house_id?: string;
   guest?: string;
 }
 
@@ -24,6 +41,7 @@ interface Booking {
   guest_name: string;
   check_in: string;
   check_out: string;
+  house_id: string;
   houses?: { name: string };
 }
 
@@ -31,27 +49,50 @@ interface ServiceTask {
   id: string;
   scheduled_date: string;
   service_type: string;
+  house_id: string;
   houses?: { name: string };
 }
 
 interface LinenOrder {
   id: string;
   delivery_date: string;
+  house_id: string;
   houses?: { name: string };
 }
+
+interface House {
+  id: string;
+  name: string;
+}
+
+// Get consistent color for a house based on its ID
+const getHouseColor = (houseId: string) => {
+  if (!houseId) return HOUSE_COLORS[0];
+  const hash = houseId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return HOUSE_COLORS[hash % HOUSE_COLORS.length];
+};
+
+// Get house name abbreviation (e.g., "Wald Chalet" → "WC")
+const getHouseAbbreviation = (houseName: string) => {
+  if (!houseName) return '';
+  const words = houseName.split(' ').filter(w => w.length > 0);
+  if (words.length === 1) return houseName.substring(0, 3).toUpperCase();
+  return words.map(w => w[0]).join('').toUpperCase().substring(0, 3);
+};
 
 const CalendarView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [view, setView] = useState<'month' | 'week'>('month');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [houses, setHouses] = useState<House[]>([]);
   const [loading, setLoading] = useState(true);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Monday
+  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
@@ -69,7 +110,17 @@ const CalendarView = () => {
       const startDate = displayStart.toISOString().split('T')[0];
       const endDate = displayEnd.toISOString().split('T')[0];
 
-      // Fetch bookings
+      // Fetch all houses for legend
+      const { data: housesData } = await supabase
+        .from('houses')
+        .select('id, name')
+        .order('name');
+
+      if (housesData) {
+        setHouses(housesData);
+      }
+
+      // Fetch bookings with house_id
       const { data: bookings } = await supabase
         .from('bookings')
         .select(`
@@ -77,30 +128,33 @@ const CalendarView = () => {
           guest_name,
           check_in,
           check_out,
+          house_id,
           houses (name)
         `)
         .gte('check_out', startDate)
         .lte('check_in', endDate);
 
-      // Fetch service tasks (cleaning)
+      // Fetch service tasks (cleaning) with house_id
       const { data: serviceTasks } = await supabase
         .from('service_tasks')
         .select(`
           id,
           scheduled_date,
           service_type,
+          house_id,
           houses (name)
         `)
         .gte('scheduled_date', startDate)
         .lte('scheduled_date', endDate)
         .eq('service_type', 'cleaning');
 
-      // Fetch linen orders
+      // Fetch linen orders with house_id
       const { data: linenOrders } = await supabase
         .from('linen_orders')
         .select(`
           id,
           delivery_date,
+          house_id,
           houses (name)
         `)
         .gte('delivery_date', startDate)
@@ -120,6 +174,7 @@ const CalendarView = () => {
           date: checkInDate,
           title: 'Check-in',
           house: booking.houses?.name,
+          house_id: booking.house_id,
           guest: booking.guest_name
         });
 
@@ -130,19 +185,21 @@ const CalendarView = () => {
           date: checkOutDate,
           title: 'Check-out',
           house: booking.houses?.name,
+          house_id: booking.house_id,
           guest: booking.guest_name
         });
 
         // Add occupied days between check-in and check-out
         const occupiedDays = eachDayOfInterval({ start: checkInDate, end: checkOutDate });
         occupiedDays.forEach((day, index) => {
-          if (index > 0 && index < occupiedDays.length - 1) { // Skip first and last day
+          if (index > 0 && index < occupiedDays.length - 1) {
             calendarEvents.push({
               id: `occupied-${booking.id}-${format(day, 'yyyy-MM-dd')}`,
               type: 'occupied',
               date: day,
               title: 'Belegt',
               house: booking.houses?.name,
+              house_id: booking.house_id,
               guest: booking.guest_name
             });
           }
@@ -156,7 +213,8 @@ const CalendarView = () => {
           type: 'cleaning',
           date: parseISO(task.scheduled_date),
           title: 'Reinigung',
-          house: task.houses?.name
+          house: task.houses?.name,
+          house_id: task.house_id
         });
       });
 
@@ -168,7 +226,8 @@ const CalendarView = () => {
             type: 'linen',
             date: parseISO(order.delivery_date),
             title: 'Wäsche',
-            house: order.houses?.name
+            house: order.houses?.name,
+            house_id: order.house_id
           });
         }
       });
@@ -198,14 +257,17 @@ const CalendarView = () => {
     setSelectedDate(date);
   };
 
-  const getEventColor = (type: CalendarEvent['type']) => {
-    switch (type) {
+  // Get event color - for occupied events use house color
+  const getEventColor = (event: CalendarEvent) => {
+    if (event.type === 'occupied' && event.house_id) {
+      const houseColor = getHouseColor(event.house_id);
+      return `${houseColor.bg} ${houseColor.text}`;
+    }
+    switch (event.type) {
       case 'check-in':
         return 'bg-success text-success-foreground';
       case 'check-out':
         return 'bg-destructive text-destructive-foreground';
-      case 'occupied':
-        return 'bg-warning text-warning-foreground';
       case 'cleaning':
         return 'bg-info text-info-foreground';
       case 'linen':
@@ -215,14 +277,15 @@ const CalendarView = () => {
     }
   };
 
-  const getEventIconColor = (type: CalendarEvent['type']) => {
-    switch (type) {
+  const getEventIconColor = (event: CalendarEvent) => {
+    if (event.type === 'occupied' && event.house_id) {
+      return getHouseColor(event.house_id).bg;
+    }
+    switch (event.type) {
       case 'check-in':
         return 'bg-success';
       case 'check-out':
         return 'bg-destructive';
-      case 'occupied':
-        return 'bg-warning';
       case 'cleaning':
         return 'bg-info';
       case 'linen':
@@ -230,6 +293,20 @@ const CalendarView = () => {
       default:
         return 'bg-muted';
     }
+  };
+
+  // Get display text for event badge
+  const getEventDisplayText = (event: CalendarEvent) => {
+    const abbr = event.house ? getHouseAbbreviation(event.house) : '';
+    
+    if (event.type === 'occupied') {
+      // For occupied, show house name
+      return event.house || 'Belegt';
+    }
+    
+    // For other types, show type + house abbreviation
+    const typeText = event.title;
+    return abbr ? `${typeText} • ${abbr}` : typeText;
   };
 
   const goToPrevious = () => {
@@ -358,19 +435,14 @@ const CalendarView = () => {
                           key={event.id}
                           className={cn(
                             "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 block truncate cursor-pointer hover:opacity-80",
-                            getEventColor(event.type)
+                            getEventColor(event)
                           )}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEventClick(event);
                           }}
                         >
-                          {event.title}
-                          {view === 'week' && event.guest && (
-                            <span className="hidden md:block text-xs opacity-75">
-                              {event.guest}
-                            </span>
-                          )}
+                          {getEventDisplayText(event)}
                         </Badge>
                       ))}
                       {dayEvents.length > (view === 'week' ? 3 : 2) && (
@@ -403,7 +475,7 @@ const CalendarView = () => {
                   {getSelectedDateEvents().map((event) => (
                     <div key={event.id} className="border-l-4 border-l-primary pl-3">
                       <div className="flex items-center space-x-2 mb-1">
-                        <div className={cn("w-3 h-3 rounded", getEventIconColor(event.type))}></div>
+                        <div className={cn("w-3 h-3 rounded", getEventIconColor(event))}></div>
                         <span className="font-medium text-sm">{event.title}</span>
                       </div>
                       {event.guest && (
@@ -451,24 +523,36 @@ const CalendarView = () => {
           {/* Legend */}
           <div className="bg-background border rounded-lg p-3 md:p-4">
             <h3 className="font-medium mb-3 text-sm md:text-base">Legende</h3>
-            <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
+            <div className="space-y-2">
+              {/* Check-in */}
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 md:w-4 md:h-4 bg-success rounded"></div>
                 <span className="text-xs md:text-sm">Check-in</span>
               </div>
+              {/* Check-out */}
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 md:w-4 md:h-4 bg-destructive rounded"></div>
                 <span className="text-xs md:text-sm">Check-out</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 md:w-4 md:h-4 bg-warning rounded"></div>
-                <span className="text-xs md:text-sm">Belegt</span>
-              </div>
+              
+              {/* Dynamic house colors for "Belegt" */}
+              {houses.map((house) => {
+                const houseColor = getHouseColor(house.id);
+                return (
+                  <div key={house.id} className="flex items-center space-x-2">
+                    <div className={cn("w-3 h-3 md:w-4 md:h-4 rounded", houseColor.bg)}></div>
+                    <span className="text-xs md:text-sm">{house.name} Belegt</span>
+                  </div>
+                );
+              })}
+              
+              {/* Reinigung */}
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 md:w-4 md:h-4 bg-info rounded"></div>
                 <span className="text-xs md:text-sm">Reinigung</span>
               </div>
-              <div className="flex items-center space-x-2 col-span-2 md:col-span-1">
+              {/* Wäsche */}
+              <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 md:w-4 md:h-4 bg-purple-500 rounded"></div>
                 <span className="text-xs md:text-sm">Wäsche</span>
               </div>

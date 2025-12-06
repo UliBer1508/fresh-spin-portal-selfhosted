@@ -218,13 +218,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                     </div>
                     
                     <div className="ml-8 space-y-2">
-                      {/* Liefertyp als Badge */}
-                      {viewSettings.showDeliveryType && (
-                        <Badge variant="outline" className="font-medium">
-                          {getDeliveryTypeText(order.delivery_type)}
-                        </Badge>
-                      )}
-                      
                       {/* Anklickbare Datum und Zeit Anzeige */}
                       {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
                         <button

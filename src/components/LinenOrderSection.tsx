@@ -214,7 +214,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">📅</span>
-                      <span className="text-sm font-semibold text-foreground">Lieferung</span>
+                      <span className="text-sm font-semibold text-foreground">Lieferung bis zum:</span>
                     </div>
                     
                     <div className="ml-8 space-y-2">

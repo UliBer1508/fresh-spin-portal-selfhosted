@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { LinenOrder } from "@/hooks/useBookings";
 import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
 import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
-import { getLinenLabel } from "@/lib/linenLabels";
+import { getLinenLabel, getLinenColorLabel } from "@/lib/linenLabels";
 
 interface LaundryStaff {
   id: string;
@@ -370,6 +370,17 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
               {/* ========== RECHTE SPALTE - Artikel Tabelle ========== */}
               {viewSettings.showOrderItems && (
                 <div className="space-y-3">
+                  {/* Wäschefarbe */}
+                  {order.linen_color && (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg">🎨</span>
+                      <span className="text-sm font-semibold text-foreground">Wäschefarbe:</span>
+                      <Badge variant="outline" className="font-medium">
+                        {getLinenColorLabel(order.linen_color)}
+                      </Badge>
+                    </div>
+                  )}
+
                   {/* Sticky Header auf Mobile */}
                   <div className="flex items-center justify-between sticky top-0 bg-accent py-2 -mx-3 px-3 sm:static sm:bg-transparent sm:p-0 sm:m-0 z-10 lg:static lg:bg-transparent lg:p-0 lg:m-0">
                     <div className="flex items-center space-x-2">

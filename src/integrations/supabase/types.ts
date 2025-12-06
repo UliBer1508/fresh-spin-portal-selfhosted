@@ -883,6 +883,7 @@ export type Database = {
       }
       bookings: {
         Row: {
+          app_identified_at: string | null
           booking_amount: number | null
           cancellation_date: string | null
           cancellation_reason: string | null
@@ -902,12 +903,14 @@ export type Database = {
           nationality: string | null
           notes: string | null
           number_of_guests: number
+          payment_status: string | null
           platform: string | null
           source: string | null
           status: Database["public"]["Enums"]["booking_status"] | null
           updated_at: string | null
         }
         Insert: {
+          app_identified_at?: string | null
           booking_amount?: number | null
           cancellation_date?: string | null
           cancellation_reason?: string | null
@@ -927,12 +930,14 @@ export type Database = {
           nationality?: string | null
           notes?: string | null
           number_of_guests: number
+          payment_status?: string | null
           platform?: string | null
           source?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
           updated_at?: string | null
         }
         Update: {
+          app_identified_at?: string | null
           booking_amount?: number | null
           cancellation_date?: string | null
           cancellation_reason?: string | null
@@ -952,6 +957,7 @@ export type Database = {
           nationality?: string | null
           notes?: string | null
           number_of_guests?: number
+          payment_status?: string | null
           platform?: string | null
           source?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null

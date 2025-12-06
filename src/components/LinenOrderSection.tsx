@@ -401,13 +401,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="py-2 px-3 sm:px-4 text-left text-xs font-medium text-muted-foreground">
+                            <TableHead className="py-2 px-3 sm:px-4 text-left text-sm font-semibold text-foreground">
                               Artikel
                             </TableHead>
-                            <TableHead className="py-2 px-3 sm:px-4 text-left text-xs font-medium text-muted-foreground">
+                            <TableHead className="py-2 px-3 sm:px-4 text-left text-sm font-semibold text-foreground">
                               Farbe
                             </TableHead>
-                            <TableHead className="py-2 px-3 sm:px-4 text-right text-xs font-medium text-muted-foreground">
+                            <TableHead className="py-2 px-3 sm:px-4 text-right text-sm font-semibold text-foreground">
                               Anzahl
                             </TableHead>
                           </TableRow>

@@ -370,17 +370,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
               {/* ========== RECHTE SPALTE - Artikel Tabelle ========== */}
               {viewSettings.showOrderItems && (
                 <div className="space-y-3">
-                  {/* Wäschefarbe */}
-                  {order.linen_color && (
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg">🎨</span>
-                      <span className="text-sm font-semibold text-foreground">Wäschefarbe:</span>
-                      <Badge variant="outline" className="font-medium">
-                        {getLinenColorLabel(order.linen_color)}
-                      </Badge>
-                    </div>
-                  )}
-
                   {/* Sticky Header auf Mobile */}
                   <div className="flex items-center justify-between sticky top-0 bg-accent py-2 -mx-3 px-3 sm:static sm:bg-transparent sm:p-0 sm:m-0 z-10 lg:static lg:bg-transparent lg:p-0 lg:m-0">
                     <div className="flex items-center space-x-2">
@@ -408,6 +397,11 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                               >
                                 <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
                                   {getLinenLabel(key)}
+                                  {order.linen_color && (
+                                    <span className="text-muted-foreground font-normal ml-1">
+                                      ({getLinenColorLabel(order.linen_color)})
+                                    </span>
+                                  )}
                                 </TableCell>
                                 <TableCell className="py-3 px-3 sm:px-4 text-right">
                                   <Badge variant="outline" className="font-semibold tabular-nums">

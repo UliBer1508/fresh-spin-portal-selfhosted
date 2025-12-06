@@ -429,7 +429,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                                   <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
                                     {getLinenLabel(key)}
                                   </TableCell>
-                                  <TableCell className="py-3 px-3 sm:px-4 text-sm text-muted-foreground">
+                                  <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
                                     {getItemColor(order, key)}
                                   </TableCell>
                                   <TableCell className="py-3 px-3 sm:px-4 text-right">

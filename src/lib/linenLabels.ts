@@ -3,7 +3,7 @@ export const LINEN_LABELS: Record<string, string> = {
   bath_mats: "Badematten",
   sink_towels: "WB-Handtücher",
   large_towels: "Badetücher",
-  sauna_towels: "Saunahandtücher",
+  sauna_towels: "Saunatücher",
   small_towels: "Handtücher",
   pillow_cases: "Kissenbezüge",
   kitchen_towels: "Küchenhandtücher",

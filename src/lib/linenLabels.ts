@@ -26,3 +26,17 @@ export const LINEN_COLOR_LABELS: Record<string, string> = {
 export const getLinenColorLabel = (key: string): string => {
   return LINEN_COLOR_LABELS[key] || key;
 };
+
+// Definierte Reihenfolge für die Anzeige der Artikel
+export const LINEN_ORDER: string[] = [
+  'bedding',        // 1. Bettwäsche
+  'pillow_cases',   // 2. Kissenbezüge
+  'small_towels',   // 3. Handtücher
+  'large_towels',   // 4. Badetücher
+  'sauna_towels',   // 5. Saunatücher
+  'bath_mats',      // 6. Badematten
+  'sink_towels',    // 7. WB-Handtücher
+  'kitchen_towels', // 8. Geschirrtücher
+  'blankets',       // 9. Decken
+  'table_linens'    // 10. Tischwäsche
+];

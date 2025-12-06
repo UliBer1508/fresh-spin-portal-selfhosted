@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { LinenOrder } from "@/hooks/useBookings";
 import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
 import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
-import { getLinenLabel, getLinenColorLabel } from "@/lib/linenLabels";
+import { getLinenLabel, getLinenColorLabel, LINEN_ORDER } from "@/lib/linenLabels";
 
 interface LaundryStaff {
   id: string;
@@ -413,26 +413,33 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {Object.entries(order.items as Record<string, number>)
-                            .filter(([_, quantity]) => quantity > 0)
-                            .map(([key, quantity]) => (
-                              <TableRow 
-                                key={key} 
-                                className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
-                              >
-                                <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
-                                  {getLinenLabel(key)}
-                                </TableCell>
-                                <TableCell className="py-3 px-3 sm:px-4 text-sm text-muted-foreground">
-                                  {getItemColor(order, key)}
-                                </TableCell>
-                                <TableCell className="py-3 px-3 sm:px-4 text-right">
-                                  <Badge variant="outline" className="font-semibold tabular-nums">
-                                    {quantity}×
-                                  </Badge>
-                                </TableCell>
-                              </TableRow>
-                            ))
+                          {LINEN_ORDER
+                            .filter(key => {
+                              const items = order.items as Record<string, number>;
+                              return items[key] && items[key] > 0;
+                            })
+                            .map(key => {
+                              const items = order.items as Record<string, number>;
+                              const quantity = items[key];
+                              return (
+                                <TableRow 
+                                  key={key} 
+                                  className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
+                                >
+                                  <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
+                                    {getLinenLabel(key)}
+                                  </TableCell>
+                                  <TableCell className="py-3 px-3 sm:px-4 text-sm text-muted-foreground">
+                                    {getItemColor(order, key)}
+                                  </TableCell>
+                                  <TableCell className="py-3 px-3 sm:px-4 text-right">
+                                    <Badge variant="outline" className="font-semibold tabular-nums">
+                                      {quantity}×
+                                    </Badge>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })
                           }
                         </TableBody>
                       </Table>

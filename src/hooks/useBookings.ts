@@ -37,6 +37,7 @@ export interface LinenOrder {
   items: any;
   provider_id?: string;
   assigned_staff_id?: string;
+  linen_color?: string;
   service_providers?: {
     name: string;
   };
@@ -74,6 +75,7 @@ export const useBookings = (onNewOrder?: () => void) => {
             items,
             provider_id,
             assigned_staff_id,
+            linen_color,
             service_providers (
               name
             ),

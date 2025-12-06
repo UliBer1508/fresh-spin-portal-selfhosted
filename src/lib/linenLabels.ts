@@ -14,3 +14,12 @@ export const LINEN_LABELS: Record<string, string> = {
 export const getLinenLabel = (key: string): string => {
   return LINEN_LABELS[key] || key;
 };
+
+export const LINEN_COLOR_LABELS: Record<string, string> = {
+  white_striped: "Weiß gestreift",
+  colorful: "Bunt"
+};
+
+export const getLinenColorLabel = (key: string): string => {
+  return LINEN_COLOR_LABELS[key] || key;
+};

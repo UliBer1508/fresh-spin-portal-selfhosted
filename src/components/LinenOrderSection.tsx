@@ -166,6 +166,18 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
     }
   };
 
+  // Ermittelt die Farbe für einen bestimmten Artikel
+  // Priorität: 1. item_variants (artikelspezifisch) 2. linen_color (global) 3. "-"
+  const getItemColor = (order: LinenOrder, itemKey: string): string => {
+    const itemVariants = order.item_variants as Record<string, string> | null;
+    if (itemVariants && itemVariants[itemKey]) {
+      return getLinenColorLabel(itemVariants[itemKey]);
+    }
+    if (order.linen_color) {
+      return getLinenColorLabel(order.linen_color);
+    }
+    return '-';
+  };
 
   const getTotalItems = (items: Record<string, number>): number => {
     return Object.values(items).reduce((sum, qty) => sum + qty, 0);
@@ -412,7 +424,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                                   {getLinenLabel(key)}
                                 </TableCell>
                                 <TableCell className="py-3 px-3 sm:px-4 text-sm text-muted-foreground">
-                                  {order.linen_color ? getLinenColorLabel(order.linen_color) : '-'}
+                                  {getItemColor(order, key)}
                                 </TableCell>
                                 <TableCell className="py-3 px-3 sm:px-4 text-right">
                                   <Badge variant="outline" className="font-semibold tabular-nums">

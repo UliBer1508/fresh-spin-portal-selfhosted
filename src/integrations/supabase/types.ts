@@ -894,6 +894,7 @@ export type Database = {
           currency: string | null
           external_booking_id: string | null
           external_id: string | null
+          guest_contact_status: string | null
           guest_email: string | null
           guest_name: string
           guest_phone: string | null
@@ -921,6 +922,7 @@ export type Database = {
           currency?: string | null
           external_booking_id?: string | null
           external_id?: string | null
+          guest_contact_status?: string | null
           guest_email?: string | null
           guest_name: string
           guest_phone?: string | null
@@ -948,6 +950,7 @@ export type Database = {
           currency?: string | null
           external_booking_id?: string | null
           external_id?: string | null
+          guest_contact_status?: string | null
           guest_email?: string | null
           guest_name?: string
           guest_phone?: string | null
@@ -1710,6 +1713,33 @@ export type Database = {
         }
         Relationships: []
       }
+      external_article_mapping: {
+        Row: {
+          created_at: string | null
+          external_artikelnummer: string
+          id: string
+          internal_item_key: string
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          external_artikelnummer: string
+          id?: string
+          internal_item_key: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          external_artikelnummer?: string
+          id?: string
+          internal_item_key?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       guest_behavior_patterns: {
         Row: {
           avg_linen_usage: Json
@@ -2092,6 +2122,7 @@ export type Database = {
           created_at: string | null
           default_cleaning_hours: number | null
           default_linen_color: string | null
+          external_objektnummer: string | null
           ical_url: string | null
           id: string
           image_filename: string | null
@@ -2123,6 +2154,7 @@ export type Database = {
           created_at?: string | null
           default_cleaning_hours?: number | null
           default_linen_color?: string | null
+          external_objektnummer?: string | null
           ical_url?: string | null
           id?: string
           image_filename?: string | null
@@ -2154,6 +2186,7 @@ export type Database = {
           created_at?: string | null
           default_cleaning_hours?: number | null
           default_linen_color?: string | null
+          external_objektnummer?: string | null
           ical_url?: string | null
           id?: string
           image_filename?: string | null
@@ -2271,6 +2304,90 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      laundry_invoices: {
+        Row: {
+          bearbeitungsgebuehr: number | null
+          bezahlt_am: string | null
+          bruttobetrag: number
+          created_at: string | null
+          external_bestellung_id: string | null
+          external_kunde_id: string | null
+          external_rechnung_id: string
+          external_updated_at: string | null
+          faelligkeitsdatum: string | null
+          id: string
+          kunde_kundennummer: string | null
+          kunde_name: string | null
+          kunde_ort: string | null
+          kunde_plz: string | null
+          kunde_strasse: string | null
+          mwst_betrag: number | null
+          mwst_satz: number | null
+          nettobetrag: number | null
+          notes: string | null
+          positionen: Json | null
+          rechnungsdatum: string
+          rechnungsnummer: string
+          status: string | null
+          synced_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bearbeitungsgebuehr?: number | null
+          bezahlt_am?: string | null
+          bruttobetrag: number
+          created_at?: string | null
+          external_bestellung_id?: string | null
+          external_kunde_id?: string | null
+          external_rechnung_id: string
+          external_updated_at?: string | null
+          faelligkeitsdatum?: string | null
+          id?: string
+          kunde_kundennummer?: string | null
+          kunde_name?: string | null
+          kunde_ort?: string | null
+          kunde_plz?: string | null
+          kunde_strasse?: string | null
+          mwst_betrag?: number | null
+          mwst_satz?: number | null
+          nettobetrag?: number | null
+          notes?: string | null
+          positionen?: Json | null
+          rechnungsdatum: string
+          rechnungsnummer: string
+          status?: string | null
+          synced_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bearbeitungsgebuehr?: number | null
+          bezahlt_am?: string | null
+          bruttobetrag?: number
+          created_at?: string | null
+          external_bestellung_id?: string | null
+          external_kunde_id?: string | null
+          external_rechnung_id?: string
+          external_updated_at?: string | null
+          faelligkeitsdatum?: string | null
+          id?: string
+          kunde_kundennummer?: string | null
+          kunde_name?: string | null
+          kunde_ort?: string | null
+          kunde_plz?: string | null
+          kunde_strasse?: string | null
+          mwst_betrag?: number | null
+          mwst_satz?: number | null
+          nettobetrag?: number | null
+          notes?: string | null
+          positionen?: Json | null
+          rechnungsdatum?: string
+          rechnungsnummer?: string
+          status?: string | null
+          synced_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       laundry_order_items: {
         Row: {
@@ -2465,6 +2582,9 @@ export type Database = {
           default_provider_id: string | null
           delivery_advance_days: number
           delivery_timing: string | null
+          external_api_url: string | null
+          external_kundennummer: string | null
+          external_sync_enabled: boolean | null
           id: string
           is_enabled: boolean
           lookahead_bookings: number
@@ -2476,6 +2596,9 @@ export type Database = {
           default_provider_id?: string | null
           delivery_advance_days?: number
           delivery_timing?: string | null
+          external_api_url?: string | null
+          external_kundennummer?: string | null
+          external_sync_enabled?: boolean | null
           id?: string
           is_enabled?: boolean
           lookahead_bookings?: number
@@ -2487,6 +2610,9 @@ export type Database = {
           default_provider_id?: string | null
           delivery_advance_days?: number
           delivery_timing?: string | null
+          external_api_url?: string | null
+          external_kundennummer?: string | null
+          external_sync_enabled?: boolean | null
           id?: string
           is_enabled?: boolean
           lookahead_bookings?: number
@@ -2512,6 +2638,8 @@ export type Database = {
           delivery_time: string | null
           delivery_type: string
           email_sent_at: string | null
+          external_bestellnummer: string | null
+          external_synced_at: string | null
           house_id: string | null
           id: string
           item_variants: Json | null
@@ -2534,6 +2662,8 @@ export type Database = {
           delivery_time?: string | null
           delivery_type?: string
           email_sent_at?: string | null
+          external_bestellnummer?: string | null
+          external_synced_at?: string | null
           house_id?: string | null
           id?: string
           item_variants?: Json | null
@@ -2556,6 +2686,8 @@ export type Database = {
           delivery_time?: string | null
           delivery_type?: string
           email_sent_at?: string | null
+          external_bestellnummer?: string | null
+          external_synced_at?: string | null
           house_id?: string | null
           id?: string
           item_variants?: Json | null

@@ -366,8 +366,9 @@ const CalendarView = () => {
   const getGanttBarStyle = (booking: GanttBooking) => {
     const totalDays = monthDays.length;
     const startOffset = Math.max(0, differenceInDays(booking.check_in, monthStart));
-    const endOffset = Math.min(totalDays - 1, differenceInDays(booking.check_out, monthStart));
-    const duration = endOffset - startOffset + 1;
+    // Checkout-Tag NICHT einschließen (Gast reist an diesem Tag ab)
+    const endOffset = Math.min(totalDays, differenceInDays(booking.check_out, monthStart));
+    const duration = Math.max(1, endOffset - startOffset); // Ohne +1, minimum 1 Tag
     
     const left = (startOffset / totalDays) * 100;
     const width = (duration / totalDays) * 100;
@@ -457,10 +458,11 @@ const CalendarView = () => {
                               <TooltipTrigger asChild>
                                 <div
                                   className={cn(
-                                    "absolute top-1/2 -translate-y-1/2 h-7 md:h-8 rounded-md flex items-center px-1 md:px-2 cursor-pointer hover:opacity-90 transition-opacity shadow-sm",
+                                    "absolute top-1/2 -translate-y-1/2 h-7 md:h-8 rounded-md flex items-center px-1 md:px-2 cursor-pointer hover:opacity-90 transition-opacity",
+                                    "border border-white/40 shadow-md",
                                     houseColor.bg, houseColor.text
                                   )}
-                                  style={{ left: style.left, width: style.width, minWidth: '24px' }}
+                                  style={{ left: style.left, width: `calc(${style.width} - 2px)`, minWidth: '24px' }}
                                 >
                                   <span className="text-[10px] md:text-xs font-medium truncate">
                                     {booking.guest_name}

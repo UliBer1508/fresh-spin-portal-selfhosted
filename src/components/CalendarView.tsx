@@ -365,13 +365,17 @@ const CalendarView = () => {
   // Calculate Gantt bar position and width
   const getGanttBarStyle = (booking: GanttBooking) => {
     const totalDays = monthDays.length;
-    const startOffset = Math.max(0, differenceInDays(booking.check_in, monthStart));
-    // Checkout-Tag NICHT einschließen (Gast reist an diesem Tag ab)
-    const endOffset = Math.min(totalDays, differenceInDays(booking.check_out, monthStart));
-    const duration = Math.max(1, endOffset - startOffset); // Ohne +1, minimum 1 Tag
+    const dayWidth = 100 / totalDays; // Breite eines Tages in %
     
-    const left = (startOffset / totalDays) * 100;
-    const width = (duration / totalDays) * 100;
+    // Check-in: Balken beginnt ab Mitte des Check-in-Tages (halber Tag)
+    const startDay = Math.max(0, differenceInDays(booking.check_in, monthStart));
+    const left = (startDay * dayWidth) + (dayWidth / 2); // + halber Tag
+    
+    // Checkout: Balken endet in der Mitte des Checkout-Tages (halber Tag)
+    const endDay = Math.min(totalDays, differenceInDays(booking.check_out, monthStart));
+    const right = (endDay * dayWidth) + (dayWidth / 2); // bis halber Tag
+    
+    const width = Math.max(dayWidth, right - left); // Minimum 1 Tag Breite
     
     return { left: `${left}%`, width: `${width}%` };
   };

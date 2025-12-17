@@ -142,7 +142,7 @@ const CalendarView = () => {
           check_in,
           check_out,
           house_id,
-          houses!inner (name, rental_type)
+          houses!bookings_house_id_fkey!inner (name, rental_type)
         `)
         .eq('houses.rental_type', 'tourist')
         .gte('check_out', startDate)
@@ -156,7 +156,7 @@ const CalendarView = () => {
           scheduled_date,
           service_type,
           house_id,
-          houses!inner (name, rental_type)
+          houses!service_tasks_house_id_fkey!inner (name, rental_type)
         `)
         .eq('houses.rental_type', 'tourist')
         .gte('scheduled_date', startDate)
@@ -170,7 +170,7 @@ const CalendarView = () => {
           id,
           delivery_date,
           house_id,
-          houses!inner (name, rental_type)
+          houses!linen_orders_house_id_fkey!inner (name, rental_type)
         `)
         .eq('houses.rental_type', 'tourist')
         .gte('delivery_date', startDate)

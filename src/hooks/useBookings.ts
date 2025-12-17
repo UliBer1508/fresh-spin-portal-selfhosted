@@ -62,11 +62,11 @@ export const useBookings = (onNewOrder?: () => void) => {
         .from('bookings')
         .select(`
           *,
-          houses (
+          houses!bookings_house_id_fkey (
             name,
             address
           ),
-          linen_orders (
+          linen_orders!linen_orders_booking_id_fkey (
             id,
             status,
             delivery_date,
@@ -78,14 +78,14 @@ export const useBookings = (onNewOrder?: () => void) => {
             provider_id,
             assigned_staff_id,
             linen_color,
-            service_providers (
+            service_providers!linen_orders_provider_id_fkey (
               name
             ),
-            laundry_staff (
+            laundry_staff!linen_orders_assigned_staff_id_fkey (
               name
             )
           ),
-          service_tasks (
+          service_tasks!service_tasks_booking_id_fkey (
             scheduled_date,
             scheduled_time,
             service_type

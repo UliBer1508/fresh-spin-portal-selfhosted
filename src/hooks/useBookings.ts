@@ -1,4 +1,4 @@
-// v12.1 - React Cache Fix
+// v12.2 - Standalone Orders Support
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -29,6 +29,7 @@ export interface Booking {
 export interface LinenOrder {
   id: string;
   booking_id?: string;
+  house_id?: string;
   status: string;
   delivery_date?: string;
   delivery_time?: string;
@@ -45,10 +46,15 @@ export interface LinenOrder {
   laundry_staff?: {
     name: string;
   };
+  houses?: {
+    name: string;
+    address: string;
+  };
 }
 
 export const useBookings = (onNewOrder?: () => void) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [standaloneOrders, setStandaloneOrders] = useState<LinenOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -58,6 +64,7 @@ export const useBookings = (onNewOrder?: () => void) => {
       if (showLoading) setLoading(true);
       setError(null);
       
+      // Fetch bookings with linen orders
       const { data: bookingsData, error: bookingsError } = await supabase
         .from('bookings')
         .select(`
@@ -101,6 +108,40 @@ export const useBookings = (onNewOrder?: () => void) => {
       ) || [];
 
       setBookings(bookingsWithLinenOrders as unknown as Booking[]);
+
+      // Fetch standalone linen orders (without booking_id)
+      const { data: standaloneData, error: standaloneError } = await supabase
+        .from('linen_orders')
+        .select(`
+          id,
+          status,
+          delivery_date,
+          delivery_time,
+          delivery_type,
+          notes,
+          items,
+          item_variants,
+          provider_id,
+          assigned_staff_id,
+          linen_color,
+          house_id,
+          houses!linen_orders_house_id_fkey (
+            name,
+            address
+          ),
+          service_providers!linen_orders_provider_id_fkey (
+            name
+          ),
+          laundry_staff!linen_orders_assigned_staff_id_fkey (
+            name
+          )
+        `)
+        .is('booking_id', null)
+        .order('delivery_date', { ascending: true });
+
+      if (standaloneError) throw standaloneError;
+
+      setStandaloneOrders(standaloneData as unknown as LinenOrder[]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
@@ -181,7 +222,8 @@ export const useBookings = (onNewOrder?: () => void) => {
   }, []);
 
   return { 
-    bookings, 
+    bookings,
+    standaloneOrders,
     loading, 
     error, 
     isOnline,

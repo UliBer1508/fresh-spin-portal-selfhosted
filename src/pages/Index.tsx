@@ -1,9 +1,10 @@
-// v12.1 - React Cache Fix
+// v12.2 - Standalone Orders Support
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";
 import BookingCard from "@/components/BookingCard";
+import StandaloneOrderCard from "@/components/StandaloneOrderCard";
 import CalendarView from "@/components/CalendarView";
 import LaundryStaffManagement from "@/components/LaundryStaffManagement";
 import NotificationSettings from "@/components/NotificationSettings";
@@ -17,13 +18,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import { Package } from "lucide-react";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("waesche");
   const [hasNewOrders, setHasNewOrders] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   
-  const { bookings, loading, error, refetch } = useBookings(() => {
+  const { bookings, standaloneOrders, loading, error, refetch } = useBookings(() => {
     setHasNewOrders(true);
     toast.info("Neue Bestellung eingegangen!");
   });
@@ -130,20 +132,44 @@ const Index = () => {
               <div className="text-center py-8 text-destructive">
                 <p>Fehler beim Laden der Buchungen: {error}</p>
               </div>
-            ) : filteredBookings.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">Keine Buchungen gefunden.</p>
-              </div>
             ) : (
-              <div className="space-y-4">
-                {filteredBookings.map((booking) => (
-                  <BookingCard 
-                    key={booking.id} 
-                    booking={booking} 
-                    viewSettings={viewSettings}
-                  />
-                ))}
-              </div>
+              <>
+                {/* Standalone Orders Section */}
+                {standaloneOrders.length > 0 && (
+                  <div className="mb-6">
+                    <h2 className="text-base font-semibold mb-3 flex items-center gap-2 text-foreground">
+                      <Package className="w-5 h-5 text-orange-500" />
+                      Einzelbestellungen ({standaloneOrders.length})
+                    </h2>
+                    <div className="space-y-4">
+                      {standaloneOrders.map((order) => (
+                        <StandaloneOrderCard 
+                          key={order.id} 
+                          order={order} 
+                          onUpdate={refetch}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Bookings with Linen Orders */}
+                {filteredBookings.length === 0 && standaloneOrders.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Keine Buchungen gefunden.</p>
+                  </div>
+                ) : filteredBookings.length > 0 && (
+                  <div className="space-y-4">
+                    {filteredBookings.map((booking) => (
+                      <BookingCard 
+                        key={booking.id} 
+                        booking={booking} 
+                        viewSettings={viewSettings}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
         );

@@ -1,4 +1,4 @@
-// v12.2 - Standalone Orders Support
+// v12.3 - Copyright Footer
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
@@ -12,6 +12,7 @@ import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import PWAStatusBar from "@/components/PWAStatusBar";
 import PortalChat from "@/components/PortalChat";
+import Footer from "@/components/Footer";
 import { useBookings, Booking } from "@/hooks/useBookings";
 import { useViewSettings } from "@/hooks/useViewSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -193,9 +194,9 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <PWAStatusBar />
-      <div className="pt-12 md:pt-0">
+      <div className="pt-12 md:pt-0 flex-1">
       <Header 
         viewSettings={viewSettings}
         onSettingsChange={handleSettingsChange}
@@ -214,6 +215,8 @@ const Index = () => {
           {renderTabContent()}
         </main>
       </div>
+
+      <Footer />
 
       <PWAInstallPrompt />
       <PWAUpdatePrompt />

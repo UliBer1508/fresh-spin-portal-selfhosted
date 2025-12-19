@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
 import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
-import { LINEN_LABELS, LINEN_ORDER, LINEN_COLOR_LABELS } from "@/lib/linenLabels";
+import { LINEN_LABELS, LINEN_ORDER, LINEN_COLOR_LABELS, getLinenColorLabel } from "@/lib/linenLabels";
 
 interface LaundryStaff {
   id: string;

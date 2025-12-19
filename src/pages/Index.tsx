@@ -1,5 +1,5 @@
-// v12.3 - Copyright Footer
-import { useState, useEffect } from "react";
+// v12.4 - Copyright Footer + Cache Fix
+import { useState, useEffect, useCallback } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";

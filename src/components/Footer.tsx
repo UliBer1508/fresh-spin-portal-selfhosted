@@ -5,7 +5,7 @@ const Footer = () => {
     <footer className="bg-background border-t border-border py-4 mt-auto">
       <div className="max-w-7xl mx-auto px-6 text-center">
         <p className="text-sm text-muted-foreground">
-          © {currentYear} Teuni. Alle Rechte vorbehalten.
+          © {currentYear} Steinbock Chalets. Alle Rechte vorbehalten.
         </p>
       </div>
     </footer>

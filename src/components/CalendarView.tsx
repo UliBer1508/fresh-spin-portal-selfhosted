@@ -401,36 +401,27 @@ const CalendarView = () => {
     localStorage.setItem('calendar-view', view);
   }, [view]);
 
-  // Calculate Gantt bar position and width - clipped to visible month
-  const getGanttBarStyle = (booking: GanttBooking) => {
+  // Calculate Gantt grid position - grid columns are 1-indexed
+  const getGanttGridPosition = (booking: GanttBooking) => {
     const totalDays = monthDays.length;
-    const dayWidth = 100 / totalDays;
     
-    // Berechne Start-Position (mit Clipping am Monatsanfang)
+    // Grid-Spalten sind 1-basiert
+    // Check-in Tag: Balken startet ab Mitte des Check-in Tages
     const startDayRaw = differenceInDays(booking.check_in, monthStart);
-    const startDay = Math.max(0, startDayRaw);
-    let left = (startDay * dayWidth) + (dayWidth / 2);
+    // +1 für 1-basierte Grid-Spalten, dann noch +1 weil Gast ab Check-in Nachmittag da ist
+    const startCol = Math.max(1, startDayRaw + 1);
     
-    // Wenn Buchung vor dem Monat beginnt, am linken Rand starten
-    if (startDayRaw < 0) {
-      left = 0;
-    }
-    
-    // Berechne End-Position (mit Clipping am Monatsende)
+    // Check-out Tag: Balken endet am Check-out Tag (Gast geht mittags)
     const endDayRaw = differenceInDays(booking.check_out, monthStart);
-    const endDay = Math.min(totalDays - 1, endDayRaw);
-    let right = (endDay * dayWidth) + (dayWidth / 2);
+    // +1 für 1-basierte Grid-Spalten, +1 weil grid-column end exklusiv ist
+    const endCol = Math.min(totalDays + 1, endDayRaw + 2);
     
-    // Wenn Buchung über den Monat hinausgeht, am rechten Rand enden
-    if (endDayRaw >= totalDays) {
-      right = 100;
-    }
-    
-    // Breite berechnen und sicherstellen, dass sie nicht über 100% hinausgeht
-    const width = Math.max(dayWidth, right - left);
-    const clampedWidth = Math.min(width, 100 - left);
-    
-    return { left: `${left}%`, width: `${clampedWidth}%` };
+    return { 
+      gridColumn: `${startCol} / ${endCol}`,
+      // Zusätzliche Info für Styling am Rand
+      startsBeforeMonth: startDayRaw < 0,
+      endsAfterMonth: endDayRaw >= totalDays
+    };
   };
 
   const nextBooking = view === 'gantt' ? getNextBooking() : null;
@@ -508,72 +499,80 @@ const CalendarView = () => {
                       </div>
                     </div>
 
-                    {/* Timeline with bookings */}
-                    <div className="flex-1 relative">
-                      {/* Background grid */}
-                      <div className="absolute inset-0 grid" style={{ gridTemplateColumns: gridCols }}>
-                        {monthDays.map((day) => {
-                          const isToday = isSameDay(day, new Date());
-                          const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                          return (
-                            <div
-                              key={day.toISOString()}
-                              className={cn(
-                                "border-r last:border-r-0 h-full",
-                                isToday && "bg-primary/10",
-                                isWeekend && "bg-muted/20"
-                              )}
-                            />
-                          );
-                        })}
-                      </div>
+                    {/* Timeline with bookings - Grid-based */}
+                    <div className="flex-1 grid items-center" style={{ gridTemplateColumns: gridCols }}>
+                      {/* Background grid cells */}
+                      {monthDays.map((day) => {
+                        const isToday = isSameDay(day, new Date());
+                        const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                        return (
+                          <div
+                            key={day.toISOString()}
+                            className={cn(
+                              "border-r last:border-r-0 h-full",
+                              isToday && "bg-primary/10",
+                              isWeekend && "bg-muted/20"
+                            )}
+                            style={{ gridRow: 1 }}
+                          />
+                        );
+                      })}
 
-                      {/* Booking bars */}
-                      <div className="relative h-full py-1.5 md:py-2 px-0.5 md:px-1">
-                        {bookings.map((booking) => {
-                          const style = getGanttBarStyle(booking);
-                          const nights = differenceInDays(booking.check_out, booking.check_in);
-                          
-                          return (
-                            <TooltipProvider key={booking.id}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div
-                                    className={cn(
-                                      "absolute top-1/2 -translate-y-1/2 h-6 md:h-8 rounded-md flex items-center px-1 md:px-2 cursor-pointer hover:opacity-90 transition-opacity",
-                                      "border border-white/40 shadow-md",
-                                      houseColor.bg, houseColor.text
-                                    )}
-                                    style={{ left: style.left, width: `calc(${style.width} - 2px)`, minWidth: '20px' }}
-                                  >
-                                    <span className="text-[9px] md:text-xs font-medium truncate">
-                                      {booking.guest_name}
-                                    </span>
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="max-w-xs">
-                                  <div className="space-y-1">
-                                    <p className="font-medium">{booking.guest_name}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                      {format(booking.check_in, 'd. MMM', { locale: de })} - {format(booking.check_out, 'd. MMM yyyy', { locale: de })}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                      {nights} {nights === 1 ? 'Nacht' : 'Nächte'} • {booking.house_name}
-                                    </p>
-                                  </div>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          );
-                        })}
+                      {/* Booking bars as grid items */}
+                      {bookings.map((booking) => {
+                        const gridPos = getGanttGridPosition(booking);
+                        const nights = differenceInDays(booking.check_out, booking.check_in);
+                        
+                        return (
+                          <TooltipProvider key={booking.id}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className={cn(
+                                    "h-6 md:h-8 rounded-md flex items-center px-1 md:px-2 cursor-pointer hover:opacity-90 transition-opacity mx-0.5",
+                                    "border border-white/40 shadow-md",
+                                    houseColor.bg, houseColor.text,
+                                    // Spezielle Ecken wenn Buchung über Monatsgrenzen geht
+                                    gridPos.startsBeforeMonth && "rounded-l-none",
+                                    gridPos.endsAfterMonth && "rounded-r-none"
+                                  )}
+                                  style={{ 
+                                    gridColumn: gridPos.gridColumn, 
+                                    gridRow: 1,
+                                    marginLeft: gridPos.startsBeforeMonth ? 0 : '50%',
+                                    marginRight: gridPos.endsAfterMonth ? 0 : undefined
+                                  }}
+                                >
+                                  <span className="text-[9px] md:text-xs font-medium truncate">
+                                    {booking.guest_name}
+                                  </span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs">
+                                <div className="space-y-1">
+                                  <p className="font-medium">{booking.guest_name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {format(booking.check_in, 'd. MMM', { locale: de })} - {format(booking.check_out, 'd. MMM yyyy', { locale: de })}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {nights} {nights === 1 ? 'Nacht' : 'Nächte'} • {booking.house_name}
+                                  </p>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        );
+                      })}
 
-                        {/* Empty state */}
-                        {bookings.length === 0 && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-[10px] md:text-xs text-muted-foreground">Keine Buchungen</span>
-                          </div>
-                        )}
-                      </div>
+                      {/* Empty state */}
+                      {bookings.length === 0 && (
+                        <div 
+                          className="flex items-center justify-center"
+                          style={{ gridColumn: `1 / -1`, gridRow: 1 }}
+                        >
+                          <span className="text-[10px] md:text-xs text-muted-foreground">Keine Buchungen</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

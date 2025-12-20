@@ -41,7 +41,11 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
   const handleStatusChange = async (newStatus: string) => {
     const { error } = await supabase
       .from('linen_orders')
-      .update({ status: newStatus })
+      .update({ 
+        status: newStatus,
+        status_changed_by: 'Teuni',
+        status_changed_at: new Date().toISOString()
+      })
       .eq('id', order.id);
 
     if (error) {

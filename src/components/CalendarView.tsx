@@ -95,7 +95,10 @@ const getHouseAbbreviation = (houseName: string) => {
 const CalendarView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [view, setView] = useState<'month' | 'week' | 'gantt'>('gantt');
+  const [view, setView] = useState<'month' | 'week' | 'gantt'>(() => {
+    const saved = localStorage.getItem('calendar-view');
+    return (saved === 'month' || saved === 'week' || saved === 'gantt') ? saved : 'gantt';
+  });
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [houses, setHouses] = useState<House[]>([]);
   const [ganttBookings, setGanttBookings] = useState<GanttBooking[]>([]);
@@ -393,22 +396,41 @@ const CalendarView = () => {
     }
   }, [view, loading, currentDate]);
 
-  // Calculate Gantt bar position and width
+  // Persist view state in localStorage
+  useEffect(() => {
+    localStorage.setItem('calendar-view', view);
+  }, [view]);
+
+  // Calculate Gantt bar position and width - clipped to visible month
   const getGanttBarStyle = (booking: GanttBooking) => {
     const totalDays = monthDays.length;
-    const dayWidth = 100 / totalDays; // Breite eines Tages in %
+    const dayWidth = 100 / totalDays;
     
-    // Check-in: Balken beginnt ab Mitte des Check-in-Tages (halber Tag)
-    const startDay = Math.max(0, differenceInDays(booking.check_in, monthStart));
-    const left = (startDay * dayWidth) + (dayWidth / 2); // + halber Tag
+    // Berechne Start-Position (mit Clipping am Monatsanfang)
+    const startDayRaw = differenceInDays(booking.check_in, monthStart);
+    const startDay = Math.max(0, startDayRaw);
+    let left = (startDay * dayWidth) + (dayWidth / 2);
     
-    // Checkout: Balken endet in der Mitte des Checkout-Tages (halber Tag)
-    const endDay = Math.min(totalDays, differenceInDays(booking.check_out, monthStart));
-    const right = (endDay * dayWidth) + (dayWidth / 2); // bis halber Tag
+    // Wenn Buchung vor dem Monat beginnt, am linken Rand starten
+    if (startDayRaw < 0) {
+      left = 0;
+    }
     
-    const width = Math.max(dayWidth, right - left); // Minimum 1 Tag Breite
+    // Berechne End-Position (mit Clipping am Monatsende)
+    const endDayRaw = differenceInDays(booking.check_out, monthStart);
+    const endDay = Math.min(totalDays - 1, endDayRaw);
+    let right = (endDay * dayWidth) + (dayWidth / 2);
     
-    return { left: `${left}%`, width: `${width}%` };
+    // Wenn Buchung über den Monat hinausgeht, am rechten Rand enden
+    if (endDayRaw >= totalDays) {
+      right = 100;
+    }
+    
+    // Breite berechnen und sicherstellen, dass sie nicht über 100% hinausgeht
+    const width = Math.max(dayWidth, right - left);
+    const clampedWidth = Math.min(width, 100 - left);
+    
+    return { left: `${left}%`, width: `${clampedWidth}%` };
   };
 
   const nextBooking = view === 'gantt' ? getNextBooking() : null;

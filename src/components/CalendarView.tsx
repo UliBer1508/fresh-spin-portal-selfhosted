@@ -94,7 +94,7 @@ const getHouseAbbreviation = (houseName: string) => {
 const CalendarView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [view, setView] = useState<'month' | 'week' | 'gantt'>('month');
+  const [view, setView] = useState<'month' | 'week' | 'gantt'>('gantt');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [houses, setHouses] = useState<House[]>([]);
   const [ganttBookings, setGanttBookings] = useState<GanttBooking[]>([]);

@@ -307,49 +307,40 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     `;
   };
 
-  const handlePrintWithIframe = (): Promise<void> => {
+  const handlePrintWithWindow = (): Promise<void> => {
     return new Promise((resolve) => {
       const printHTML = generatePrintHTML();
       
-      // Create hidden iframe
-      const iframe = document.createElement('iframe');
-      iframe.style.position = 'absolute';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = 'none';
-      iframe.style.left = '-9999px';
-      document.body.appendChild(iframe);
-
-      // Write content to iframe
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc) {
-        toast.error('Druckvorschau konnte nicht erstellt werden');
-        document.body.removeChild(iframe);
+      // Open new window for printing
+      const printWindow = window.open('', '_blank', 'width=800,height=600');
+      
+      if (!printWindow) {
+        toast.error('Popup wurde blockiert. Bitte Popup-Blocker deaktivieren.');
         resolve();
         return;
       }
 
-      iframeDoc.open();
-      iframeDoc.write(printHTML);
-      iframeDoc.close();
+      // Write content to new window
+      printWindow.document.open();
+      printWindow.document.write(printHTML);
+      printWindow.document.close();
 
-      // Wait for content to render, then print
+      // Wait for content to load, then print
       setTimeout(() => {
-        try {
-          iframe.contentWindow?.focus();
-          iframe.contentWindow?.print();
-        } catch (e) {
-          console.error('Print error:', e);
-          toast.error('Fehler beim Drucken');
-        }
-        // Remove iframe after printing dialog closes
-        setTimeout(() => {
-          if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe);
-          }
+        printWindow.focus();
+        printWindow.print();
+        
+        // Close window after print dialog closes
+        printWindow.onafterprint = () => {
+          printWindow.close();
           resolve();
-        }, 1000);
-      }, 250);
+        };
+        
+        // Fallback: resolve after timeout if onafterprint not supported
+        setTimeout(() => {
+          resolve();
+        }, 2000);
+      }, 300);
     });
   };
 
@@ -368,7 +359,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       onUpdate?.();
 
       // Print and wait for completion
-      await handlePrintWithIframe();
+      await handlePrintWithWindow();
       
       // Close dialog AFTER printing
       onOpenChange(false);

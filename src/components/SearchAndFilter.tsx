@@ -1,11 +1,10 @@
-// v6 - Fix React imports consistency
+// v7 - Filter für Standalone-Bestellungen hinzugefügt
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
-import { Booking } from "@/hooks/useBookings";
+import { Booking, LinenOrder } from "@/hooks/useBookings";
 import { supabase } from "@/integrations/supabase/client";
-// v6 - Emoji-basiertes UI wie im Referenzbild
 
 interface LaundryStaff {
   id: string;
@@ -15,7 +14,9 @@ interface LaundryStaff {
 
 interface SearchAndFilterProps {
   bookings: Booking[];
+  standaloneOrders?: LinenOrder[];
   onFilteredBookingsChange: (filteredBookings: Booking[]) => void;
+  onFilteredStandaloneOrdersChange?: (filteredOrders: LinenOrder[]) => void;
   viewSettings: ViewSettings;
   onViewSettingsChange: (settings: ViewSettings) => void;
   showButtonOnMobile?: boolean;
@@ -24,7 +25,9 @@ interface SearchAndFilterProps {
 
 const SearchAndFilter = ({ 
   bookings, 
+  standaloneOrders,
   onFilteredBookingsChange, 
+  onFilteredStandaloneOrdersChange,
   viewSettings, 
   onViewSettingsChange,
   showButtonOnMobile,
@@ -140,10 +143,65 @@ const SearchAndFilter = ({
     return filtered;
   }, [bookings, searchQuery, statusFilter, houseFilter, timeFilter, staffFilter]);
 
+  // Filter für Standalone-Bestellungen
+  const filteredStandaloneOrders = useMemo(() => {
+    if (!standaloneOrders) return [];
+    let filtered = [...standaloneOrders];
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(order =>
+        order.houses?.name?.toLowerCase().includes(query) ||
+        order.houses?.address?.toLowerCase().includes(query)
+      );
+    }
+
+    // Status filter
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(order => {
+        const status = order.status?.toLowerCase();
+        switch (statusFilter) {
+          case "pending":
+            return status === "pending";
+          case "in-progress":
+            return status === "in_progress" || status === "assigned";
+          case "completed":
+            return status === "delivered" || status === "geliefert" || status === "completed";
+          default:
+            return true;
+        }
+      });
+    }
+
+    // House filter
+    if (houseFilter !== "all") {
+      filtered = filtered.filter(order =>
+        order.houses?.name?.toLowerCase().replace(/\s+/g, '-') === houseFilter
+      );
+    }
+
+    // Staff filter
+    if (staffFilter !== "all") {
+      filtered = filtered.filter(order =>
+        order.assigned_staff_id === staffFilter
+      );
+    }
+
+    return filtered;
+  }, [standaloneOrders, searchQuery, statusFilter, houseFilter, staffFilter]);
+
   // Update parent component when filtered bookings change
   useEffect(() => {
     onFilteredBookingsChange(filteredBookings);
   }, [filteredBookings, onFilteredBookingsChange]);
+
+  // Update parent component when filtered standalone orders change
+  useEffect(() => {
+    if (onFilteredStandaloneOrdersChange) {
+      onFilteredStandaloneOrdersChange(filteredStandaloneOrders);
+    }
+  }, [filteredStandaloneOrders, onFilteredStandaloneOrdersChange]);
 
   // Count active filters
   const activeFiltersCount = [

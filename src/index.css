@@ -124,3 +124,69 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Print Styles for Delivery Note */
+@media print {
+  /* Hide everything except print content */
+  body * {
+    visibility: hidden;
+  }
+  
+  .print-delivery-note,
+  .print-delivery-note * {
+    visibility: visible !important;
+  }
+  
+  .print-delivery-note {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 210mm;
+    padding: 15mm;
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Hide elements that shouldn't print */
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Show print-only notes */
+  .print-notes {
+    display: block !important;
+  }
+  
+  /* Print-friendly table styles */
+  .print-delivery-note table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  .print-delivery-note th,
+  .print-delivery-note td {
+    border: 1px solid #333;
+    padding: 8px;
+  }
+  
+  .print-delivery-note th {
+    background-color: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* Ensure page doesn't break in middle of content */
+  .print-delivery-note {
+    page-break-inside: avoid;
+  }
+  
+  /* Hide dialog overlay and other UI elements */
+  [data-radix-dialog-overlay],
+  [role="dialog"] > button,
+  header,
+  nav,
+  footer {
+    display: none !important;
+  }
+}

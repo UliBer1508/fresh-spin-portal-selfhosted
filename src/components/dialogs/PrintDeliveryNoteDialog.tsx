@@ -307,46 +307,50 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     `;
   };
 
-  const handlePrintWithIframe = () => {
-    const printHTML = generatePrintHTML();
-    
-    // Create hidden iframe
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'absolute';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = 'none';
-    iframe.style.left = '-9999px';
-    document.body.appendChild(iframe);
+  const handlePrintWithIframe = (): Promise<void> => {
+    return new Promise((resolve) => {
+      const printHTML = generatePrintHTML();
+      
+      // Create hidden iframe
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'absolute';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = 'none';
+      iframe.style.left = '-9999px';
+      document.body.appendChild(iframe);
 
-    // Write content to iframe
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!iframeDoc) {
-      toast.error('Druckvorschau konnte nicht erstellt werden');
-      document.body.removeChild(iframe);
-      return;
-    }
-
-    iframeDoc.open();
-    iframeDoc.write(printHTML);
-    iframeDoc.close();
-
-    // Wait for content to render, then print
-    setTimeout(() => {
-      try {
-        iframe.contentWindow?.focus();
-        iframe.contentWindow?.print();
-      } catch (e) {
-        console.error('Print error:', e);
-        toast.error('Fehler beim Drucken');
+      // Write content to iframe
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc) {
+        toast.error('Druckvorschau konnte nicht erstellt werden');
+        document.body.removeChild(iframe);
+        resolve();
+        return;
       }
-      // Remove iframe after printing dialog closes
+
+      iframeDoc.open();
+      iframeDoc.write(printHTML);
+      iframeDoc.close();
+
+      // Wait for content to render, then print
       setTimeout(() => {
-        if (document.body.contains(iframe)) {
-          document.body.removeChild(iframe);
+        try {
+          iframe.contentWindow?.focus();
+          iframe.contentWindow?.print();
+        } catch (e) {
+          console.error('Print error:', e);
+          toast.error('Fehler beim Drucken');
         }
-      }, 1000);
-    }, 250);
+        // Remove iframe after printing dialog closes
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+          resolve();
+        }, 1000);
+      }, 250);
+    });
   };
 
   const handleSaveAndPrint = async () => {
@@ -363,8 +367,10 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       toast.success('Notizen gespeichert');
       onUpdate?.();
 
-      // Print using iframe
-      handlePrintWithIframe();
+      // Print and wait for completion
+      await handlePrintWithIframe();
+      
+      // Close dialog AFTER printing
       onOpenChange(false);
 
     } catch (error) {

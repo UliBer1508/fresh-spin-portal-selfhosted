@@ -1,7 +1,6 @@
-// v6 - Fix React imports consistency
+// v7 - LS-Drucken Button mit Print Dialog
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-// v3 - Emojis statt Lucide Icons
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,6 +11,7 @@ import { toast } from "sonner";
 import { LinenOrder } from "@/hooks/useBookings";
 import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
 import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
+import PrintDeliveryNoteDialog from "@/components/dialogs/PrintDeliveryNoteDialog";
 import { getLinenLabel, getLinenColorLabel, LINEN_ORDER } from "@/lib/linenLabels";
 
 interface LaundryStaff {
@@ -29,6 +29,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
   const [selectedOrder, setSelectedOrder] = useState<LinenOrder | null>(null);
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
+  const [printDialogOpen, setPrintDialogOpen] = useState(false);
   const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
 
   // Fetch laundry staff for assignment dropdown
@@ -114,6 +115,11 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
   const handleEditNotes = (order: LinenOrder) => {
     setSelectedOrder(order);
     setNotesDialogOpen(true);
+  };
+
+  const handleOpenPrintDialog = (order: LinenOrder) => {
+    setSelectedOrder(order);
+    setPrintDialogOpen(true);
   };
 
   const getStatusColor = (status?: string) => {
@@ -374,6 +380,18 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                     </div>
                   </div>
                 )}
+
+                {/* LS-Drucken Button */}
+                <div className="pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleOpenPrintDialog(order)}
+                    className="w-full sm:w-auto no-print"
+                  >
+                    🖨️ LS-Drucken
+                  </Button>
+                </div>
               </div>
 
               {/* ========== RECHTE SPALTE - Artikel Tabelle ========== */}
@@ -465,6 +483,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
       <LinenNotesDialog
         open={notesDialogOpen}
         onOpenChange={setNotesDialogOpen}
+        order={selectedOrder}
+        onUpdate={onUpdate}
+      />
+
+      <PrintDeliveryNoteDialog
+        open={printDialogOpen}
+        onOpenChange={setPrintDialogOpen}
         order={selectedOrder}
         onUpdate={onUpdate}
       />

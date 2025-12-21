@@ -321,32 +321,32 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
 
     // Write content to iframe
     const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (iframeDoc) {
-      iframeDoc.open();
-      iframeDoc.write(printHTML);
-      iframeDoc.close();
-
-      // Wait for content to load, then print
-      iframe.onload = () => {
-        setTimeout(() => {
-          iframe.contentWindow?.print();
-          // Remove iframe after printing
-          setTimeout(() => {
-            document.body.removeChild(iframe);
-          }, 1000);
-        }, 100);
-      };
-
-      // Trigger load manually for already loaded content
-      setTimeout(() => {
-        iframe.contentWindow?.print();
-        setTimeout(() => {
-          if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe);
-          }
-        }, 1000);
-      }, 200);
+    if (!iframeDoc) {
+      toast.error('Druckvorschau konnte nicht erstellt werden');
+      document.body.removeChild(iframe);
+      return;
     }
+
+    iframeDoc.open();
+    iframeDoc.write(printHTML);
+    iframeDoc.close();
+
+    // Wait for content to render, then print
+    setTimeout(() => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (e) {
+        console.error('Print error:', e);
+        toast.error('Fehler beim Drucken');
+      }
+      // Remove iframe after printing dialog closes
+      setTimeout(() => {
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe);
+        }
+      }, 1000);
+    }, 250);
   };
 
   const handleSaveAndPrint = async () => {

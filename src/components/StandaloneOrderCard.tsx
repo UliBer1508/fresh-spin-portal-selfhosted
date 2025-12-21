@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
 import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
+import PrintDeliveryNoteDialog from "@/components/dialogs/PrintDeliveryNoteDialog";
 import { LINEN_LABELS, LINEN_ORDER, LINEN_COLOR_LABELS, getLinenColorLabel } from "@/lib/linenLabels";
 
 interface LaundryStaff {
@@ -25,6 +26,7 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
   const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
+  const [printDialogOpen, setPrintDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchLaundryStaff = async () => {
@@ -249,6 +251,20 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
             <Edit2 className="w-3 h-3 mr-1" />
             Notizen
           </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 text-xs no-print"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setPrintDialogOpen(true);
+            }}
+            onTouchEnd={(e) => e.stopPropagation()}
+          >
+            🖨️ LS-Drucken
+          </Button>
         </div>
       </CardContent>
 
@@ -262,6 +278,13 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
       <LinenNotesDialog
         open={notesDialogOpen}
         onOpenChange={setNotesDialogOpen}
+        order={order}
+        onUpdate={onUpdate}
+      />
+
+      <PrintDeliveryNoteDialog
+        open={printDialogOpen}
+        onOpenChange={setPrintDialogOpen}
         order={order}
         onUpdate={onUpdate}
       />

@@ -91,6 +91,11 @@ export const useBookings = (onNewOrder?: () => void) => {
             provider_id,
             assigned_staff_id,
             linen_color,
+            house_id,
+            houses!linen_orders_house_id_fkey (
+              name,
+              address
+            ),
             service_providers!linen_orders_provider_id_fkey (
               name
             ),

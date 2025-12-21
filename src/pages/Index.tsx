@@ -13,7 +13,7 @@ import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import PWAStatusBar from "@/components/PWAStatusBar";
 import PortalChat from "@/components/PortalChat";
 import Footer from "@/components/Footer";
-import { useBookings, Booking } from "@/hooks/useBookings";
+import { useBookings, Booking, LinenOrder } from "@/hooks/useBookings";
 import { useViewSettings } from "@/hooks/useViewSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Toaster } from "@/components/ui/toaster";
@@ -69,6 +69,7 @@ const Index = () => {
     }
   }, []);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
+  const [filteredStandaloneOrders, setFilteredStandaloneOrders] = useState<LinenOrder[]>([]);
   
   // Mobile Detection (simple check for button visibility logic)
   const isMobile = useIsMobile();
@@ -118,7 +119,9 @@ const Index = () => {
           <div className="space-y-6">
             <SearchAndFilter
               bookings={bookings}
+              standaloneOrders={standaloneOrders}
               onFilteredBookingsChange={setFilteredBookings}
+              onFilteredStandaloneOrdersChange={setFilteredStandaloneOrders}
               viewSettings={viewSettings}
               onViewSettingsChange={handleSettingsChange}
               showButtonOnMobile={showButtonOnMobile}
@@ -136,14 +139,14 @@ const Index = () => {
             ) : (
               <>
                 {/* Standalone Orders Section */}
-                {standaloneOrders.length > 0 && (
+                {filteredStandaloneOrders.length > 0 && (
                   <div className="mb-6">
                     <h2 className="text-base font-semibold mb-3 flex items-center gap-2 text-foreground">
                       <Package className="w-5 h-5 text-orange-500" />
-                      Einzelbestellungen ({standaloneOrders.length})
+                      Einzelbestellungen ({filteredStandaloneOrders.length})
                     </h2>
                     <div className="space-y-4">
-                      {standaloneOrders.map((order) => (
+                      {filteredStandaloneOrders.map((order) => (
                         <StandaloneOrderCard 
                           key={order.id} 
                           order={order} 

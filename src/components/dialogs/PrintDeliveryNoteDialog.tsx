@@ -134,6 +134,22 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
             </div>
           </div>
 
+          {/* Booking Details */}
+          {order.bookings && (
+            <div className="mb-4 p-3 border border-border rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <span>👤</span>
+                <span className="font-semibold">Buchungsdetails</span>
+              </div>
+              <div className="ml-6 grid grid-cols-2 gap-2 text-sm">
+                <p><strong>Gast:</strong> {order.bookings.guest_name}</p>
+                <p><strong>Gäste:</strong> {order.bookings.number_of_guests} Personen</p>
+                <p><strong>Check-in:</strong> {formatDate(order.bookings.check_in)}</p>
+                <p><strong>Check-out:</strong> {formatDate(order.bookings.check_out)}</p>
+              </div>
+            </div>
+          )}
+
           {/* Delivery Info */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="p-3 border border-border rounded-lg">

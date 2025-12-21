@@ -50,6 +50,12 @@ export interface LinenOrder {
     name: string;
     address: string;
   };
+  bookings?: {
+    guest_name: string;
+    check_in: string;
+    check_out: string;
+    number_of_guests: number;
+  };
 }
 
 export const useBookings = (onNewOrder?: () => void) => {
@@ -109,7 +115,7 @@ export const useBookings = (onNewOrder?: () => void) => {
 
       setBookings(bookingsWithLinenOrders as unknown as Booking[]);
 
-      // Fetch standalone linen orders (without booking_id)
+      // Fetch standalone linen orders (without booking_id but with house_id)
       const { data: standaloneData, error: standaloneError } = await supabase
         .from('linen_orders')
         .select(`
@@ -125,6 +131,7 @@ export const useBookings = (onNewOrder?: () => void) => {
           assigned_staff_id,
           linen_color,
           house_id,
+          booking_id,
           houses!linen_orders_house_id_fkey (
             name,
             address
@@ -134,6 +141,12 @@ export const useBookings = (onNewOrder?: () => void) => {
           ),
           laundry_staff!linen_orders_assigned_staff_id_fkey (
             name
+          ),
+          bookings!linen_orders_booking_id_fkey (
+            guest_name,
+            check_in,
+            check_out,
+            number_of_guests
           )
         `)
         .is('booking_id', null)

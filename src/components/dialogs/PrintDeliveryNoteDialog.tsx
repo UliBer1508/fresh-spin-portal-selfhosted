@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +25,6 @@ interface PrintDeliveryNoteDialogProps {
 const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintDeliveryNoteDialogProps) => {
   const [notes, setNotes] = useState(order?.notes || "");
   const [isSaving, setIsSaving] = useState(false);
-  const printRef = useRef<HTMLDivElement>(null);
 
   // Update notes when order changes
   useState(() => {
@@ -78,6 +77,278 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     }
   };
 
+  const generatePrintHTML = () => {
+    const itemRows = LINEN_ORDER
+      .filter(key => items[key] && items[key] > 0)
+      .map(key => `
+        <tr>
+          <td style="padding: 8px; border: 1px solid #333;">${getLinenLabel(key)}</td>
+          <td style="padding: 8px; border: 1px solid #333;">${getItemColor(key)}</td>
+          <td style="padding: 8px; border: 1px solid #333; text-align: right; font-weight: 500;">${items[key]}</td>
+        </tr>
+      `).join('');
+
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Lieferschein - ${order.houses?.name || 'Unbekannt'}</title>
+          <meta charset="utf-8">
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              font-size: 14px;
+              line-height: 1.5;
+              color: #000;
+              padding: 15mm;
+              max-width: 210mm;
+            }
+            .header {
+              text-align: center;
+              border-bottom: 2px solid #000;
+              padding-bottom: 16px;
+              margin-bottom: 16px;
+            }
+            .header h1 {
+              font-size: 24px;
+              font-weight: bold;
+              letter-spacing: 2px;
+            }
+            .header p {
+              font-size: 16px;
+              color: #666;
+              margin-top: 4px;
+            }
+            .section {
+              margin-bottom: 16px;
+              padding: 12px;
+              border: 1px solid #ddd;
+              border-radius: 8px;
+            }
+            .section-muted {
+              background: #f5f5f5;
+            }
+            .section-title {
+              font-weight: 600;
+              margin-bottom: 8px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            }
+            .grid-2 {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              margin-bottom: 16px;
+            }
+            .house-name {
+              font-size: 18px;
+              font-weight: 600;
+            }
+            .house-address {
+              font-size: 14px;
+              color: #666;
+            }
+            .booking-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 8px;
+              font-size: 13px;
+              margin-left: 24px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 8px;
+            }
+            th {
+              padding: 8px;
+              border: 1px solid #333;
+              background: #f0f0f0;
+              font-weight: bold;
+              text-align: left;
+            }
+            th:last-child {
+              text-align: right;
+            }
+            .total-row {
+              font-weight: bold;
+              border-top: 2px solid #000;
+            }
+            .total-badge {
+              font-size: 12px;
+              background: #e0e7ff;
+              color: #3730a3;
+              padding: 4px 8px;
+              border-radius: 4px;
+            }
+            .notes-box {
+              padding: 12px;
+              border: 1px solid #ddd;
+              border-radius: 8px;
+              min-height: 60px;
+              background: #fafafa;
+            }
+            .footer {
+              border-top: 1px solid #ddd;
+              padding-top: 12px;
+              margin-top: 16px;
+              font-size: 12px;
+              color: #666;
+              display: flex;
+              justify-content: space-between;
+            }
+          </style>
+        </head>
+        <body>
+          <!-- Header -->
+          <div class="header">
+            <h1>LIEFERSCHEIN</h1>
+            <p>Teuni Wäscheservice</p>
+          </div>
+
+          <!-- Delivery Address -->
+          <div class="section section-muted">
+            <div style="display: flex; align-items: flex-start; gap: 8px;">
+              <span>🏠</span>
+              <div>
+                <p class="house-name">${order.houses?.name || 'Unbekanntes Haus'}</p>
+                ${order.houses?.address ? `<p class="house-address">${order.houses.address}</p>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- Booking Details -->
+          ${order.bookings ? `
+            <div class="section">
+              <div class="section-title">
+                <span>👤</span>
+                <span>Buchungsdetails</span>
+              </div>
+              <div class="booking-grid">
+                <p><strong>Gast:</strong> ${order.bookings.guest_name}</p>
+                <p><strong>Gäste:</strong> ${order.bookings.number_of_guests} Personen</p>
+                <p><strong>Check-in:</strong> ${formatDate(order.bookings.check_in)}</p>
+                <p><strong>Check-out:</strong> ${formatDate(order.bookings.check_out)}</p>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Delivery Info -->
+          <div class="grid-2">
+            <div class="section">
+              <div class="section-title">
+                <span>📅</span>
+                <span style="font-size: 13px;">Lieferdatum</span>
+              </div>
+              <p style="font-size: 13px; margin-left: 24px;">
+                ${formatDate(order.delivery_date)}${formatTime(order.delivery_time)}
+              </p>
+            </div>
+            <div class="section">
+              <div class="section-title">
+                <span>🚚</span>
+                <span style="font-size: 13px;">Lieferart</span>
+              </div>
+              <p style="font-size: 13px; margin-left: 24px;">${getDeliveryTypeText(order.delivery_type)}</p>
+            </div>
+          </div>
+
+          <!-- Items Table -->
+          <div style="margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div class="section-title" style="margin: 0;">
+                <span>📋</span>
+                <span>Artikel</span>
+              </div>
+              <span class="total-badge">${totalItems} Stück gesamt</span>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Artikel</th>
+                  <th>Farbe</th>
+                  <th style="text-align: right;">Anzahl</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemRows}
+                <tr class="total-row">
+                  <td style="padding: 8px; border: 1px solid #333;" colspan="2">GESAMT</td>
+                  <td style="padding: 8px; border: 1px solid #333; text-align: right;">${totalItems}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Notes -->
+          <div style="margin-bottom: 16px;">
+            <div class="section-title">
+              <span>📝</span>
+              <span>Notizen</span>
+            </div>
+            <div class="notes-box">
+              ${notes || 'Keine Notizen'}
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="footer">
+            <span>Bestell-Nr: #${order.id.substring(0, 8)}</span>
+            <span>Erstellt: ${new Date().toLocaleDateString('de-DE')}</span>
+          </div>
+        </body>
+      </html>
+    `;
+  };
+
+  const handlePrintWithIframe = () => {
+    const printHTML = generatePrintHTML();
+    
+    // Create hidden iframe
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    iframe.style.left = '-9999px';
+    document.body.appendChild(iframe);
+
+    // Write content to iframe
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (iframeDoc) {
+      iframeDoc.open();
+      iframeDoc.write(printHTML);
+      iframeDoc.close();
+
+      // Wait for content to load, then print
+      iframe.onload = () => {
+        setTimeout(() => {
+          iframe.contentWindow?.print();
+          // Remove iframe after printing
+          setTimeout(() => {
+            document.body.removeChild(iframe);
+          }, 1000);
+        }, 100);
+      };
+
+      // Trigger load manually for already loaded content
+      setTimeout(() => {
+        iframe.contentWindow?.print();
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+        }, 1000);
+      }, 200);
+    }
+  };
+
   const handleSaveAndPrint = async () => {
     setIsSaving(true);
     try {
@@ -92,11 +363,9 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       toast.success('Notizen gespeichert');
       onUpdate?.();
 
-      // Print the delivery note
-      setTimeout(() => {
-        window.print();
-        onOpenChange(false);
-      }, 100);
+      // Print using iframe
+      handlePrintWithIframe();
+      onOpenChange(false);
 
     } catch (error) {
       console.error('Error saving notes:', error);
@@ -109,20 +378,20 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="no-print">
+        <DialogHeader>
           <DialogTitle>🖨️ Lieferschein drucken</DialogTitle>
         </DialogHeader>
 
-        {/* Print Content */}
-        <div ref={printRef} className="print-delivery-note">
+        {/* Preview Content */}
+        <div className="space-y-4">
           {/* Header */}
-          <div className="text-center border-b-2 border-foreground pb-4 mb-4">
+          <div className="text-center border-b-2 border-foreground pb-4">
             <h1 className="text-2xl font-bold tracking-wide">LIEFERSCHEIN</h1>
             <p className="text-lg font-medium text-muted-foreground mt-1">Teuni Wäscheservice</p>
           </div>
 
           {/* Delivery Address */}
-          <div className="mb-4 p-3 bg-muted/30 rounded-lg">
+          <div className="p-3 bg-muted/30 rounded-lg">
             <div className="flex items-start gap-2">
               <span className="text-lg">🏠</span>
               <div>
@@ -136,7 +405,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
 
           {/* Booking Details */}
           {order.bookings && (
-            <div className="mb-4 p-3 border border-border rounded-lg">
+            <div className="p-3 border border-border rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <span>👤</span>
                 <span className="font-semibold">Buchungsdetails</span>
@@ -151,7 +420,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
           )}
 
           {/* Delivery Info */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="p-3 border border-border rounded-lg">
               <div className="flex items-center gap-2 mb-1">
                 <span>📅</span>
@@ -172,7 +441,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
           </div>
 
           {/* Items Table */}
-          <div className="mb-4">
+          <div>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <span>📋</span>
@@ -210,8 +479,8 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
             </Table>
           </div>
 
-          {/* Notes - Editable in Dialog, readonly in print */}
-          <div className="mb-4">
+          {/* Notes */}
+          <div>
             <div className="flex items-center gap-2 mb-2">
               <span>📝</span>
               <Label className="font-semibold">Notizen</Label>
@@ -220,16 +489,12 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Notizen für den Lieferschein eingeben..."
-              className="min-h-[80px] no-print"
+              className="min-h-[80px]"
             />
-            {/* Print version of notes */}
-            <div className="hidden print-notes p-3 border border-border rounded-lg min-h-[60px]">
-              {notes || 'Keine Notizen'}
-            </div>
           </div>
 
-          {/* Footer */}
-          <div className="border-t border-border pt-3 mt-4 text-xs text-muted-foreground">
+          {/* Footer Preview */}
+          <div className="border-t border-border pt-3 text-xs text-muted-foreground">
             <div className="flex justify-between">
               <span>Bestell-Nr: #{order.id.substring(0, 8)}</span>
               <span>Erstellt: {new Date().toLocaleDateString('de-DE')}</span>
@@ -237,7 +502,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
           </div>
         </div>
 
-        <DialogFooter className="no-print mt-4">
+        <DialogFooter className="mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Abbrechen
           </Button>

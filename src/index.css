@@ -127,35 +127,89 @@ All colors MUST be HSL.
 
 /* Print Styles for Delivery Note */
 @media print {
-  /* Hide everything except print content */
-  body * {
-    visibility: hidden;
+  /* Hide everything by default except dialog */
+  body > *:not([data-radix-portal]) {
+    display: none !important;
   }
   
+  /* Show dialog portal for printing */
+  [data-radix-portal] {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    z-index: 9999 !important;
+  }
+  
+  /* Dialog overlay should be transparent */
+  [data-radix-dialog-overlay] {
+    background: transparent !important;
+    position: relative !important;
+  }
+  
+  /* Dialog content should be visible and positioned */
+  [role="dialog"] {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+  
+  /* Print-delivery-note and all its children visible */
   .print-delivery-note,
   .print-delivery-note * {
     visibility: visible !important;
-  }
-  
-  .print-delivery-note {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    max-width: 210mm;
-    padding: 15mm;
-    background: white !important;
     color: black !important;
   }
   
+  .print-delivery-note {
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 210mm;
+    padding: 10mm;
+    background: white !important;
+    page-break-inside: avoid;
+  }
+  
+  /* Ensure all text content is visible */
+  .print-delivery-note p,
+  .print-delivery-note span,
+  .print-delivery-note h1,
+  .print-delivery-note h2,
+  .print-delivery-note h3,
+  .print-delivery-note div:not(.no-print) {
+    visibility: visible !important;
+    color: black !important;
+  }
+  
+  /* Handle background colors for print */
+  .print-delivery-note [class*="bg-muted"],
+  .print-delivery-note [class*="bg-"] {
+    background: #f5f5f5 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
   /* Hide elements that shouldn't print */
-  .no-print {
+  .no-print,
+  .print-delivery-note .no-print,
+  [role="dialog"] > button[class*="absolute"] {
     display: none !important;
   }
   
   /* Show print-only notes */
   .print-notes {
     display: block !important;
+    visibility: visible !important;
   }
   
   /* Print-friendly table styles */
@@ -166,8 +220,9 @@ All colors MUST be HSL.
   
   .print-delivery-note th,
   .print-delivery-note td {
-    border: 1px solid #333;
+    border: 1px solid #333 !important;
     padding: 8px;
+    color: black !important;
   }
   
   .print-delivery-note th {
@@ -176,14 +231,7 @@ All colors MUST be HSL.
     print-color-adjust: exact;
   }
   
-  /* Ensure page doesn't break in middle of content */
-  .print-delivery-note {
-    page-break-inside: avoid;
-  }
-  
-  /* Hide dialog overlay and other UI elements */
-  [data-radix-dialog-overlay],
-  [role="dialog"] > button,
+  /* Hide header, nav, footer */
   header,
   nav,
   footer {

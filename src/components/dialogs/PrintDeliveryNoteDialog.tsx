@@ -314,7 +314,8 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     `;
   };
 
-  // Ganzheitliche Druck-Lösung: Direkt im DOM, kein separates Fenster
+  // Robuste Druck-Lösung für Mobile + Desktop
+  // Verwendet opacity statt left:-9999px (funktioniert auf allen Geräten)
   const handlePrint = () => {
     // 1. Entferne existierenden Print-Container falls vorhanden
     const existingContainer = document.getElementById('print-container');
@@ -327,30 +328,41 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     printContainer.id = 'print-container';
     printContainer.innerHTML = generatePrintContent();
     
-    // 3. Container ist auf dem Bildschirm unsichtbar, nur beim Drucken sichtbar
+    // 3. Container verstecken aber IM DOM-FLOW belassen (wichtig für Mobile!)
+    // opacity:0 statt left:-9999px - Mobile Browser ignorieren oft negative Positionen
     printContainer.style.cssText = `
       position: fixed;
-      left: -9999px;
+      left: 0;
       top: 0;
-      width: 210mm;
+      width: 100%;
+      height: 100%;
       background: white;
+      z-index: 999999;
+      overflow: auto;
+      opacity: 0;
+      pointer-events: none;
     `;
     
     // 4. Zum DOM hinzufügen
     document.body.appendChild(printContainer);
 
-    // 5. Kurze Verzögerung, dann Druck-Dialog öffnen
-    setTimeout(() => {
-      window.print();
+    // 5. Warte auf DOM-Rendering, dann sichtbar machen und drucken
+    requestAnimationFrame(() => {
+      // Container für Druck sichtbar machen
+      printContainer.style.opacity = '1';
       
-      // 6. Nach dem Druck-Dialog Container entfernen
       setTimeout(() => {
-        const container = document.getElementById('print-container');
-        if (container) {
-          container.remove();
-        }
-      }, 500);
-    }, 100);
+        window.print();
+        
+        // 6. Nach dem Druck-Dialog Container entfernen
+        setTimeout(() => {
+          const container = document.getElementById('print-container');
+          if (container) {
+            container.remove();
+          }
+        }, 1000);
+      }, 100);
+    });
   };
 
   const handleSaveAndPrint = async () => {

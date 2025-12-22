@@ -126,13 +126,19 @@ All colors MUST be HSL.
 }
 
 /* ============================================
-   PRINT STYLES - Ganzheitliche Druck-Lösung
+   PRINT STYLES - Robuste Lösung für Mobile + Desktop
+   Verwendet display:none statt visibility (Mobile-kompatibel)
    ============================================ */
 @media print {
+  /* Seitengröße und Ränder */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+  
   /* Verstecke ALLES außer dem Print-Container */
   body > *:not(#print-container) {
     display: none !important;
-    visibility: hidden !important;
   }
   
   /* Radix Portal (Dialoge) verstecken beim Drucken */
@@ -140,30 +146,34 @@ All colors MUST be HSL.
   [role="dialog"],
   [data-radix-dialog-overlay] {
     display: none !important;
-    visibility: hidden !important;
   }
   
-  /* Print-Container sichtbar machen */
+  /* Print-Container sichtbar und korrekt positioniert */
   #print-container {
     display: block !important;
-    visibility: visible !important;
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
     width: 100% !important;
+    height: auto !important;
     background: white !important;
+    opacity: 1 !important;
     z-index: 999999 !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
   }
   
-  /* Alle Inhalte im Print-Container sichtbar */
-  #print-container * {
-    visibility: visible !important;
+  /* Entferne Schatten und andere visuelle Effekte */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
   }
   
   /* Header, Nav, Footer verstecken */
   header,
   nav,
-  footer {
+  footer,
+  .no-print {
     display: none !important;
   }
 }

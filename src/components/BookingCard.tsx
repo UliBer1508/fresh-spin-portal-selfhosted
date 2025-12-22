@@ -128,7 +128,15 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
           {/* Linen Orders Section */}
           {viewSettings.showLinenOrders && (
             <LinenOrderSection 
-              linenOrders={booking.linen_orders || []} 
+              linenOrders={(booking.linen_orders || []).map(order => ({
+                ...order,
+                bookings: {
+                  guest_name: booking.guest_name,
+                  check_in: booking.check_in,
+                  check_out: booking.check_out,
+                  number_of_guests: booking.number_of_guests
+                }
+              }))} 
               onUpdate={onUpdate}
               viewSettings={viewSettings}
             />

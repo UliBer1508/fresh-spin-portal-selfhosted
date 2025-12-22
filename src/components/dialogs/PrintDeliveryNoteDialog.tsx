@@ -311,8 +311,9 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     return new Promise((resolve) => {
       const printHTML = generatePrintHTML();
       
-      // Open new window for printing
-      const printWindow = window.open('', '_blank', 'width=800,height=600');
+      // Use unique window name to prevent reuse
+      const windowName = `print_${Date.now()}`;
+      const printWindow = window.open('', windowName, 'width=800,height=600');
       
       if (!printWindow) {
         toast.error('Popup wurde blockiert. Bitte Popup-Blocker deaktivieren.');
@@ -320,56 +321,48 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
         return;
       }
 
+      // Flag to prevent multiple print calls
+      let printTriggered = false;
+
       // Write content to new window
       printWindow.document.open();
       printWindow.document.write(printHTML);
       printWindow.document.close();
 
       const triggerPrint = () => {
+        // Only trigger once
+        if (printTriggered) {
+          console.log('[Print] Already triggered, skipping');
+          return;
+        }
+        printTriggered = true;
+        
         console.log('[Print] Triggering print...');
         printWindow.focus();
         
-        // Small delay after focus to ensure window is ready
         setTimeout(() => {
           try {
             console.log('[Print] Calling print()...');
             printWindow.print();
-            console.log('[Print] Print dialog should be open');
           } catch (e) {
             console.error('[Print] Print failed:', e);
             toast.error('Drucken fehlgeschlagen');
           }
         }, 100);
         
-        // Close window after print dialog closes
         printWindow.onafterprint = () => {
-          console.log('[Print] After print - closing window');
           printWindow.close();
           resolve();
         };
         
-        // Fallback: resolve after timeout if onafterprint not supported
+        // Fallback timeout
         setTimeout(() => {
           resolve();
         }, 5000);
       };
 
-      // Check if document is already loaded, otherwise wait for load event
-      if (printWindow.document.readyState === 'complete') {
-        console.log('[Print] Document already complete, triggering print');
-        triggerPrint();
-      } else {
-        console.log('[Print] Waiting for document load...');
-        printWindow.onload = () => {
-          console.log('[Print] Document loaded');
-          triggerPrint();
-        };
-        // Fallback if onload doesn't fire
-        setTimeout(() => {
-          console.log('[Print] Fallback timeout - triggering print');
-          triggerPrint();
-        }, 500);
-      }
+      // Always use timeout - more reliable than onload for document.write()
+      setTimeout(triggerPrint, 300);
     });
   };
 

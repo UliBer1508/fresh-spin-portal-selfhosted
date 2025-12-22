@@ -169,6 +169,7 @@ const Index = () => {
                         key={booking.id} 
                         booking={booking} 
                         viewSettings={viewSettings}
+                        onUpdate={refetch}
                       />
                     ))}
                   </div>

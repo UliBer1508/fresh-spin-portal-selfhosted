@@ -1,5 +1,5 @@
-// v12.2 - Standalone Orders Support
-import { useState, useEffect } from "react";
+// v12.3 - Fix onNewOrder dependency
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface ServiceTask {
@@ -64,6 +64,10 @@ export const useBookings = (onNewOrder?: () => void) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  
+  // Use ref to avoid stale closure in subscription callback
+  const onNewOrderRef = useRef(onNewOrder);
+  onNewOrderRef.current = onNewOrder;
 
   const fetchBookings = async (showLoading = true) => {
     try {
@@ -223,10 +227,11 @@ export const useBookings = (onNewOrder?: () => void) => {
           schema: 'public',
           table: 'linen_orders'
         },
-        (payload) => {
+        (payload: { new: Record<string, unknown> }) => {
           console.log('Neue Bestellung eingegangen!', payload);
-          if (onNewOrder) {
-            onNewOrder();
+          // Use ref to get current callback without stale closure
+          if (onNewOrderRef.current) {
+            onNewOrderRef.current();
           }
         }
       )

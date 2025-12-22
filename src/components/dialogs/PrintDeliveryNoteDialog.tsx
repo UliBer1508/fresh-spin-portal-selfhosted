@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +25,6 @@ interface PrintDeliveryNoteDialogProps {
 const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintDeliveryNoteDialogProps) => {
   const [notes, setNotes] = useState(order?.notes || "");
   const [isSaving, setIsSaving] = useState(false);
-  const printWindowRef = useRef<Window | null>(null);
 
   // Update notes when order changes
   useEffect(() => {
@@ -34,15 +33,13 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     }
   }, [order]);
 
-  // Cleanup print window when dialog closes
+  // Cleanup print iframe when dialog closes
   useEffect(() => {
-    if (!open && printWindowRef.current && !printWindowRef.current.closed) {
-      try {
-        printWindowRef.current.close();
-      } catch (e) {
-        // Ignore errors
+    if (!open) {
+      const existingFrame = document.getElementById('print-frame');
+      if (existingFrame) {
+        existingFrame.remove();
       }
-      printWindowRef.current = null;
     }
   }, [open]);
 
@@ -322,82 +319,76 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     `;
   };
 
-  const handlePrintWithWindow = (): Promise<void> => {
+  // Mobile-friendly printing via hidden iframe (avoids popup blocker issues)
+  const handlePrintWithIframe = (): Promise<void> => {
     return new Promise((resolve) => {
-      // Close any existing print window first
-      if (printWindowRef.current && !printWindowRef.current.closed) {
-        try {
-          printWindowRef.current.close();
-        } catch (e) {
-          // Ignore errors when closing
-        }
-      }
-      
       const printHTML = generatePrintHTML();
       
-      // Always create a fresh window with unique name
-      const windowName = `print_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const printWindow = window.open('', windowName, 'width=800,height=600');
+      // Remove any existing print iframe
+      const existingFrame = document.getElementById('print-frame');
+      if (existingFrame) {
+        existingFrame.remove();
+      }
       
-      if (!printWindow) {
-        toast.error('Popup wurde blockiert. Bitte Popup-Blocker deaktivieren.');
+      // Create hidden iframe
+      const iframe = document.createElement('iframe');
+      iframe.id = 'print-frame';
+      iframe.style.position = 'absolute';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = 'none';
+      iframe.style.left = '-9999px';
+      iframe.style.top = '-9999px';
+      
+      document.body.appendChild(iframe);
+      
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc) {
+        toast.error('Drucken fehlgeschlagen');
+        iframe.remove();
         resolve();
         return;
       }
-
-      // Store reference for cleanup
-      printWindowRef.current = printWindow;
-
-      // Flag to ensure we only resolve once
-      let resolved = false;
-      const safeResolve = () => {
-        if (!resolved) {
-          resolved = true;
-          resolve();
-        }
-      };
-
-      // Write content to new window
-      printWindow.document.open();
-      printWindow.document.write(printHTML);
-      printWindow.document.close();
-
-      // Single timeout to trigger print - most reliable approach
-      setTimeout(() => {
-        try {
-          printWindow.focus();
-          printWindow.print();
-        } catch (e) {
-          console.error('[Print] Print failed:', e);
-          toast.error('Drucken fehlgeschlagen');
-          safeResolve();
-          return;
-        }
-        
-        // Handle print completion
-        printWindow.onafterprint = () => {
-          try {
-            printWindow.close();
-          } catch (e) {
-            // Ignore
-          }
-          printWindowRef.current = null;
-          safeResolve();
-        };
-        
-        // Fallback: resolve after timeout if onafterprint doesn't fire
+      
+      iframeDoc.open();
+      iframeDoc.write(printHTML);
+      iframeDoc.close();
+      
+      // Wait for iframe content to load
+      iframe.onload = () => {
         setTimeout(() => {
-          if (!printWindow.closed) {
-            try {
-              printWindow.close();
-            } catch (e) {
-              // Ignore
-            }
+          try {
+            iframe.contentWindow?.focus();
+            iframe.contentWindow?.print();
+          } catch (e) {
+            console.error('[Print] Print failed:', e);
+            toast.error('Drucken fehlgeschlagen');
           }
-          printWindowRef.current = null;
-          safeResolve();
-        }, 10000);
-      }, 300);
+          
+          // Cleanup after a delay to allow print dialog to complete
+          setTimeout(() => {
+            iframe.remove();
+            resolve();
+          }, 1000);
+        }, 300);
+      };
+      
+      // Fallback: if onload doesn't fire, trigger manually
+      setTimeout(() => {
+        if (document.getElementById('print-frame')) {
+          try {
+            iframe.contentWindow?.focus();
+            iframe.contentWindow?.print();
+          } catch (e) {
+            console.error('[Print] Fallback print failed:', e);
+          }
+          
+          setTimeout(() => {
+            iframe.remove();
+            resolve();
+          }, 1000);
+        }
+      }, 1000);
     });
   };
 
@@ -415,8 +406,8 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       toast.success('Notizen gespeichert');
       onUpdate?.();
 
-      // Print and wait for completion
-      await handlePrintWithWindow();
+      // Print via iframe (mobile-friendly, no popup blocker issues)
+      await handlePrintWithIframe();
       
       // Close dialog AFTER printing
       onOpenChange(false);

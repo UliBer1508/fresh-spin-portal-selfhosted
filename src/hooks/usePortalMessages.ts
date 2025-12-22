@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useEffect } from 'react';
+import { PROVIDER_IDS } from '@/lib/constants';
 
-// WICHTIG: Feste Provider-ID für Teuni
-const TEUNI_PROVIDER_ID = 'd8110105-8ac9-45e3-ad32-aaf42393744c';
+// Provider-ID aus zentralen Konstanten
+const TEUNI_PROVIDER_ID = PROVIDER_IDS.TEUNI;
 
 export interface PortalMessage {
   id: string;
@@ -18,7 +19,6 @@ export interface PortalMessage {
 }
 
 export const usePortalMessages = () => {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Nachrichten laden
@@ -84,11 +84,7 @@ export const usePortalMessages = () => {
     },
     onError: (error) => {
       console.error('Error sending message:', error);
-      toast({
-        title: 'Fehler',
-        description: 'Die Nachricht konnte nicht gesendet werden.',
-        variant: 'destructive',
-      });
+      toast.error('Die Nachricht konnte nicht gesendet werden.');
     },
   });
 

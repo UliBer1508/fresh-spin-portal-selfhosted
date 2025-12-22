@@ -1,13 +1,14 @@
-// v12.3 - React Cache Fix
+// v12.4 - Version aus version.ts
 import { StrictMode, Component, ErrorInfo, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { APP_VERSION } from "./lib/version";
 
 // Preemptive cache check and clear on startup
 const performPreemptiveCacheCheck = async () => {
   const lastVersion = localStorage.getItem('app-version');
-  const currentVersion = '12.3';
+  const currentVersion = APP_VERSION;
   
   if (lastVersion !== currentVersion) {
     console.log('[Startup] Version changed from', lastVersion, 'to', currentVersion, '- clearing all caches');

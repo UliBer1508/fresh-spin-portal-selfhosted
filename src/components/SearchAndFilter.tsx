@@ -1,5 +1,5 @@
-// v7 - Filter für Standalone-Bestellungen hinzugefügt
-import { useState, useEffect, useMemo } from "react";
+// v8 - Performance-optimiert mit useCallback
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
@@ -191,17 +191,28 @@ const SearchAndFilter = ({
     return filtered;
   }, [standaloneOrders, searchQuery, statusFilter, houseFilter, staffFilter]);
 
+  // Memoized callbacks um unnötige Re-renders zu vermeiden
+  const stableBookingsCallback = useCallback(
+    (bookings: Booking[]) => onFilteredBookingsChange(bookings),
+    [onFilteredBookingsChange]
+  );
+  
+  const stableStandaloneCallback = useCallback(
+    (orders: LinenOrder[]) => onFilteredStandaloneOrdersChange?.(orders),
+    [onFilteredStandaloneOrdersChange]
+  );
+
   // Update parent component when filtered bookings change
   useEffect(() => {
-    onFilteredBookingsChange(filteredBookings);
-  }, [filteredBookings, onFilteredBookingsChange]);
+    stableBookingsCallback(filteredBookings);
+  }, [filteredBookings, stableBookingsCallback]);
 
   // Update parent component when filtered standalone orders change
   useEffect(() => {
-    if (onFilteredStandaloneOrdersChange) {
-      onFilteredStandaloneOrdersChange(filteredStandaloneOrders);
+    if (stableStandaloneCallback) {
+      stableStandaloneCallback(filteredStandaloneOrders);
     }
-  }, [filteredStandaloneOrders, onFilteredStandaloneOrdersChange]);
+  }, [filteredStandaloneOrders, stableStandaloneCallback]);
 
   // Count active filters
   const activeFiltersCount = [

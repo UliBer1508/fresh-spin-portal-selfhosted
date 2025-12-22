@@ -1,26 +1,10 @@
-// v6 - Fix React imports consistency
+// v7 - Zentrale Konstanten verwenden
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import LinenOrderSection from "./LinenOrderSection";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking } from "@/hooks/useBookings";
-// v3 - Emojis vollständig implementiert
-
-// Farb-Palette für Buchungsrand
-const BOOKING_COLORS = [
-  'border-blue-500',
-  'border-purple-500',
-  'border-pink-500',
-  'border-green-500',
-  'border-orange-500',
-  'border-teal-500',
-  'border-indigo-500',
-  'border-rose-500',
-  'border-cyan-500',
-  'border-amber-500',
-  'border-emerald-500',
-  'border-violet-500',
-];
+import { BOOKING_COLORS, getColorByHash } from "@/lib/constants";
 
 interface BookingCardProps {
   booking: Booking;
@@ -60,10 +44,7 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
   };
 
   const getBookingColor = (bookingId: string) => {
-    // Einfacher Hash basierend auf der ID
-    const hash = bookingId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const index = hash % BOOKING_COLORS.length;
-    return BOOKING_COLORS[index];
+    return getColorByHash(BOOKING_COLORS, bookingId);
   };
 
   return (

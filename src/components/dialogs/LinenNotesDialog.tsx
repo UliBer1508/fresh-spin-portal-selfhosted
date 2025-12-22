@@ -1,10 +1,10 @@
-// v6 - Fix React imports consistency
+// v7 - Einheitliches Toast-Handling mit sonner
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LinenOrder } from "@/hooks/useBookings";
 
@@ -18,7 +18,6 @@ interface LinenNotesDialogProps {
 const LinenNotesDialog = ({ order, open, onOpenChange, onUpdate }: LinenNotesDialogProps) => {
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   // Initialize form when dialog opens
   const handleOpenChange = (open: boolean) => {
@@ -40,19 +39,12 @@ const LinenNotesDialog = ({ order, open, onOpenChange, onUpdate }: LinenNotesDia
 
       if (error) throw error;
 
-      toast({
-        title: "Erfolg",
-        description: "Notizen wurden aktualisiert",
-      });
+      toast.success("Notizen wurden aktualisiert");
 
       onUpdate();
       onOpenChange(false);
     } catch (error) {
-      toast({
-        title: "Fehler", 
-        description: "Notizen konnten nicht aktualisiert werden",
-        variant: "destructive"
-      });
+      toast.error("Notizen konnten nicht aktualisiert werden");
     } finally {
       setIsLoading(false);
     }

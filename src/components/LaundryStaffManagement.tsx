@@ -80,37 +80,39 @@ const LaundryStaffManagement = () => {
     try {
       setLoading(true);
       
-      // Fetch staff with dynamic order counts
-      const { data: staffData, error: staffError } = await supabase
-        .from('laundry_staff')
-        .select('*')
-        .order('name');
+      // Optimiert: Eine Query für Staff + parallele Batch-Query für alle Order-Counts
+      const [staffResult, ordersResult] = await Promise.all([
+        supabase.from('laundry_staff').select('*').order('name'),
+        supabase.from('linen_orders').select('assigned_staff_id, status')
+      ]);
 
-      if (staffError) throw staffError;
+      if (staffResult.error) throw staffResult.error;
+      
+      const staffData = staffResult.data || [];
+      const ordersData = ordersResult.data || [];
+      
+      // Aggregiere Order-Counts clientseitig (vermeidet N+1)
+      const orderCounts = ordersData.reduce((acc, order) => {
+        const staffId = order.assigned_staff_id;
+        if (!staffId) return acc;
+        
+        if (!acc[staffId]) {
+          acc[staffId] = { total: 0, completed: 0 };
+        }
+        acc[staffId].total++;
+        
+        const status = order.status?.toLowerCase();
+        if (status === 'delivered' || status === 'geliefert' || status === 'completed') {
+          acc[staffId].completed++;
+        }
+        return acc;
+      }, {} as Record<string, { total: number; completed: number }>);
 
-      // Get order counts for each staff member
-      const staffWithCounts = await Promise.all(
-        (staffData || []).map(async (staffMember) => {
-          // Get total orders assigned to this staff member
-          const { count: totalOrders } = await supabase
-            .from('linen_orders')
-            .select('*', { count: 'exact', head: true })
-            .eq('assigned_staff_id', staffMember.id);
-
-          // Get completed orders for this staff member
-          const { count: completedOrders } = await supabase
-            .from('linen_orders')
-            .select('*', { count: 'exact', head: true })
-            .eq('assigned_staff_id', staffMember.id)
-            .in('status', ['delivered', 'geliefert', 'completed']);
-
-          return {
-            ...staffMember,
-            total_orders: totalOrders || 0,
-            completed_orders: completedOrders || 0,
-          };
-        })
-      );
+      const staffWithCounts = staffData.map((staffMember) => ({
+        ...staffMember,
+        total_orders: orderCounts[staffMember.id]?.total || 0,
+        completed_orders: orderCounts[staffMember.id]?.completed || 0,
+      }));
 
       setStaff(staffWithCounts);
     } catch (error) {

@@ -319,7 +319,48 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     `;
   };
 
-  // Mobile-friendly printing via hidden iframe (avoids popup blocker issues)
+  // Detect mobile devices
+  const isMobileDevice = (): boolean => {
+    return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+  };
+
+  // Mobile printing: Open new tab with print button (works on iOS Safari & Android)
+  const handlePrintMobile = () => {
+    const printHTML = generatePrintHTML();
+    
+    // Add print controls for mobile
+    const mobileHTML = printHTML.replace(
+      '</body>',
+      `
+      <div id="print-controls" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; gap: 12px; padding: 16px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+        <button onclick="document.getElementById('print-controls').style.display='none'; window.print();" 
+                style="padding: 14px 28px; font-size: 16px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+          🖨️ Drucken
+        </button>
+        <button onclick="window.close();" 
+                style="padding: 14px 28px; font-size: 16px; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+          ✕ Schließen
+        </button>
+      </div>
+      <style>
+        @media print { 
+          #print-controls { display: none !important; } 
+        }
+      </style>
+      </body>`
+    );
+    
+    // Open in new tab (user-initiated action, bypasses popup blocker)
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(mobileHTML);
+      printWindow.document.close();
+    } else {
+      toast.error('Bitte Popup-Blocker deaktivieren oder erneut versuchen');
+    }
+  };
+
+  // Desktop printing via hidden iframe
   const handlePrintWithIframe = (): Promise<void> => {
     return new Promise((resolve) => {
       const printHTML = generatePrintHTML();
@@ -406,8 +447,14 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       toast.success('Notizen gespeichert');
       onUpdate?.();
 
-      // Print via iframe (mobile-friendly, no popup blocker issues)
-      await handlePrintWithIframe();
+      // Use different print strategy based on device
+      if (isMobileDevice()) {
+        // Mobile: Open new tab with print button
+        handlePrintMobile();
+      } else {
+        // Desktop: Use iframe printing
+        await handlePrintWithIframe();
+      }
       
       // Close dialog AFTER printing
       onOpenChange(false);

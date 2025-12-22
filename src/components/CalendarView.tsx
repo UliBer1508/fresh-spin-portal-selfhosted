@@ -1,33 +1,18 @@
-// v9 - Tourist filter + Gantt chart view + Mobile optimization
-import { useState, useEffect, useRef } from "react";
+// v10 - Performance-Optimierungen + zentrale Konstanten
+import { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, ArrowRight, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isWithinInterval, isAfter, startOfDay } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card, CardContent } from "@/components/ui/card";
-
-// House colors matching BookingCard.tsx
-const HOUSE_COLORS = [
-  { bg: 'bg-blue-500', text: 'text-white', hex: '#3b82f6' },
-  { bg: 'bg-purple-500', text: 'text-white', hex: '#a855f7' },
-  { bg: 'bg-pink-500', text: 'text-white', hex: '#ec4899' },
-  { bg: 'bg-green-500', text: 'text-white', hex: '#22c55e' },
-  { bg: 'bg-orange-500', text: 'text-white', hex: '#f97316' },
-  { bg: 'bg-teal-500', text: 'text-white', hex: '#14b8a6' },
-  { bg: 'bg-indigo-500', text: 'text-white', hex: '#6366f1' },
-  { bg: 'bg-rose-500', text: 'text-white', hex: '#f43f5e' },
-  { bg: 'bg-cyan-500', text: 'text-white', hex: '#06b6d4' },
-  { bg: 'bg-amber-500', text: 'text-white', hex: '#f59e0b' },
-  { bg: 'bg-emerald-500', text: 'text-white', hex: '#10b981' },
-  { bg: 'bg-violet-500', text: 'text-white', hex: '#8b5cf6' },
-];
+import { HOUSE_COLORS, getColorByHash } from "@/lib/constants";
 
 interface CalendarEvent {
   id: string;
@@ -79,9 +64,7 @@ interface GanttBooking {
 
 // Get consistent color for a house based on its ID
 const getHouseColor = (houseId: string) => {
-  if (!houseId) return HOUSE_COLORS[0];
-  const hash = houseId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return HOUSE_COLORS[hash % HOUSE_COLORS.length];
+  return getColorByHash(HOUSE_COLORS, houseId);
 };
 
 // Get house name abbreviation (e.g., "Wald Chalet" → "WC")

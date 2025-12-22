@@ -1,4 +1,4 @@
-// v6 - Fix React imports consistency
+// v7 - Einheitliches Toast-Handling mit sonner
 import { useState, useEffect } from "react";
 import { Bell, Volume2, Mail, Smartphone, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 interface NotificationPreferences {
@@ -42,7 +42,6 @@ const NotificationSettingsDialog = () => {
     notify_urgent_tasks: true,
   });
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     if (open) {
@@ -84,17 +83,10 @@ const NotificationSettingsDialog = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Einstellungen gespeichert",
-        description: "Ihre Benachrichtigungseinstellungen wurden aktualisiert.",
-      });
+      toast.success("Einstellungen gespeichert");
     } catch (error) {
       console.error('Error updating preferences:', error);
-      toast({
-        title: "Fehler",
-        description: "Fehler beim Speichern der Einstellungen.",
-        variant: "destructive",
-      });
+      toast.error("Fehler beim Speichern der Einstellungen");
     }
   };
 

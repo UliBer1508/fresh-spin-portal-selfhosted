@@ -1,11 +1,11 @@
-// v6 - Fix React imports consistency
+// v7 - Einheitliches Toast-Handling mit sonner
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LinenOrder } from "@/hooks/useBookings";
 import { AlertCircle } from "lucide-react";
@@ -21,7 +21,6 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
   const [deliveryDate, setDeliveryDate] = useState("");
   const [deliveryTime, setDeliveryTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
   // Initialize form when dialog opens
   const handleOpenChange = (open: boolean) => {
@@ -49,20 +48,13 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
 
       if (error) throw error;
 
-      toast({
-        title: "Erfolg",
-        description: "Liefertermin wurde aktualisiert",
-      });
+      toast.success("Liefertermin wurde aktualisiert");
 
       onUpdate();
       onOpenChange(false);
     } catch (error) {
       console.error('Fehler beim Update:', error);
-      toast({
-        title: "Fehler",
-        description: "Liefertermin konnte nicht aktualisiert werden",
-        variant: "destructive"
-      });
+      toast.error("Liefertermin konnte nicht aktualisiert werden");
     } finally {
       setIsLoading(false);
     }

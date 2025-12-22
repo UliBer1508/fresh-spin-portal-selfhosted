@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -25,13 +25,26 @@ interface PrintDeliveryNoteDialogProps {
 const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintDeliveryNoteDialogProps) => {
   const [notes, setNotes] = useState(order?.notes || "");
   const [isSaving, setIsSaving] = useState(false);
+  const printWindowRef = useRef<Window | null>(null);
 
   // Update notes when order changes
-  useState(() => {
+  useEffect(() => {
     if (order) {
       setNotes(order.notes || "");
     }
-  });
+  }, [order]);
+
+  // Cleanup print window when dialog closes
+  useEffect(() => {
+    if (!open && printWindowRef.current && !printWindowRef.current.closed) {
+      try {
+        printWindowRef.current.close();
+      } catch (e) {
+        // Ignore errors
+      }
+      printWindowRef.current = null;
+    }
+  }, [open]);
 
   if (!order) return null;
 
@@ -309,10 +322,19 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
 
   const handlePrintWithWindow = (): Promise<void> => {
     return new Promise((resolve) => {
+      // Close any existing print window first
+      if (printWindowRef.current && !printWindowRef.current.closed) {
+        try {
+          printWindowRef.current.close();
+        } catch (e) {
+          // Ignore errors when closing
+        }
+      }
+      
       const printHTML = generatePrintHTML();
       
-      // Use unique window name to prevent reuse
-      const windowName = `print_${Date.now()}`;
+      // Always create a fresh window with unique name
+      const windowName = `print_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const printWindow = window.open('', windowName, 'width=800,height=600');
       
       if (!printWindow) {
@@ -321,48 +343,59 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
         return;
       }
 
-      // Flag to prevent multiple print calls
-      let printTriggered = false;
+      // Store reference for cleanup
+      printWindowRef.current = printWindow;
+
+      // Flag to ensure we only resolve once
+      let resolved = false;
+      const safeResolve = () => {
+        if (!resolved) {
+          resolved = true;
+          resolve();
+        }
+      };
 
       // Write content to new window
       printWindow.document.open();
       printWindow.document.write(printHTML);
       printWindow.document.close();
 
-      const triggerPrint = () => {
-        // Only trigger once
-        if (printTriggered) {
-          console.log('[Print] Already triggered, skipping');
+      // Single timeout to trigger print - most reliable approach
+      setTimeout(() => {
+        try {
+          printWindow.focus();
+          printWindow.print();
+        } catch (e) {
+          console.error('[Print] Print failed:', e);
+          toast.error('Drucken fehlgeschlagen');
+          safeResolve();
           return;
         }
-        printTriggered = true;
         
-        console.log('[Print] Triggering print...');
-        printWindow.focus();
-        
-        setTimeout(() => {
-          try {
-            console.log('[Print] Calling print()...');
-            printWindow.print();
-          } catch (e) {
-            console.error('[Print] Print failed:', e);
-            toast.error('Drucken fehlgeschlagen');
-          }
-        }, 100);
-        
+        // Handle print completion
         printWindow.onafterprint = () => {
-          printWindow.close();
-          resolve();
+          try {
+            printWindow.close();
+          } catch (e) {
+            // Ignore
+          }
+          printWindowRef.current = null;
+          safeResolve();
         };
         
-        // Fallback timeout
+        // Fallback: resolve after timeout if onafterprint doesn't fire
         setTimeout(() => {
-          resolve();
-        }, 5000);
-      };
-
-      // Always use timeout - more reliable than onload for document.write()
-      setTimeout(triggerPrint, 300);
+          if (!printWindow.closed) {
+            try {
+              printWindow.close();
+            } catch (e) {
+              // Ignore
+            }
+          }
+          printWindowRef.current = null;
+          safeResolve();
+        }, 10000);
+      }, 300);
     });
   };
 

@@ -25,9 +25,10 @@ const BOOKING_COLORS = [
 interface BookingCardProps {
   booking: Booking;
   viewSettings: ViewSettings;
+  onUpdate?: () => void;
 }
 
-const BookingCard = ({ booking, viewSettings }: BookingCardProps) => {
+const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case "confirmed":
@@ -147,7 +148,7 @@ const BookingCard = ({ booking, viewSettings }: BookingCardProps) => {
           {viewSettings.showLinenOrders && (
             <LinenOrderSection 
               linenOrders={booking.linen_orders || []} 
-              onUpdate={() => window.location.reload()}
+              onUpdate={onUpdate}
               viewSettings={viewSettings}
             />
           )}

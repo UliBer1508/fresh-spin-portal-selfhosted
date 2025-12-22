@@ -223,6 +223,9 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
           <div class="header">
             <h1>LIEFERSCHEIN</h1>
             <p>Teuni Wäscheservice</p>
+            <p style="margin-top: 8px; font-size: 14px; font-weight: 600;">
+              Bestell-Nr: #${order.id.substring(0, 8).toUpperCase()}
+            </p>
           </div>
 
           <!-- Delivery Address -->
@@ -312,7 +315,6 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
 
           <!-- Footer -->
           <div class="footer">
-            <span>Bestell-Nr: #${order.id.substring(0, 8)}</span>
             <span>Erstellt: ${new Date().toLocaleDateString('de-DE')}</span>
           </div>
         </body>
@@ -440,6 +442,9 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
           <div className="text-center border-b-2 border-foreground pb-4">
             <h1 className="text-2xl font-bold tracking-wide">LIEFERSCHEIN</h1>
             <p className="text-lg font-medium text-muted-foreground mt-1">Teuni Wäscheservice</p>
+            <p className="text-sm font-semibold mt-2">
+              Bestell-Nr: #{order.id.substring(0, 8).toUpperCase()}
+            </p>
           </div>
 
           {/* Delivery Address */}

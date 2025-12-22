@@ -227,7 +227,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                       <span className="text-sm font-semibold text-foreground">Lieferung bis zum:</span>
                     </div>
                     
-                    <div className="ml-8 space-y-2">
+                    <div className="space-y-2">
                       {/* Anklickbare Datum und Zeit Anzeige */}
                       {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
                         <button
@@ -259,7 +259,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                       <span className="text-sm font-semibold text-foreground">Status</span>
                     </div>
                     
-                    <div className="ml-8">
+                    <div>
                       <Select 
                         value={order.status || 'pending'} 
                         onValueChange={(value) => handleStatusChange(order.id, value)}
@@ -306,7 +306,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                       <span className="text-sm font-semibold text-foreground">Zugewiesen</span>
                     </div>
                     
-                    <div className="ml-8">
+                    <div>
                       <Select
                         value={order.assigned_staff_id || "none"}
                         onValueChange={(value) => {
@@ -358,7 +358,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                       <span className="text-sm font-semibold text-foreground">Notizen</span>
                     </div>
                     
-                    <div className="ml-8">
+                    <div>
                       <button
                         onClick={() => handleEditNotes(order)}
                         className="w-full text-left p-3 rounded-lg border border-border bg-background 

@@ -319,17 +319,12 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     `;
   };
 
-  // Detect mobile devices
-  const isMobileDevice = (): boolean => {
-    return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-  };
-
-  // Mobile printing: Open new tab with print button (works on iOS Safari & Android)
-  const handlePrintMobile = () => {
+  // Unified printing: Open new tab with print button (works on all devices)
+  const handlePrint = () => {
     const printHTML = generatePrintHTML();
     
-    // Add print controls for mobile
-    const mobileHTML = printHTML.replace(
+    // Add print controls
+    const printableHTML = printHTML.replace(
       '</body>',
       `
       <div id="print-controls" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; gap: 12px; padding: 16px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
@@ -342,95 +337,25 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
           ✕ Schließen
         </button>
       </div>
+      <p style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); color: #6b7280; font-size: 14px; text-align: center;">
+        Alternativ: Strg+P (Windows) oder Cmd+P (Mac)
+      </p>
       <style>
         @media print { 
-          #print-controls { display: none !important; } 
+          #print-controls, #print-controls + p { display: none !important; } 
         }
       </style>
       </body>`
     );
     
-    // Open in new tab (user-initiated action, bypasses popup blocker)
+    // Open in new tab
     const printWindow = window.open('', '_blank');
     if (printWindow) {
-      printWindow.document.write(mobileHTML);
+      printWindow.document.write(printableHTML);
       printWindow.document.close();
     } else {
       toast.error('Bitte Popup-Blocker deaktivieren oder erneut versuchen');
     }
-  };
-
-  // Desktop printing via hidden iframe
-  const handlePrintWithIframe = (): Promise<void> => {
-    return new Promise((resolve) => {
-      const printHTML = generatePrintHTML();
-      
-      // Remove any existing print iframe
-      const existingFrame = document.getElementById('print-frame');
-      if (existingFrame) {
-        existingFrame.remove();
-      }
-      
-      // Create hidden iframe
-      const iframe = document.createElement('iframe');
-      iframe.id = 'print-frame';
-      iframe.style.position = 'absolute';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = 'none';
-      iframe.style.left = '-9999px';
-      iframe.style.top = '-9999px';
-      
-      document.body.appendChild(iframe);
-      
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc) {
-        toast.error('Drucken fehlgeschlagen');
-        iframe.remove();
-        resolve();
-        return;
-      }
-      
-      iframeDoc.open();
-      iframeDoc.write(printHTML);
-      iframeDoc.close();
-      
-      // Wait for iframe content to load
-      iframe.onload = () => {
-        setTimeout(() => {
-          try {
-            iframe.contentWindow?.focus();
-            iframe.contentWindow?.print();
-          } catch (e) {
-            console.error('[Print] Print failed:', e);
-            toast.error('Drucken fehlgeschlagen');
-          }
-          
-          // Cleanup after a delay to allow print dialog to complete
-          setTimeout(() => {
-            iframe.remove();
-            resolve();
-          }, 1000);
-        }, 300);
-      };
-      
-      // Fallback: if onload doesn't fire, trigger manually
-      setTimeout(() => {
-        if (document.getElementById('print-frame')) {
-          try {
-            iframe.contentWindow?.focus();
-            iframe.contentWindow?.print();
-          } catch (e) {
-            console.error('[Print] Fallback print failed:', e);
-          }
-          
-          setTimeout(() => {
-            iframe.remove();
-            resolve();
-          }, 1000);
-        }
-      }, 1000);
-    });
   };
 
   const handleSaveAndPrint = async () => {
@@ -447,16 +372,10 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       toast.success('Notizen gespeichert');
       onUpdate?.();
 
-      // Use different print strategy based on device
-      if (isMobileDevice()) {
-        // Mobile: Open new tab with print button
-        handlePrintMobile();
-      } else {
-        // Desktop: Use iframe printing
-        await handlePrintWithIframe();
-      }
+      // Open print tab
+      handlePrint();
       
-      // Close dialog AFTER printing
+      // Close dialog
       onOpenChange(false);
 
     } catch (error) {

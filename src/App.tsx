@@ -1,4 +1,4 @@
-// v12.3 - React Cache Fix
+// v12.4 - React Cache Fix + QueryClient stability
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";

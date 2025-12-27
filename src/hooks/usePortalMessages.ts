@@ -1,8 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, QueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useEffect } from 'react';
+import { useEffect, useContext } from 'react';
 import { PROVIDER_IDS } from '@/lib/constants';
+import { QueryClientContext } from '@tanstack/react-query';
 
 // Provider-ID aus zentralen Konstanten
 const TEUNI_PROVIDER_ID = PROVIDER_IDS.TEUNI;
@@ -18,7 +19,26 @@ export interface PortalMessage {
   created_at: string;
 }
 
+// Default return value when QueryClient is not available
+const defaultReturn = {
+  messages: [] as PortalMessage[],
+  isLoading: false,
+  error: null as Error | null,
+  unreadCount: 0,
+  sendMessage: (() => {}) as (message: string) => void,
+  markAsRead: () => {},
+};
+
 export const usePortalMessages = () => {
+  // Check if QueryClient context is available
+  const queryClientContext = useContext(QueryClientContext);
+  
+  // If no QueryClient context, return default values
+  if (!queryClientContext) {
+    console.warn('usePortalMessages: QueryClient context not available');
+    return defaultReturn;
+  }
+  
   const queryClient = useQueryClient();
 
   // Nachrichten laden

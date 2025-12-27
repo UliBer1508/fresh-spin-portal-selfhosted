@@ -1,2 +1,2 @@
-// v12.4 - Phasen 2-4 Optimierungen
-export const APP_VERSION = '12.4.0';
+// v12.5 - QueryClient Context Fix
+export const APP_VERSION = '12.5.0';

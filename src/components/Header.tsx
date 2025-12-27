@@ -1,5 +1,4 @@
-// v12.3 - Chat Button Component
-import { useState } from "react";
+// v12.5 - Chat Button Component - Defensive hook usage
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { APP_VERSION } from "@/lib/version";
 import { ChatButton } from "@/components/PortalChat";

@@ -1,6 +1,6 @@
-// v10 - Performance-Optimierungen + zentrale Konstanten
+// v11 - Mobile Gantt Wochenansicht
 import { useState, useEffect, useRef, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, ArrowRight, Home } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
@@ -11,9 +11,8 @@ import { de } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Card, CardContent } from "@/components/ui/card";
 import { HOUSE_COLORS, getColorByHash } from "@/lib/constants";
-
+import { useIsMobile } from "@/hooks/use-mobile";
 interface CalendarEvent {
   id: string;
   type: 'check-in' | 'check-out' | 'occupied' | 'cleaning' | 'linen';
@@ -87,6 +86,7 @@ const CalendarView = () => {
   const [ganttBookings, setGanttBookings] = useState<GanttBooking[]>([]);
   const ganttScrollRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
+  const isMobile = useIsMobile();
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -326,7 +326,9 @@ const CalendarView = () => {
   };
 
   const goToPrevious = () => {
-    if (view === 'month' || view === 'gantt') {
+    if (view === 'gantt' && isMobile) {
+      setCurrentDate(subWeeks(currentDate, 1));
+    } else if (view === 'month' || view === 'gantt') {
       setCurrentDate(subMonths(currentDate, 1));
     } else {
       setCurrentDate(subWeeks(currentDate, 1));
@@ -334,7 +336,9 @@ const CalendarView = () => {
   };
 
   const goToNext = () => {
-    if (view === 'month' || view === 'gantt') {
+    if (view === 'gantt' && isMobile) {
+      setCurrentDate(addWeeks(currentDate, 1));
+    } else if (view === 'month' || view === 'gantt') {
       setCurrentDate(addMonths(currentDate, 1));
     } else {
       setCurrentDate(addWeeks(currentDate, 1));
@@ -350,18 +354,10 @@ const CalendarView = () => {
     return ganttBookings.filter(b => b.house_id === houseId);
   };
 
-  // Get the next upcoming booking (for mobile quick info)
-  const getNextBooking = () => {
-    const today = startOfDay(new Date());
-    const upcoming = ganttBookings
-      .filter(b => isAfter(b.check_in, today) || isAfter(b.check_out, today))
-      .sort((a, b) => a.check_in.getTime() - b.check_in.getTime());
-    return upcoming[0] || null;
-  };
 
-  // Auto-scroll to today when Gantt view loads
+  // Auto-scroll to today when Gantt view loads (only on desktop)
   useEffect(() => {
-    if (view === 'gantt' && !loading && ganttScrollRef.current) {
+    if (view === 'gantt' && !loading && ganttScrollRef.current && !isMobile) {
       const today = new Date();
       const todayIndex = differenceInDays(today, monthStart);
       
@@ -377,90 +373,72 @@ const CalendarView = () => {
         }, 100);
       }
     }
-  }, [view, loading, currentDate]);
+  }, [view, loading, currentDate, isMobile]);
 
   // Persist view state in localStorage
   useEffect(() => {
     localStorage.setItem('calendar-view', view);
   }, [view]);
 
+  // Mobile: Wochenansicht, Desktop: Monatsansicht für Gantt
+  const ganttDays = (view === 'gantt' && isMobile) ? weekDays : monthDays;
+  const ganttStart = (view === 'gantt' && isMobile) ? weekStart : monthStart;
+
   // Calculate Gantt grid position - grid columns are 1-indexed
   const getGanttGridPosition = (booking: GanttBooking) => {
-    const totalDays = monthDays.length;
+    const totalDays = ganttDays.length;
+    const referenceStart = ganttStart;
     
     // Grid-Spalten sind 1-basiert
     // Check-in Tag: Balken startet ab Mitte des Check-in Tages
-    const startDayRaw = differenceInDays(booking.check_in, monthStart);
+    const startDayRaw = differenceInDays(booking.check_in, referenceStart);
     // +1 für 1-basierte Grid-Spalten, dann noch +1 weil Gast ab Check-in Nachmittag da ist
     const startCol = Math.max(1, startDayRaw + 1);
     
     // Check-out Tag: Balken endet am Check-out Tag (Gast geht mittags)
-    const endDayRaw = differenceInDays(booking.check_out, monthStart);
+    const endDayRaw = differenceInDays(booking.check_out, referenceStart);
     // +1 für 1-basierte Grid-Spalten, +1 weil grid-column end exklusiv ist
     const endCol = Math.min(totalDays + 1, endDayRaw + 2);
     
     return { 
       gridColumn: `${startCol} / ${endCol}`,
       // Zusätzliche Info für Styling am Rand
-      startsBeforeMonth: startDayRaw < 0,
-      endsAfterMonth: endDayRaw >= totalDays
+      startsBeforeRange: startDayRaw < 0,
+      endsAfterRange: endDayRaw >= totalDays
     };
   };
 
-  const nextBooking = view === 'gantt' ? getNextBooking() : null;
-
   // Render Gantt Chart View
   const renderGanttView = () => {
-    const dayWidth = 'minmax(24px, 1fr)';
-    const gridCols = `repeat(${monthDays.length}, ${dayWidth})`;
+    const dayWidth = isMobile ? 'minmax(40px, 1fr)' : 'minmax(24px, 1fr)';
+    const gridCols = `repeat(${ganttDays.length}, ${dayWidth})`;
 
     return (
       <div className="space-y-3">
-        {/* Mobile: Next Booking Quick Info */}
-        {nextBooking && (
-          <Card className="md:hidden bg-primary/5 border-primary/20">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <div className={cn("w-3 h-3 rounded-full shrink-0", getHouseColor(nextBooking.house_id).bg)} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-muted-foreground">Nächste Buchung</p>
-                    <p className="text-sm font-medium truncate">{nextBooking.guest_name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {format(nextBooking.check_in, 'd. MMM', { locale: de })} • {nextBooking.house_name}
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         <div className="bg-background border rounded-lg overflow-hidden">
           <ScrollArea className="w-full">
-            <div ref={ganttScrollRef} className="min-w-[600px]">
+            <div ref={ganttScrollRef} className={isMobile ? "min-w-0" : "min-w-[600px]"}>
               {/* Header with days */}
               <div className="flex border-b sticky top-0 bg-background z-10">
-                <div className="w-24 md:w-40 shrink-0 p-2 md:p-3 font-medium text-xs md:text-sm border-r bg-muted/50">
+                <div className="w-20 md:w-40 shrink-0 p-2 md:p-3 font-medium text-xs md:text-sm border-r bg-muted/50">
                   <Home className="w-4 h-4 md:hidden" />
                   <span className="hidden md:inline">Unterkunft</span>
                 </div>
                 <div className="flex-1 grid" style={{ gridTemplateColumns: gridCols }}>
-                  {monthDays.map((day) => {
+                  {ganttDays.map((day) => {
                     const isToday = isSameDay(day, new Date());
                     const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                     return (
                       <div
                         key={day.toISOString()}
                         className={cn(
-                          "p-0.5 md:p-1 text-center text-[9px] md:text-xs border-r last:border-r-0",
+                          "p-0.5 md:p-1 text-center text-[10px] md:text-xs border-r last:border-r-0",
                           isToday && "bg-primary/20 font-bold",
                           isWeekend && "bg-muted/30"
                         )}
                       >
                         <div className="font-medium">{format(day, 'd')}</div>
-                        <div className="text-muted-foreground hidden md:block">{format(day, 'EEE', { locale: de })}</div>
+                        <div className="text-muted-foreground text-[9px] md:text-xs">{format(day, 'EEE', { locale: de })}</div>
                       </div>
                     );
                   })}
@@ -475,7 +453,7 @@ const CalendarView = () => {
                 return (
                   <div key={house.id} className="flex border-b last:border-b-0 min-h-[44px] md:min-h-[60px]">
                     {/* House name */}
-                    <div className="w-24 md:w-40 shrink-0 p-1.5 md:p-3 border-r bg-muted/20 flex items-center">
+                    <div className="w-20 md:w-40 shrink-0 p-1.5 md:p-3 border-r bg-muted/20 flex items-center">
                       <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
                         <div className={cn("w-2.5 h-2.5 md:w-3 md:h-3 rounded-full shrink-0", houseColor.bg)} />
                         <span className="text-[10px] md:text-sm font-medium truncate">{house.name}</span>
@@ -485,7 +463,7 @@ const CalendarView = () => {
                     {/* Timeline with bookings - Grid-based */}
                     <div className="flex-1 grid items-center" style={{ gridTemplateColumns: gridCols }}>
                       {/* Background grid cells */}
-                      {monthDays.map((day) => {
+                      {ganttDays.map((day) => {
                         const isToday = isSameDay(day, new Date());
                         const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                         return (
@@ -516,14 +494,14 @@ const CalendarView = () => {
                                     "border border-white/40 shadow-md",
                                     houseColor.bg, houseColor.text,
                                     // Spezielle Ecken wenn Buchung über Monatsgrenzen geht
-                                    gridPos.startsBeforeMonth && "rounded-l-none",
-                                    gridPos.endsAfterMonth && "rounded-r-none"
+                                    gridPos.startsBeforeRange && "rounded-l-none",
+                                    gridPos.endsAfterRange && "rounded-r-none"
                                   )}
                                   style={{ 
                                     gridColumn: gridPos.gridColumn, 
                                     gridRow: 1,
-                                    marginLeft: gridPos.startsBeforeMonth ? 0 : '50%',
-                                    marginRight: gridPos.endsAfterMonth ? 0 : undefined
+                                    marginLeft: gridPos.startsBeforeRange ? 0 : '50%',
+                                    marginRight: gridPos.endsAfterRange ? 0 : undefined
                                   }}
                                 >
                                   <span className="text-[9px] md:text-xs font-medium truncate">

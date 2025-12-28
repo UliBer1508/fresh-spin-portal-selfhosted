@@ -1,1 +1,4 @@
 project_id = "usblrulkcgucxtkhugck"
+
+[functions.check-booking-linen-orders]
+verify_jwt = false

@@ -34,7 +34,7 @@ const SearchAndFilter = ({
   onShowButtonOnMobileChange
 }: SearchAndFilterProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("pending");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [houseFilter, setHouseFilter] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
   const [staffFilter, setStaffFilter] = useState("all");
@@ -91,11 +91,11 @@ const SearchAndFilter = ({
         const status = linenOrder.status?.toLowerCase();
         
         switch (statusFilter) {
-          case "pending":
-            return status === "pending";
-          case "in-progress":
-            return status === "in_progress" || status === "assigned";
-          case "completed":
+          case "offen":
+            return status === "offen" || status === "pending";
+          case "bestellt":
+            return status === "bestellt" || status === "in_progress" || status === "assigned";
+          case "delivered":
             return status === "delivered" || status === "geliefert" || status === "completed";
           default:
             return true;
@@ -162,11 +162,11 @@ const SearchAndFilter = ({
       filtered = filtered.filter(order => {
         const status = order.status?.toLowerCase();
         switch (statusFilter) {
-          case "pending":
-            return status === "pending";
-          case "in-progress":
-            return status === "in_progress" || status === "assigned";
-          case "completed":
+          case "offen":
+            return status === "offen" || status === "pending";
+          case "bestellt":
+            return status === "bestellt" || status === "in_progress" || status === "assigned";
+          case "delivered":
             return status === "delivered" || status === "geliefert" || status === "completed";
           default:
             return true;
@@ -276,10 +276,10 @@ const SearchAndFilter = ({
                   </div>
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-md z-[100]">
-                  <SelectItem value="pending">Geplant</SelectItem>
-                  <SelectItem value="in-progress">In Bearbeitung</SelectItem>
-                  <SelectItem value="completed">Abgeschlossen</SelectItem>
                   <SelectItem value="all">Alle Status</SelectItem>
+                  <SelectItem value="offen">Offen</SelectItem>
+                  <SelectItem value="bestellt">Bestellt</SelectItem>
+                  <SelectItem value="delivered">Geliefert</SelectItem>
                 </SelectContent>
               </Select>
 

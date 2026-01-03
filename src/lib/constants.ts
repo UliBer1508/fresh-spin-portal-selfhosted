@@ -1,17 +1,168 @@
 // Zentrale Konstanten für die gesamte App
+// ============================================
+// Diese Datei enthält alle systemweiten Konstanten und Konfigurationen.
+// Status-Definitionen werden auch in der Datenbank-Tabelle 'system_status_config' persistiert.
 
 // Provider-IDs
 export const PROVIDER_IDS = {
   TEUNI: 'd8110105-8ac9-45e3-ad32-aaf42393744c',
 } as const;
 
-// Status-Werte für Bestellungen
-export const ORDER_STATUS = {
-  OFFEN: 'offen',
-  AUSSTEHEND: 'ausstehend',
-  DELIVERED: 'delivered',
-  CANCELLED: 'cancelled',
+// ============================================
+// ORDER STATUS KONFIGURATION
+// ============================================
+// Zentrale Status-Definitionen für Wäschebestellungen (linen_orders)
+// Diese Konfiguration ist die Single Source of Truth für das gesamte System.
+// 
+// Status-Workflow:
+// 1. offen     → Bestellung wurde erstellt, muss vom Benutzer bestätigt werden
+// 2. ausstehend → Bestellung wurde bestätigt, wartet auf Lieferung (DEFAULT)
+// 3. delivered  → Bestellung wurde geliefert
+// 4. cancelled  → Bestellung wurde storniert
+//
+// Persistenz: Diese Werte sind auch in der Datenbank-Tabelle 'system_status_config' gespeichert.
+
+export interface OrderStatusConfig {
+  value: string;
+  label: string;
+  emoji: string;
+  color: {
+    bg: string;
+    text: string;
+    border: string;
+    hex: string;
+  };
+  description: string;
+  sortOrder: number;
+  isDefault: boolean;
+}
+
+export const ORDER_STATUS_CONFIG: Record<string, OrderStatusConfig> = {
+  OFFEN: {
+    value: 'offen',
+    label: 'Offen',
+    emoji: '🟠',
+    color: {
+      bg: 'bg-amber-100',
+      text: 'text-amber-800',
+      border: 'border-amber-300',
+      hex: '#f59e0b'
+    },
+    description: 'Muss vom Benutzer bestätigt werden',
+    sortOrder: 1,
+    isDefault: false
+  },
+  AUSSTEHEND: {
+    value: 'ausstehend',
+    label: 'Ausstehend',
+    emoji: '🟡',
+    color: {
+      bg: 'bg-yellow-100',
+      text: 'text-yellow-800',
+      border: 'border-yellow-300',
+      hex: '#eab308'
+    },
+    description: 'Bestätigt, wartet auf Lieferung',
+    sortOrder: 2,
+    isDefault: true
+  },
+  DELIVERED: {
+    value: 'delivered',
+    label: 'Geliefert',
+    emoji: '🟢',
+    color: {
+      bg: 'bg-green-100',
+      text: 'text-green-800',
+      border: 'border-green-300',
+      hex: '#22c55e'
+    },
+    description: 'Wurde geliefert',
+    sortOrder: 3,
+    isDefault: false
+  },
+  CANCELLED: {
+    value: 'cancelled',
+    label: 'Storniert',
+    emoji: '🔴',
+    color: {
+      bg: 'bg-red-100',
+      text: 'text-red-800',
+      border: 'border-red-300',
+      hex: '#ef4444'
+    },
+    description: 'Storniert',
+    sortOrder: 4,
+    isDefault: false
+  }
 } as const;
+
+// Legacy-Kompatibilität: Einfache Status-Werte
+export const ORDER_STATUS = {
+  OFFEN: ORDER_STATUS_CONFIG.OFFEN.value,
+  AUSSTEHEND: ORDER_STATUS_CONFIG.AUSSTEHEND.value,
+  DELIVERED: ORDER_STATUS_CONFIG.DELIVERED.value,
+  CANCELLED: ORDER_STATUS_CONFIG.CANCELLED.value,
+} as const;
+
+// Default-Status für neue Bestellungen
+export const DEFAULT_ORDER_STATUS = ORDER_STATUS.AUSSTEHEND;
+
+// ============================================
+// HELPER-FUNKTIONEN FÜR STATUS-ZUGRIFF
+// ============================================
+
+/**
+ * Findet die Status-Konfiguration anhand des Status-Wertes
+ * Unterstützt auch Legacy-Werte (pending, geliefert)
+ */
+export const getOrderStatusConfig = (status?: string): OrderStatusConfig => {
+  if (!status) return ORDER_STATUS_CONFIG.AUSSTEHEND;
+  
+  const normalized = status.toLowerCase();
+  
+  // Legacy-Mapping für Rückwärtskompatibilität
+  const legacyMap: Record<string, string> = {
+    'pending': 'ausstehend',
+    'geliefert': 'delivered',
+  };
+  
+  const mappedStatus = legacyMap[normalized] || normalized;
+  
+  const config = Object.values(ORDER_STATUS_CONFIG).find(
+    c => c.value === mappedStatus
+  );
+  
+  return config || ORDER_STATUS_CONFIG.AUSSTEHEND;
+};
+
+/**
+ * Gibt die Tailwind-Klassen für die Status-Farben zurück
+ */
+export const getOrderStatusColorClasses = (status?: string): string => {
+  const config = getOrderStatusConfig(status);
+  return `${config.color.bg} ${config.color.text} ${config.color.border}`;
+};
+
+/**
+ * Gibt das Label mit Emoji zurück
+ */
+export const getOrderStatusLabel = (status?: string): string => {
+  const config = getOrderStatusConfig(status);
+  return `${config.emoji} ${config.label}`;
+};
+
+/**
+ * Gibt alle Status-Optionen für Select-Komponenten zurück
+ */
+export const getOrderStatusOptions = () => {
+  return Object.values(ORDER_STATUS_CONFIG)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map(config => ({
+      value: config.value,
+      label: `${config.emoji} ${config.label}`,
+      description: config.description
+    }));
+};
 
 // Status-Werte für Buchungen
 export const BOOKING_STATUS = {

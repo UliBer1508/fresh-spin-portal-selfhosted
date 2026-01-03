@@ -74,20 +74,22 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'offen': return 'bg-amber-100 text-amber-800 border-amber-300';
+      case 'ausstehend':
       case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'confirmed': return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'in_delivery': return 'bg-purple-100 text-purple-800 border-purple-300';
       case 'delivered': return 'bg-green-100 text-green-800 border-green-300';
+      case 'cancelled': return 'bg-red-100 text-red-800 border-red-300';
       default: return 'bg-muted text-muted-foreground';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Ausstehend';
-      case 'confirmed': return 'Bestätigt';
-      case 'in_delivery': return 'In Lieferung';
-      case 'delivered': return 'Geliefert';
+      case 'offen': return '🟠 Offen';
+      case 'ausstehend':
+      case 'pending': return '🟡 Ausstehend';
+      case 'delivered': return '🟢 Geliefert';
+      case 'cancelled': return '🔴 Storniert';
       default: return status;
     }
   };
@@ -199,10 +201,10 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="pending">Ausstehend</SelectItem>
-              <SelectItem value="confirmed">Bestätigt</SelectItem>
-              <SelectItem value="in_delivery">In Lieferung</SelectItem>
-              <SelectItem value="delivered">Geliefert</SelectItem>
+              <SelectItem value="offen">🟠 Offen</SelectItem>
+              <SelectItem value="ausstehend">🟡 Ausstehend</SelectItem>
+              <SelectItem value="delivered">🟢 Geliefert</SelectItem>
+              <SelectItem value="cancelled">🔴 Storniert</SelectItem>
             </SelectContent>
           </Select>
 

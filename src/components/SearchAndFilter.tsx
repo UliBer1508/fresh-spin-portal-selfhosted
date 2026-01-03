@@ -34,7 +34,7 @@ const SearchAndFilter = ({
   onShowButtonOnMobileChange
 }: SearchAndFilterProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("ausstehend");
   const [houseFilter, setHouseFilter] = useState("all");
   const [timeFilter, setTimeFilter] = useState("all");
   const [staffFilter, setStaffFilter] = useState("all");
@@ -92,11 +92,13 @@ const SearchAndFilter = ({
         
         switch (statusFilter) {
           case "offen":
-            return status === "offen" || status === "pending";
-          case "bestellt":
-            return status === "bestellt" || status === "in_progress" || status === "assigned";
+            return status === "offen";
+          case "ausstehend":
+            return status === "ausstehend" || status === "pending";
           case "delivered":
-            return status === "delivered" || status === "geliefert" || status === "completed";
+            return status === "delivered" || status === "geliefert";
+          case "cancelled":
+            return status === "cancelled";
           default:
             return true;
         }
@@ -163,11 +165,13 @@ const SearchAndFilter = ({
         const status = order.status?.toLowerCase();
         switch (statusFilter) {
           case "offen":
-            return status === "offen" || status === "pending";
-          case "bestellt":
-            return status === "bestellt" || status === "in_progress" || status === "assigned";
+            return status === "offen";
+          case "ausstehend":
+            return status === "ausstehend" || status === "pending";
           case "delivered":
-            return status === "delivered" || status === "geliefert" || status === "completed";
+            return status === "delivered" || status === "geliefert";
+          case "cancelled":
+            return status === "cancelled";
           default:
             return true;
         }
@@ -277,9 +281,10 @@ const SearchAndFilter = ({
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-md z-[100]">
                   <SelectItem value="all">Alle Status</SelectItem>
-                  <SelectItem value="offen">Offen</SelectItem>
-                  <SelectItem value="bestellt">Bestellt</SelectItem>
-                  <SelectItem value="delivered">Geliefert</SelectItem>
+                  <SelectItem value="offen">🟠 Offen</SelectItem>
+                  <SelectItem value="ausstehend">🟡 Ausstehend</SelectItem>
+                  <SelectItem value="delivered">🟢 Geliefert</SelectItem>
+                  <SelectItem value="cancelled">🔴 Storniert</SelectItem>
                 </SelectContent>
               </Select>
 

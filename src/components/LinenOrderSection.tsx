@@ -124,14 +124,16 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
 
   const getStatusColor = (status?: string) => {
     switch (status?.toLowerCase()) {
+      case "offen":
+        return "border-amber-500 text-amber-800 bg-amber-100";
+      case "ausstehend":
+      case "pending":
+        return "border-yellow-500 text-yellow-800 bg-yellow-100";
       case "delivered":
       case "geliefert":
-      case "completed":
-        return "border-success text-success-foreground bg-success";
-      case "in_progress":
-      case "assigned":
-        return "border-warning text-warning-foreground bg-warning";
-      case "pending":
+        return "border-green-500 text-green-800 bg-green-100";
+      case "cancelled":
+        return "border-red-500 text-red-800 bg-red-100";
       default:
         return "border-border text-foreground bg-secondary";
     }
@@ -139,15 +141,16 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
 
   const getStatusText = (status?: string) => {
     switch (status?.toLowerCase()) {
+      case "offen":
+        return "🟠 Offen";
+      case "ausstehend":
+      case "pending":
+        return "🟡 Ausstehend";
       case "delivered":
       case "geliefert":
-      case "completed":
-        return "✅ Geliefert";
-      case "in_progress":
-      case "assigned":
-        return "🔄 In Bearbeitung";
-      case "pending":
-        return "⏳ Ausstehend";
+        return "🟢 Geliefert";
+      case "cancelled":
+        return "🔴 Storniert";
       default:
         return status || "❓ Unbekannt";
     }
@@ -261,7 +264,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                     
                     <div>
                       <Select 
-                        value={order.status || 'pending'} 
+                        value={order.status || 'ausstehend'} 
                         onValueChange={(value) => handleStatusChange(order.id, value)}
                       >
                         <SelectTrigger className={`w-full min-h-[44px] touch-manipulation ${getStatusColor(order.status)}`}>
@@ -269,28 +272,28 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50">
                           <SelectItem 
-                            value="pending" 
+                            value="offen" 
                             className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
                           >
-                            ⏳ Ausstehend
+                            🟠 Offen
                           </SelectItem>
                           <SelectItem 
-                            value="in_progress" 
+                            value="ausstehend" 
                             className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
                           >
-                            🔄 In Bearbeitung
+                            🟡 Ausstehend
                           </SelectItem>
                           <SelectItem 
                             value="delivered" 
                             className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
                           >
-                            ✅ Geliefert
+                            🟢 Geliefert
                           </SelectItem>
                           <SelectItem 
-                            value="completed" 
+                            value="cancelled" 
                             className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
                           >
-                            ✔️ Abgeschlossen
+                            🔴 Storniert
                           </SelectItem>
                         </SelectContent>
                       </Select>

@@ -7,11 +7,10 @@ export const PROVIDER_IDS = {
 
 // Status-Werte für Bestellungen
 export const ORDER_STATUS = {
-  PENDING: 'pending',
-  IN_PROGRESS: 'in_progress',
-  ASSIGNED: 'assigned',
+  OFFEN: 'offen',
+  AUSSTEHEND: 'ausstehend',
   DELIVERED: 'delivered',
-  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
 } as const;
 
 // Status-Werte für Buchungen

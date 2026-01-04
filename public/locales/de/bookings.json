@@ -1,0 +1,8 @@
+{
+  "status": {
+    "confirmed": "Bestätigt",
+    "cancelled": "Storniert",
+    "pending": "Ausstehend",
+    "unknown": "Unbekannt"
+  }
+}

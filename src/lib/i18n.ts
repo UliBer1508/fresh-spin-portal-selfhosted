@@ -11,7 +11,7 @@ i18n
     supportedLngs: ['de', 'en', 'nl'],
     fallbackLng: 'de',
     defaultNS: 'common',
-    ns: ['common', 'orders', 'navigation', 'notifications'],
+    ns: ['common', 'orders', 'navigation', 'notifications', 'bookings'],
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',
     },

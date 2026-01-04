@@ -34,8 +34,32 @@
     "linenOrder": "Linen order",
     "items": "Items",
     "notes": "Notes",
-    "noOrders": "No orders",
-    "totalItems": "Total items"
+    "noOrders": "No linen orders",
+    "totalItems": "Total items",
+    "deliveryBy": "Delivery by",
+    "assigned": "Assigned",
+    "assignStaff": "Assign staff...",
+    "noAssignment": "No assignment",
+    "removeAssignment": "Remove assignment",
+    "noNotes": "No notes available",
+    "printDeliveryNote": "Print DN",
+    "total": "total",
+    "color": "Color",
+    "quantity": "Quantity",
+    "notPlanned": "Not planned",
+    "noItems": "No items"
+  },
+  "deliveryType": {
+    "pickup": "Pickup",
+    "delivery": "Delivery"
+  },
+  "messages": {
+    "statusUpdated": "Status updated successfully",
+    "staffAssigned": "Staff assigned successfully",
+    "assignmentRemoved": "Assignment removed successfully",
+    "errorStatus": "Error updating status",
+    "errorAssign": "Error assigning staff",
+    "errorUnassign": "Error removing assignment"
   },
   "filter": {
     "all": "All",

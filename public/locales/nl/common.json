@@ -21,6 +21,8 @@
   "error": "Fout",
   "success": "Gelukt",
   "noData": "Geen gegevens beschikbaar",
+  "unknown": "Onbekend",
+  "noAddress": "Geen adres",
   "dates": {
     "checkIn": "Inchecken",
     "checkOut": "Uitchecken",
@@ -29,6 +31,7 @@
   },
   "guests": {
     "guest": "Gast",
-    "guests": "Gasten"
+    "guests": "Gasten",
+    "persons": "personen"
   }
 }

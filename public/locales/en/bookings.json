@@ -1,0 +1,8 @@
+{
+  "status": {
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+    "pending": "Pending",
+    "unknown": "Unknown"
+  }
+}

@@ -10,7 +10,7 @@
     "save": "Speichern",
     "cancel": "Abbrechen",
     "delete": "Löschen",
-    "edit": "Bearbeiten",
+    "edit": "Bewerken",
     "reset": "Zurücksetzen",
     "confirm": "Bestätigen",
     "close": "Schließen",
@@ -21,14 +21,17 @@
   "error": "Fehler",
   "success": "Erfolgreich",
   "noData": "Keine Daten verfügbar",
+  "unknown": "Unbekannt",
+  "noAddress": "Keine Adresse",
   "dates": {
     "checkIn": "Check-in",
     "checkOut": "Check-out",
-    "cleaningDate": "Reinigungsdatum",
+    "cleaningDate": "Reinigung am",
     "deliveryDate": "Lieferdatum"
   },
   "guests": {
     "guest": "Gast",
-    "guests": "Gäste"
+    "guests": "Gäste",
+    "persons": "Personen"
   }
 }

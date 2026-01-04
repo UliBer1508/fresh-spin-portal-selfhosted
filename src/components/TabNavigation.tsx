@@ -1,6 +1,6 @@
-// v7 - Force cache refresh - icons-only horizontal layout on mobile
+// v8 - Multi-language support
+import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
-// Cache bust v2 - emojis fixed
 
 interface TabNavigationProps {
   activeTab: string;
@@ -9,11 +9,13 @@ interface TabNavigationProps {
 }
 
 const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationProps) => {
+  const { t } = useTranslation('navigation');
+
   const tabs = [
-    { id: "waesche", label: "Wäsche (4)", emoji: "🧺" },
-    { id: "kalender", label: "Kalender", emoji: "📅" },
-    { id: "waeschekraefte", label: "Wäschekräfte", emoji: "👥" },
-    { id: "benachrichtigungen", label: "Benachrichtigungen", emoji: "🔔" },
+    { id: "waesche", labelKey: "tabs.bookings", emoji: "🧺" },
+    { id: "kalender", labelKey: "tabs.calendar", emoji: "📅" },
+    { id: "waeschekraefte", labelKey: "tabs.staff", emoji: "👥" },
+    { id: "benachrichtigungen", labelKey: "tabs.notifications", emoji: "🔔" },
   ];
 
   return (
@@ -23,6 +25,7 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationPr
         <div className="hidden md:flex items-center justify-between h-12">
           <div className="flex space-x-8">
             {tabs.map((tab) => {
+              const label = t(tab.labelKey);
               return (
                 <button
                   key={tab.id}
@@ -40,14 +43,14 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationPr
                       tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
                     )} 
                     role="img" 
-                    aria-label={tab.label}
+                    aria-label={label}
                   >
                     {tab.emoji}
                     {tab.id === "benachrichtigungen" && hasNewOrders && (
                       <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                     )}
                   </span>
-                  <span>{tab.label}</span>
+                  <span>{label}</span>
                 </button>
               );
             })}
@@ -58,6 +61,7 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationPr
         <div className="md:hidden py-2">
           <div className="flex justify-around w-full">
             {tabs.map((tab) => {
+              const label = t(tab.labelKey);
               return (
                 <button
                   key={tab.id}
@@ -75,7 +79,7 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationPr
                       tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
                     )} 
                     role="img" 
-                    aria-label={tab.label}
+                    aria-label={label}
                   >
                     {tab.emoji}
                     {tab.id === "benachrichtigungen" && hasNewOrders && (

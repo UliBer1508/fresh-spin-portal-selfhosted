@@ -1,5 +1,6 @@
-// v6 - Fix React imports consistency
+// v7 - Multi-language support
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { Bell, Mail, Smartphone, Volume2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ interface NotificationPreferences {
 }
 
 const NotificationSettings = () => {
+  const { t } = useTranslation('notifications');
   const [preferences, setPreferences] = useState<NotificationPreferences>({
     user_name: "Amela",
     email_address: null,
@@ -67,14 +69,14 @@ const NotificationSettings = () => {
 
       if (error) {
         console.error('Error updating preferences:', error);
-        toast.error("Fehler beim Speichern der Einstellungen");
+        toast.error(t('common:error'));
         return;
       }
 
-      toast.success("Einstellungen erfolgreich gespeichert");
+      toast.success(t('common:success'));
     } catch (error) {
       console.error('Error updating preferences:', error);
-      toast.error("Fehler beim Speichern der Einstellungen");
+      toast.error(t('common:error'));
     }
   };
 
@@ -99,26 +101,23 @@ const NotificationSettings = () => {
     <div className="space-y-4 sm:space-y-6">
       <div className="text-center md:text-left px-2 sm:px-0">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
-          Benachrichtigungseinstellungen
+          {t('settings.title')}
         </h1>
         <p className="text-muted-foreground text-sm sm:text-base">
-          Verwalten Sie Ihre Benachrichtigungseinstellungen für {preferences.user_name}
+          {preferences.user_name}
         </p>
       </div>
 
       <div className="bg-white rounded-lg border border-border p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Benachrichtigungsarten */}
         <div>
-          <h3 className="font-medium mb-3 sm:mb-4 text-sm sm:text-base">Benachrichtigungsarten</h3>
+          <h3 className="font-medium mb-3 sm:mb-4 text-sm sm:text-base">{t('settings.types')}</h3>
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <Bell className="w-5 h-5 sm:w-4 sm:h-4 text-blue-500 flex-shrink-0" />
                 <div className="min-w-0">
-                  <div className="font-medium text-sm sm:text-base">Popup-Benachrichtigungen</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">
-                    Sofortige Benachrichtigungen im Browser
-                  </div>
+                  <div className="font-medium text-sm sm:text-base">{t('channels.toast')}</div>
                 </div>
               </div>
               <Switch
@@ -134,10 +133,7 @@ const NotificationSettings = () => {
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <Mail className="w-5 h-5 sm:w-4 sm:h-4 text-green-500 flex-shrink-0" />
                 <div className="min-w-0">
-                  <div className="font-medium text-sm sm:text-base">E-Mail-Benachrichtigungen</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">
-                    Benachrichtigungen per E-Mail erhalten
-                  </div>
+                  <div className="font-medium text-sm sm:text-base">{t('channels.email')}</div>
                 </div>
               </div>
               <Switch
@@ -153,10 +149,7 @@ const NotificationSettings = () => {
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <Smartphone className="w-5 h-5 sm:w-4 sm:h-4 text-purple-500 flex-shrink-0" />
                 <div className="min-w-0">
-                  <div className="font-medium text-sm sm:text-base">Push-Benachrichtigungen</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">
-                    Mobile Push-Benachrichtigungen
-                  </div>
+                  <div className="font-medium text-sm sm:text-base">{t('channels.push')}</div>
                 </div>
               </div>
               <Switch
@@ -172,10 +165,7 @@ const NotificationSettings = () => {
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <Volume2 className="w-5 h-5 sm:w-4 sm:h-4 text-orange-500 flex-shrink-0" />
                 <div className="min-w-0">
-                  <div className="font-medium text-sm sm:text-base">Ton-Benachrichtigungen</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">
-                    Akustische Signale bei neuen Benachrichtigungen
-                  </div>
+                  <div className="font-medium text-sm sm:text-base">{t('channels.sound')}</div>
                 </div>
               </div>
               <Switch
@@ -191,14 +181,11 @@ const NotificationSettings = () => {
 
         {/* Benachrichtigen bei */}
         <div>
-          <h3 className="font-medium mb-3 sm:mb-4 text-sm sm:text-base">Benachrichtigen bei</h3>
+          <h3 className="font-medium mb-3 sm:mb-4 text-sm sm:text-base">{t('settings.when')}</h3>
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <div className="font-medium text-sm sm:text-base">Neue Aufgaben</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">
-                  Bei neuen Wäscheaufträgen benachrichtigen
-                </div>
+                <div className="font-medium text-sm sm:text-base">{t('triggers.newTasks')}</div>
               </div>
               <Switch
                 checked={preferences.notify_new_tasks}
@@ -211,10 +198,7 @@ const NotificationSettings = () => {
 
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <div className="font-medium text-sm sm:text-base">Aufgaben-Änderungen</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">
-                  Bei Änderungen an bestehenden Aufträgen
-                </div>
+                <div className="font-medium text-sm sm:text-base">{t('triggers.taskChanges')}</div>
               </div>
               <Switch
                 checked={preferences.notify_task_changes}
@@ -227,10 +211,7 @@ const NotificationSettings = () => {
 
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <div className="font-medium text-sm sm:text-base">Status-Updates</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">
-                  Bei Änderungen des Auftragsstatus
-                </div>
+                <div className="font-medium text-sm sm:text-base">{t('triggers.statusUpdates')}</div>
               </div>
               <Switch
                 checked={preferences.notify_status_updates}
@@ -243,10 +224,7 @@ const NotificationSettings = () => {
 
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <div className="font-medium text-sm sm:text-base">Dringende Aufgaben</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">
-                  Bei besonders wichtigen oder dringenden Aufträgen
-                </div>
+                <div className="font-medium text-sm sm:text-base">{t('triggers.urgentTasks')}</div>
               </div>
               <Switch
                 checked={preferences.notify_urgent_tasks}
@@ -266,7 +244,7 @@ const NotificationSettings = () => {
             onClick={resetSettings}
             className="w-full sm:w-auto"
           >
-            Einstellungen zurücksetzen
+            {t('common:actions.reset')}
           </Button>
         </div>
       </div>

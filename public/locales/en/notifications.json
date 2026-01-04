@@ -1,0 +1,19 @@
+{
+  "settings": {
+    "title": "Notification settings",
+    "types": "Notification types",
+    "when": "Notify when"
+  },
+  "channels": {
+    "push": "Push notifications",
+    "email": "Email notifications",
+    "toast": "In-app notifications",
+    "sound": "Sound notifications"
+  },
+  "triggers": {
+    "newTasks": "New tasks",
+    "statusUpdates": "Status updates",
+    "taskChanges": "Task changes",
+    "urgentTasks": "Urgent tasks"
+  }
+}

@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const languages = [
   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
@@ -15,14 +16,15 @@ const languages = [
 
 const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
+  const isMobile = useIsMobile();
 
   const currentLang = languages.find(l => l.code === i18n.language) || languages[0];
 
   return (
     <Select value={i18n.language} onValueChange={(lng) => i18n.changeLanguage(lng)}>
-      <SelectTrigger className="w-[130px] h-9">
+      <SelectTrigger className={isMobile ? "w-[60px] h-9" : "w-[130px] h-9"}>
         <SelectValue>
-          {currentLang.flag} {currentLang.label}
+          {isMobile ? currentLang.flag : `${currentLang.flag} ${currentLang.label}`}
         </SelectValue>
       </SelectTrigger>
       <SelectContent>

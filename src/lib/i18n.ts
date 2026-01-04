@@ -12,7 +12,7 @@ i18n
     supportedLngs: ['de', 'en', 'nl'],
     fallbackLng: 'de',
     defaultNS: 'common',
-    ns: ['common', 'orders', 'navigation', 'notifications', 'bookings'],
+    ns: ['common', 'orders', 'navigation', 'notifications', 'bookings', 'calendar'],
     backend: {
       loadPath: `/locales/{{lng}}/{{ns}}.json?v=${APP_VERSION}`,
     },

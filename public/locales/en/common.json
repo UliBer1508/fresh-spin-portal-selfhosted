@@ -21,6 +21,8 @@
   "error": "Error",
   "success": "Success",
   "noData": "No data available",
+  "unknown": "Unknown",
+  "noAddress": "No address",
   "dates": {
     "checkIn": "Check-in",
     "checkOut": "Check-out",
@@ -29,6 +31,7 @@
   },
   "guests": {
     "guest": "Guest",
-    "guests": "Guests"
+    "guests": "Guests",
+    "persons": "persons"
   }
 }

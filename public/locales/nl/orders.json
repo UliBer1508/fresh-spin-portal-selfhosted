@@ -34,8 +34,32 @@
     "linenOrder": "Linnengoed bestelling",
     "items": "Artikelen",
     "notes": "Notities",
-    "noOrders": "Geen bestellingen",
-    "totalItems": "Totaal artikelen"
+    "noOrders": "Geen linnengoedbestellingen",
+    "totalItems": "Totaal artikelen",
+    "deliveryBy": "Levering voor",
+    "assigned": "Toegewezen",
+    "assignStaff": "Personeel toewijzen...",
+    "noAssignment": "Geen toewijzing",
+    "removeAssignment": "Toewijzing verwijderen",
+    "noNotes": "Geen notities beschikbaar",
+    "printDeliveryNote": "Afleverbon",
+    "total": "totaal",
+    "color": "Kleur",
+    "quantity": "Aantal",
+    "notPlanned": "Niet gepland",
+    "noItems": "Geen artikelen"
+  },
+  "deliveryType": {
+    "pickup": "Ophalen",
+    "delivery": "Levering"
+  },
+  "messages": {
+    "statusUpdated": "Status succesvol bijgewerkt",
+    "staffAssigned": "Personeel succesvol toegewezen",
+    "assignmentRemoved": "Toewijzing succesvol verwijderd",
+    "errorStatus": "Fout bij bijwerken status",
+    "errorAssign": "Fout bij toewijzen personeel",
+    "errorUnassign": "Fout bij verwijderen toewijzing"
   },
   "filter": {
     "all": "Alle",

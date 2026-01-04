@@ -34,8 +34,32 @@
     "linenOrder": "Wäschebestellung",
     "items": "Artikel",
     "notes": "Notizen",
-    "noOrders": "Keine Bestellungen",
-    "totalItems": "Gesamt Artikel"
+    "noOrders": "Keine Wäschebestellung vorhanden",
+    "totalItems": "Gesamt Artikel",
+    "deliveryBy": "Lieferung bis zum",
+    "assigned": "Zugewiesen",
+    "assignStaff": "Wäschekraft zuweisen...",
+    "noAssignment": "Keine Zuweisung",
+    "removeAssignment": "Zuweisung entfernen",
+    "noNotes": "Keine Notiz vorhanden",
+    "printDeliveryNote": "LS-Drucken",
+    "total": "gesamt",
+    "color": "Farbe",
+    "quantity": "Anzahl",
+    "notPlanned": "Nicht geplant",
+    "noItems": "Keine Artikel"
+  },
+  "deliveryType": {
+    "pickup": "Abholung",
+    "delivery": "Lieferung"
+  },
+  "messages": {
+    "statusUpdated": "Status erfolgreich aktualisiert",
+    "staffAssigned": "Wäschekraft erfolgreich zugewiesen",
+    "assignmentRemoved": "Zuweisung erfolgreich entfernt",
+    "errorStatus": "Fehler beim Aktualisieren des Status",
+    "errorAssign": "Fehler beim Zuweisen der Wäschekraft",
+    "errorUnassign": "Fehler beim Entfernen der Zuweisung"
   },
   "filter": {
     "all": "Alle",

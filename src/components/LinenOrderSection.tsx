@@ -1,8 +1,7 @@
-// v7 - LS-Drucken Button mit Print Dialog
+// v8 - Mehrsprachig mit i18n
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
@@ -13,6 +12,7 @@ import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
 import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
 import PrintDeliveryNoteDialog from "@/components/dialogs/PrintDeliveryNoteDialog";
 import { getLinenLabel, getLinenColorLabel, LINEN_ORDER } from "@/lib/linenLabels";
+import { useTranslation } from "react-i18next";
 
 interface LaundryStaff {
   id: string;
@@ -26,6 +26,7 @@ interface LinenOrderSectionProps {
 }
 
 const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSectionProps) => {
+  const { t, i18n } = useTranslation(['orders', 'common']);
   const [selectedOrder, setSelectedOrder] = useState<LinenOrder | null>(null);
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
@@ -65,11 +66,11 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
 
       if (error) throw error;
 
-      toast.success('Status erfolgreich aktualisiert');
+      toast.success(t('messages.statusUpdated'));
       onUpdate?.();
     } catch (error) {
       console.error('Error updating status:', error);
-      toast.error('Fehler beim Aktualisieren des Status');
+      toast.error(t('messages.errorStatus'));
     }
   };
 
@@ -82,11 +83,11 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
 
       if (error) throw error;
 
-      toast.success('Wäschekraft erfolgreich zugewiesen');
+      toast.success(t('messages.staffAssigned'));
       onUpdate?.();
     } catch (error) {
       console.error('Error assigning staff:', error);
-      toast.error('Fehler beim Zuweisen der Wäschekraft');
+      toast.error(t('messages.errorAssign'));
     }
   };
 
@@ -99,11 +100,11 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
 
       if (error) throw error;
 
-      toast.success('Zuweisung erfolgreich entfernt');
+      toast.success(t('messages.assignmentRemoved'));
       onUpdate?.();
     } catch (error) {
       console.error('Error unassigning staff:', error);
-      toast.error('Fehler beim Entfernen der Zuweisung');
+      toast.error(t('messages.errorUnassign'));
     }
   };
 
@@ -140,26 +141,26 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
   };
 
   const getStatusText = (status?: string) => {
-    switch (status?.toLowerCase()) {
-      case "offen":
-        return "🟠 Offen";
-      case "ausstehend":
-      case "pending":
-        return "🟡 Ausstehend";
-      case "delivered":
-      case "geliefert":
-        return "🟢 Geliefert";
-      case "cancelled":
-        return "🔴 Storniert";
-      default:
-        return status || "❓ Unbekannt";
-    }
+    const statusKey = status?.toLowerCase() || 'unknown';
+    const emoji = {
+      'offen': '🟠',
+      'ausstehend': '🟡',
+      'pending': '🟡',
+      'delivered': '🟢',
+      'geliefert': '🟢',
+      'cancelled': '🔴',
+    }[statusKey] || '❓';
+    
+    const normalizedKey = statusKey === 'pending' ? 'ausstehend' : 
+                          statusKey === 'geliefert' ? 'delivered' : statusKey;
+    
+    return `${emoji} ${t(`status.${normalizedKey}`, { defaultValue: status || t('common:unknown') })}`;
   };
 
   const formatDateTime = (date?: string, time?: string) => {
-    if (!date) return "Nicht geplant";
+    if (!date) return t('labels.notPlanned');
     
-    const formattedDate = new Date(date).toLocaleDateString('de-DE');
+    const formattedDate = new Date(date).toLocaleDateString(i18n.language);
     if (time) {
       return `${formattedDate} - ${time}`;
     }
@@ -168,26 +169,20 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
 
   const getDeliveryTypeText = (deliveryType?: string) => {
     const type = deliveryType || 'delivery';
-    switch (type.toLowerCase()) {
-      case 'pickup':
-      case 'abholung':
-        return 'Abholung';
-      case 'delivery':
-      case 'lieferung':
-      default:
-        return 'Lieferung';
+    if (type.toLowerCase() === 'pickup' || type.toLowerCase() === 'abholung') {
+      return t('deliveryType.pickup');
     }
+    return t('deliveryType.delivery');
   };
 
   // Ermittelt die Farbe für einen bestimmten Artikel
-  // Priorität: 1. item_variants (artikelspezifisch) 2. linen_color (global) 3. "-"
   const getItemColor = (order: LinenOrder, itemKey: string): string => {
     const itemVariants = order.item_variants as Record<string, string> | null;
     if (itemVariants && itemVariants[itemKey]) {
-      return getLinenColorLabel(itemVariants[itemKey]);
+      return t(`linenColors.${itemVariants[itemKey]}`, { defaultValue: getLinenColorLabel(itemVariants[itemKey]) });
     }
     if (order.linen_color) {
-      return getLinenColorLabel(order.linen_color);
+      return t(`linenColors.${order.linen_color}`, { defaultValue: getLinenColorLabel(order.linen_color) });
     }
     return '-';
   };
@@ -201,7 +196,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
       <div className="mt-4 p-4 bg-muted/30 rounded-lg border-l-4 border-l-warning">
         <div className="flex items-center space-x-2">
           <span className="text-lg">⚠️</span>
-          <span className="text-muted-foreground">Keine Wäschebestellung vorhanden</span>
+          <span className="text-muted-foreground">{t('labels.noOrders')}</span>
         </div>
       </div>
     );
@@ -212,7 +207,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
       <div className="border-t border-border pt-3">
         <div className="flex items-center space-x-2 mb-2">
           <span className="text-lg">🧺</span>
-          <h4 className="font-medium text-foreground">Wäschebestellung</h4>
+          <h4 className="font-medium text-foreground">{t('labels.linenOrder')}</h4>
         </div>
         
         {linenOrders.map((order) => (
@@ -227,11 +222,10 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">📅</span>
-                      <span className="text-sm font-semibold text-foreground">Lieferung bis zum:</span>
+                      <span className="text-sm font-semibold text-foreground">{t('labels.deliveryBy')}:</span>
                     </div>
                     
                     <div className="space-y-2">
-                      {/* Anklickbare Datum und Zeit Anzeige */}
                       {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
                         <button
                           onClick={() => handleEditDelivery(order)}
@@ -259,7 +253,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">📊</span>
-                      <span className="text-sm font-semibold text-foreground">Status</span>
+                      <span className="text-sm font-semibold text-foreground">{t('common:actions.confirm').split(' ')[0] === 'Confirm' ? 'Status' : 'Status'}</span>
                     </div>
                     
                     <div>
@@ -275,25 +269,25 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                             value="offen" 
                             className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
                           >
-                            🟠 Offen
+                            🟠 {t('status.offen')}
                           </SelectItem>
                           <SelectItem 
                             value="ausstehend" 
                             className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
                           >
-                            🟡 Ausstehend
+                            🟡 {t('status.ausstehend')}
                           </SelectItem>
                           <SelectItem 
                             value="delivered" 
                             className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
                           >
-                            🟢 Geliefert
+                            🟢 {t('status.delivered')}
                           </SelectItem>
                           <SelectItem 
                             value="cancelled" 
                             className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
                           >
-                            🔴 Storniert
+                            🔴 {t('status.cancelled')}
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -306,7 +300,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">👤</span>
-                      <span className="text-sm font-semibold text-foreground">Zugewiesen</span>
+                      <span className="text-sm font-semibold text-foreground">{t('labels.assigned')}</span>
                     </div>
                     
                     <div>
@@ -321,14 +315,14 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                         }}
                       >
                         <SelectTrigger className="w-full min-h-[44px] touch-manipulation">
-                          <SelectValue placeholder="Wäschekraft zuweisen..." />
+                          <SelectValue placeholder={t('labels.assignStaff')} />
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
                           <SelectItem 
                             value="none" 
                             className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
                           >
-                            Keine Zuweisung
+                            {t('labels.noAssignment')}
                           </SelectItem>
                           {laundryStaff.map((staff) => (
                             <SelectItem 
@@ -344,7 +338,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                               value="unassign" 
                               className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground min-h-[44px]"
                             >
-                              Zuweisung entfernen
+                              {t('labels.removeAssignment')}
                             </SelectItem>
                           )}
                         </SelectContent>
@@ -358,7 +352,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">📝</span>
-                      <span className="text-sm font-semibold text-foreground">Notizen</span>
+                      <span className="text-sm font-semibold text-foreground">{t('labels.notes')}</span>
                     </div>
                     
                     <div>
@@ -374,7 +368,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                               ? (order.notes.length > 50 
                                   ? order.notes.substring(0, 50) + '...' 
                                   : order.notes)
-                              : 'Keine Notiz vorhanden'
+                              : t('labels.noNotes')
                             }
                           </span>
                           <span className="text-base flex-shrink-0">✏️</span>
@@ -392,7 +386,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                     onClick={() => handleOpenPrintDialog(order)}
                     className="w-full sm:w-auto no-print"
                   >
-                    🖨️ LS-Drucken
+                    🖨️ {t('labels.printDeliveryNote')}
                   </Button>
                 </div>
               </div>
@@ -405,11 +399,11 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">📋</span>
                       <span className="text-sm font-semibold text-foreground">
-                        Artikel
+                        {t('labels.items')}
                       </span>
                     </div>
                     <Badge variant="secondary" className="ml-2">
-                      {getTotalItems(order.items as Record<string, number>)} gesamt
+                      {getTotalItems(order.items as Record<string, number>)} {t('labels.total')}
                     </Badge>
                   </div>
                   
@@ -420,13 +414,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                         <TableHeader>
                           <TableRow>
                             <TableHead className="py-2 px-3 sm:px-4 text-left text-sm font-semibold text-foreground">
-                              Artikel
+                              {t('labels.items')}
                             </TableHead>
                             <TableHead className="py-2 px-3 sm:px-4 text-left text-sm font-semibold text-foreground">
-                              Farbe
+                              {t('labels.color')}
                             </TableHead>
                             <TableHead className="py-2 px-3 sm:px-4 text-right text-sm font-semibold text-foreground">
-                              Anzahl
+                              {t('labels.quantity')}
                             </TableHead>
                           </TableRow>
                         </TableHeader>
@@ -445,7 +439,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                                   className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
                                 >
                                   <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
-                                    {getLinenLabel(key)}
+                                    {t(`linenItems.${key}`, { defaultValue: getLinenLabel(key) })}
                                   </TableCell>
                                   <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
                                     {getItemColor(order, key)}
@@ -463,7 +457,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
                       </Table>
                     ) : (
                       <div className="p-4 text-center text-sm text-muted-foreground">
-                        Keine Artikel in dieser Bestellung
+                        {t('labels.noItems')}
                       </div>
                     )}
                   </div>

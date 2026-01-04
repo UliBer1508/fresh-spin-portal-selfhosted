@@ -1,10 +1,11 @@
-// v7 - Zentrale Konstanten verwenden
+// v8 - Mehrsprachig mit i18n
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import LinenOrderSection from "./LinenOrderSection";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking } from "@/hooks/useBookings";
 import { BOOKING_COLORS, getColorByHash } from "@/lib/constants";
+import { useTranslation } from "react-i18next";
 
 interface BookingCardProps {
   booking: Booking;
@@ -13,6 +14,8 @@ interface BookingCardProps {
 }
 
 const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
+  const { t, i18n } = useTranslation(['common', 'bookings']);
+
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case "confirmed":
@@ -27,20 +30,12 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
   };
 
   const getStatusText = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "confirmed":
-        return "Bestätigt";
-      case "cancelled":
-        return "Storniert";
-      case "pending":
-        return "Ausstehend";
-      default:
-        return status || "Unbekannt";
-    }
+    const normalizedStatus = status?.toLowerCase() || 'unknown';
+    return t(`bookings:status.${normalizedStatus}`, { defaultValue: status || t('common:unknown') });
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('de-DE');
+    return new Date(dateString).toLocaleDateString(i18n.language);
   };
 
   const getBookingColor = (bookingId: string) => {
@@ -60,13 +55,13 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">📍</span>
                       <h3 className="font-semibold text-lg text-foreground">
-                        {booking.houses?.name || 'Unbekannt'}
+                        {booking.houses?.name || t('common:unknown')}
                       </h3>
                     </div>
                   )}
                   {viewSettings.showAccommodationAddress && (
                   <div className="flex items-center space-x-2 text-muted-foreground ml-3 sm:ml-7">
-                    <span className="text-sm">Adresse: {booking.houses?.address || 'Keine Adresse'}</span>
+                    <span className="text-sm">{booking.houses?.address || t('common:noAddress')}</span>
                   </div>
                   )}
                 </div>
@@ -85,13 +80,13 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
               {viewSettings.showGuestName && (
                 <div className="flex items-center space-x-2">
                   <span className="text-base">👤</span>
-                  <span className="text-foreground font-medium">Gast: {booking.guest_name}</span>
+                  <span className="text-foreground font-medium">{t('common:guests.guest')}: {booking.guest_name}</span>
                 </div>
               )}
               {viewSettings.showGuestCount && (
                 <div className="flex items-center space-x-2">
                   <span className="text-base">👥</span>
-                  <span className="text-foreground">Gäste: {booking.number_of_guests} Personen</span>
+                  <span className="text-foreground">{t('common:guests.guests')}: {booking.number_of_guests} {t('common:guests.persons')}</span>
                 </div>
               )}
             </div>
@@ -103,13 +98,13 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
               {viewSettings.showCheckInDate && (
                 <div className="flex items-center space-x-2">
                   <span className="text-base">📅</span>
-                  <span className="text-foreground">Check-in: {formatDate(booking.check_in)}</span>
+                  <span className="text-foreground">{t('common:dates.checkIn')}: {formatDate(booking.check_in)}</span>
                 </div>
               )}
               {viewSettings.showCheckOutDate && (
                 <div className="flex items-center space-x-2">
                   <span className="text-base">📅</span>
-                  <span className="text-foreground">Check-out: {formatDate(booking.check_out)}</span>
+                  <span className="text-foreground">{t('common:dates.checkOut')}: {formatDate(booking.check_out)}</span>
                 </div>
               )}
             </div>
@@ -120,7 +115,7 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
             <div className="flex items-center space-x-2 ml-3 sm:ml-7">
               <span className="text-base">🧹</span>
               <span className="text-foreground">
-                Reinigung am: {formatDate(booking.service_tasks.find(t => t.service_type === 'cleaning')!.scheduled_date)}
+                {t('common:dates.cleaningDate')}: {formatDate(booking.service_tasks.find(task => task.service_type === 'cleaning')!.scheduled_date)}
               </span>
             </div>
           )}

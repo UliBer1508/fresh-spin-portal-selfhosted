@@ -1,4 +1,4 @@
-// v11 - Mobile Gantt Wochenansicht
+// v12 - Full i18n Translation Support
 import { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,14 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS, nl } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HOUSE_COLORS, getColorByHash } from "@/lib/constants";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTranslation } from "react-i18next";
+
 interface CalendarEvent {
   id: string;
   type: 'check-in' | 'check-out' | 'occupied' | 'cleaning' | 'linen';
@@ -75,6 +77,7 @@ const getHouseAbbreviation = (houseName: string) => {
 };
 
 const CalendarView = () => {
+  const { t, i18n } = useTranslation('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [view, setView] = useState<'month' | 'week' | 'gantt'>(() => {
@@ -87,6 +90,21 @@ const CalendarView = () => {
   const ganttScrollRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const isMobile = useIsMobile();
+
+  // Get date-fns locale based on current language
+  const getDateLocale = () => {
+    switch (i18n.language) {
+      case 'de': return de;
+      case 'nl': return nl;
+      case 'en':
+      default: return enUS;
+    }
+  };
+
+  const dateLocale = getDateLocale();
+
+  // Get weekdays array from translations
+  const weekdaysShort = t('weekdays.short', { returnObjects: true }) as string[];
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -102,7 +120,7 @@ const CalendarView = () => {
 
   useEffect(() => {
     fetchCalendarData();
-  }, [currentDate]);
+  }, [currentDate, i18n.language]);
 
   const fetchCalendarData = async () => {
     setLoading(true);
@@ -187,7 +205,7 @@ const CalendarView = () => {
           id: `checkin-${booking.id}`,
           type: 'check-in',
           date: checkInDate,
-          title: 'Check-in',
+          title: t('events.checkIn'),
           house: booking.houses?.name,
           house_id: booking.house_id,
           guest: booking.guest_name
@@ -198,7 +216,7 @@ const CalendarView = () => {
           id: `checkout-${booking.id}`,
           type: 'check-out',
           date: checkOutDate,
-          title: 'Check-out',
+          title: t('events.checkOut'),
           house: booking.houses?.name,
           house_id: booking.house_id,
           guest: booking.guest_name
@@ -212,7 +230,7 @@ const CalendarView = () => {
               id: `occupied-${booking.id}-${format(day, 'yyyy-MM-dd')}`,
               type: 'occupied',
               date: day,
-              title: 'Belegt',
+              title: t('events.occupied'),
               house: booking.houses?.name,
               house_id: booking.house_id,
               guest: booking.guest_name
@@ -227,7 +245,7 @@ const CalendarView = () => {
           id: `cleaning-${task.id}`,
           type: 'cleaning',
           date: parseISO(task.scheduled_date),
-          title: 'Reinigung',
+          title: t('events.cleaning'),
           house: task.houses?.name,
           house_id: task.house_id
         });
@@ -240,7 +258,7 @@ const CalendarView = () => {
             id: `linen-${order.id}`,
             type: 'linen',
             date: parseISO(order.delivery_date),
-            title: 'Wäsche',
+            title: t('events.linen'),
             house: order.houses?.name,
             house_id: order.house_id
           });
@@ -317,7 +335,7 @@ const CalendarView = () => {
     
     if (event.type === 'occupied') {
       // For occupied, show house name
-      return event.house || 'Belegt';
+      return event.house || t('events.occupied');
     }
     
     // For other types, show type + house abbreviation
@@ -422,7 +440,7 @@ const CalendarView = () => {
               <div className="flex border-b sticky top-0 bg-background z-10">
                 <div className="w-20 md:w-40 shrink-0 p-2 md:p-3 font-medium text-xs md:text-sm border-r bg-muted/50">
                   <Home className="w-4 h-4 md:hidden" />
-                  <span className="hidden md:inline">Unterkunft</span>
+                  <span className="hidden md:inline">{t('gantt.accommodation')}</span>
                 </div>
                 <div className="flex-1 grid" style={{ gridTemplateColumns: gridCols }}>
                   {ganttDays.map((day) => {
@@ -438,7 +456,7 @@ const CalendarView = () => {
                         )}
                       >
                         <div className="font-medium">{format(day, 'd')}</div>
-                        <div className="text-muted-foreground text-[9px] md:text-xs">{format(day, 'EEE', { locale: de })}</div>
+                        <div className="text-muted-foreground text-[9px] md:text-xs">{format(day, 'EEE', { locale: dateLocale })}</div>
                       </div>
                     );
                   })}
@@ -513,10 +531,10 @@ const CalendarView = () => {
                                 <div className="space-y-1">
                                   <p className="font-medium">{booking.guest_name}</p>
                                   <p className="text-xs text-muted-foreground">
-                                    {format(booking.check_in, 'd. MMM', { locale: de })} - {format(booking.check_out, 'd. MMM yyyy', { locale: de })}
+                                    {format(booking.check_in, 'd. MMM', { locale: dateLocale })} - {format(booking.check_out, 'd. MMM yyyy', { locale: dateLocale })}
                                   </p>
                                   <p className="text-xs text-muted-foreground">
-                                    {nights} {nights === 1 ? 'Nacht' : 'Nächte'} • {booking.house_name}
+                                    {nights} {nights === 1 ? t('gantt.night') : t('gantt.nights')} • {booking.house_name}
                                   </p>
                                 </div>
                               </TooltipContent>
@@ -531,7 +549,7 @@ const CalendarView = () => {
                           className="flex items-center justify-center"
                           style={{ gridColumn: `1 / -1`, gridRow: 1 }}
                         >
-                          <span className="text-[10px] md:text-xs text-muted-foreground">Keine Buchungen</span>
+                          <span className="text-[10px] md:text-xs text-muted-foreground">{t('gantt.noBookings')}</span>
                         </div>
                       )}
                     </div>
@@ -542,7 +560,7 @@ const CalendarView = () => {
               {/* Empty state if no houses */}
               {houses.length === 0 && (
                 <div className="p-8 text-center text-muted-foreground">
-                  Keine touristisch vermieteten Unterkünfte gefunden.
+                  {t('gantt.noProperties')}
                 </div>
               )}
             </div>
@@ -564,8 +582,8 @@ const CalendarView = () => {
               <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-4">
                 <h1 className="text-xl md:text-2xl font-bold">
                   {view === 'week' 
-                    ? `${format(weekStart, 'd. MMM', { locale: de })} - ${format(weekEnd, 'd. MMM yyyy', { locale: de })}`
-                    : format(currentDate, 'MMMM yyyy', { locale: de })
+                    ? `${format(weekStart, 'd. MMM', { locale: dateLocale })} - ${format(weekEnd, 'd. MMM yyyy', { locale: dateLocale })}`
+                    : format(currentDate, 'MMMM yyyy', { locale: dateLocale })
                   }
                 </h1>
                 <div className="flex items-center space-x-2">
@@ -583,7 +601,7 @@ const CalendarView = () => {
                     onClick={goToToday}
                     className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
                   >
-                    Heute
+                    {t('navigation.today')}
                   </Button>
                   <Button
                     variant="outline"
@@ -603,7 +621,7 @@ const CalendarView = () => {
                   onClick={() => setView('month')}
                   className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
                 >
-                  Monat
+                  {t('views.month')}
                 </Button>
                 <Button
                   variant={view === 'week' ? 'default' : 'outline'}
@@ -611,7 +629,7 @@ const CalendarView = () => {
                   onClick={() => setView('week')}
                   className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
                 >
-                  Woche
+                  {t('views.week')}
                 </Button>
                 <Button
                   variant={view === 'gantt' ? 'default' : 'outline'}
@@ -619,7 +637,7 @@ const CalendarView = () => {
                   onClick={() => setView('gantt')}
                   className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
                 >
-                  Gantt
+                  {t('views.gantt')}
                 </Button>
               </div>
             </div>
@@ -633,7 +651,7 @@ const CalendarView = () => {
             <div className="bg-background border rounded-lg">
               {/* Days of week header */}
               <div className="grid grid-cols-7 border-b">
-                {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((day) => (
+                {weekdaysShort.map((day) => (
                   <div key={day} className="p-2 md:p-4 text-center text-xs md:text-sm font-medium text-muted-foreground">
                     {day}
                   </div>
@@ -663,7 +681,7 @@ const CalendarView = () => {
                         isToday && "text-primary font-bold",
                         !isCurrentMonth && "text-muted-foreground"
                       )}>
-                        {view === 'week' ? format(date, 'EEE d', { locale: de }) : format(date, 'd')}
+                        {view === 'week' ? format(date, 'EEE d', { locale: dateLocale }) : format(date, 'd')}
                       </div>
                       <div className="space-y-0.5 md:space-y-1">
                         {dayEvents.slice(0, view === 'week' ? 3 : 2).map((event) => (
@@ -683,7 +701,7 @@ const CalendarView = () => {
                         ))}
                         {dayEvents.length > (view === 'week' ? 3 : 2) && (
                           <div className="text-[10px] md:text-xs text-muted-foreground">
-                            +{dayEvents.length - (view === 'week' ? 3 : 2)} weitere
+                            {t('events.more', { count: dayEvents.length - (view === 'week' ? 3 : 2) })}
                           </div>
                         )}
                       </div>
@@ -701,11 +719,11 @@ const CalendarView = () => {
           {selectedDate && view !== 'gantt' && (
             <div className="bg-background border rounded-lg p-3 md:p-4">
               <h3 className="font-medium mb-3 text-sm md:text-base">
-                Termine für {format(selectedDate, 'd. MMMM', { locale: de })}
+                {t('sidebar.eventsFor', { date: format(selectedDate, 'd. MMMM', { locale: dateLocale }) })}
               </h3>
               {getSelectedDateEvents().length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Keine Termine für diesen Tag.
+                  {t('sidebar.noEvents')}
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -717,7 +735,7 @@ const CalendarView = () => {
                       </div>
                       {event.guest && (
                         <p className="text-sm text-muted-foreground">
-                          Gast: {event.guest}
+                          {t('sidebar.guest')}: {event.guest}
                         </p>
                       )}
                       {event.house && (
@@ -734,15 +752,15 @@ const CalendarView = () => {
 
           {/* Date Picker */}
           <div className="bg-background border rounded-lg p-3 md:p-4">
-            <h3 className="font-medium mb-3 text-sm md:text-base">Datum auswählen</h3>
+            <h3 className="font-medium mb-3 text-sm md:text-base">{t('sidebar.selectDate')}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Wählen Sie ein Datum aus dem Kalender
+              {t('sidebar.selectDateHint')}
             </p>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-start">
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {selectedDate ? format(selectedDate, 'PPP', { locale: de }) : 'Datum wählen'}
+                  {selectedDate ? format(selectedDate, 'PPP', { locale: dateLocale }) : t('sidebar.chooseDate')}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -759,19 +777,19 @@ const CalendarView = () => {
 
           {/* Legend */}
           <div className="bg-background border rounded-lg p-3 md:p-4">
-            <h3 className="font-medium mb-3 text-sm md:text-base">Legende</h3>
+            <h3 className="font-medium mb-3 text-sm md:text-base">{t('sidebar.legend')}</h3>
             <div className="space-y-2">
               {view !== 'gantt' && (
                 <>
                   {/* Check-in */}
                   <div className="flex items-center space-x-2">
                     <div className="w-3 h-3 md:w-4 md:h-4 bg-success rounded"></div>
-                    <span className="text-xs md:text-sm">Check-in</span>
+                    <span className="text-xs md:text-sm">{t('events.checkIn')}</span>
                   </div>
                   {/* Check-out */}
                   <div className="flex items-center space-x-2">
                     <div className="w-3 h-3 md:w-4 md:h-4 bg-destructive rounded"></div>
-                    <span className="text-xs md:text-sm">Check-out</span>
+                    <span className="text-xs md:text-sm">{t('events.checkOut')}</span>
                   </div>
                 </>
               )}
@@ -792,12 +810,12 @@ const CalendarView = () => {
                   {/* Reinigung */}
                   <div className="flex items-center space-x-2">
                     <div className="w-3 h-3 md:w-4 md:h-4 bg-info rounded"></div>
-                    <span className="text-xs md:text-sm">Reinigung</span>
+                    <span className="text-xs md:text-sm">{t('events.cleaning')}</span>
                   </div>
                   {/* Wäsche */}
                   <div className="flex items-center space-x-2">
                     <div className="w-3 h-3 md:w-4 md:h-4 bg-purple-500 rounded"></div>
-                    <span className="text-xs md:text-sm">Wäsche</span>
+                    <span className="text-xs md:text-sm">{t('events.linen')}</span>
                   </div>
                 </>
               )}

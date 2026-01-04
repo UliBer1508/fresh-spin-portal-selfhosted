@@ -1,0 +1,37 @@
+{
+  "views": {
+    "month": "Month",
+    "week": "Week",
+    "gantt": "Gantt"
+  },
+  "navigation": {
+    "today": "Today"
+  },
+  "gantt": {
+    "accommodation": "Accommodation",
+    "noBookings": "No bookings",
+    "noProperties": "No tourist rental properties found.",
+    "night": "night",
+    "nights": "nights"
+  },
+  "weekdays": {
+    "short": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+  },
+  "events": {
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "occupied": "Occupied",
+    "cleaning": "Cleaning",
+    "linen": "Linen",
+    "more": "+{{count}} more"
+  },
+  "sidebar": {
+    "eventsFor": "Events for {{date}}",
+    "noEvents": "No events for this day.",
+    "guest": "Guest",
+    "selectDate": "Select date",
+    "selectDateHint": "Select a date from the calendar",
+    "chooseDate": "Choose date",
+    "legend": "Legend"
+  }
+}

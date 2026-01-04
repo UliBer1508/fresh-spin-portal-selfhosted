@@ -1,0 +1,37 @@
+{
+  "views": {
+    "month": "Monat",
+    "week": "Woche",
+    "gantt": "Gantt"
+  },
+  "navigation": {
+    "today": "Heute"
+  },
+  "gantt": {
+    "accommodation": "Unterkunft",
+    "noBookings": "Keine Buchungen",
+    "noProperties": "Keine touristisch vermieteten Unterkünfte gefunden.",
+    "night": "Nacht",
+    "nights": "Nächte"
+  },
+  "weekdays": {
+    "short": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+  },
+  "events": {
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "occupied": "Belegt",
+    "cleaning": "Reinigung",
+    "linen": "Wäsche",
+    "more": "+{{count}} weitere"
+  },
+  "sidebar": {
+    "eventsFor": "Termine für {{date}}",
+    "noEvents": "Keine Termine für diesen Tag.",
+    "guest": "Gast",
+    "selectDate": "Datum auswählen",
+    "selectDateHint": "Wählen Sie ein Datum aus dem Kalender",
+    "chooseDate": "Datum wählen",
+    "legend": "Legende"
+  }
+}

@@ -1,2 +1,2 @@
-// v12.5 - QueryClient Context Fix
-export const APP_VERSION = '12.5.0';
+// v12.6 - Translation Cache Busting Fix
+export const APP_VERSION = '12.6.0';

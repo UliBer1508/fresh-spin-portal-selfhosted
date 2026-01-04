@@ -68,6 +68,26 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
+  // Network first for translation files - always get fresh translations
+  if (url.pathname.startsWith('/locales/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(RUNTIME_CACHE).then(cache => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
   // Network first for app code (JS/CSS/HTML) - never serve stale app code
   if (url.pathname.endsWith('.js') || 
       url.pathname.endsWith('.css') || 

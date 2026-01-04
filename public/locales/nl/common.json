@@ -1,0 +1,34 @@
+{
+  "header": {
+    "title": "Teuni Wasserijportaal",
+    "version": "Versie"
+  },
+  "footer": {
+    "copyright": "© {{year}} Steinbock Chalets"
+  },
+  "actions": {
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "reset": "Resetten",
+    "confirm": "Bevestigen",
+    "close": "Sluiten",
+    "print": "Afdrukken",
+    "search": "Zoeken"
+  },
+  "loading": "Laden...",
+  "error": "Fout",
+  "success": "Gelukt",
+  "noData": "Geen gegevens beschikbaar",
+  "dates": {
+    "checkIn": "Inchecken",
+    "checkOut": "Uitchecken",
+    "cleaningDate": "Schoonmaakdatum",
+    "deliveryDate": "Leverdatum"
+  },
+  "guests": {
+    "guest": "Gast",
+    "guests": "Gasten"
+  }
+}

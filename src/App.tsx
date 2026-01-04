@@ -1,9 +1,10 @@
-// v12.4 - React Cache Fix + QueryClient stability
-import { useEffect } from "react";
+// v12.5 - Multi-language support (DE, EN, NL)
+import { useEffect, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { toast } from "@/hooks/use-toast";
+import "./lib/i18n";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 

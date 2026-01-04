@@ -1,8 +1,10 @@
-// v12.5 - Chat Button Component - Defensive hook usage
+// v12.6 - Multi-language support
+import { useTranslation } from 'react-i18next';
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { APP_VERSION } from "@/lib/version";
 import { ChatButton } from "@/components/PortalChat";
 import { usePortalMessages } from "@/hooks/usePortalMessages";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface HeaderProps {
   viewSettings?: ViewSettings;
@@ -21,6 +23,7 @@ const Header = ({
   onShowButtonOnMobileChange,
   onChatOpen
 }: HeaderProps) => {
+  const { t } = useTranslation();
   const { unreadCount } = usePortalMessages();
   
   const shouldShowButton = 
@@ -38,13 +41,16 @@ const Header = ({
           </div>
           <div>
             <h1 className="text-xl font-semibold text-foreground">
-              Teuni Wäscheportal
+              {t('header.title')}
             </h1>
             <p className="text-xs text-muted-foreground hidden sm:block">v{APP_VERSION}</p>
           </div>
         </div>
         
         <div className="flex items-center space-x-3">
+          {/* Language Switcher */}
+          <LanguageSwitcher />
+          
           {/* Chat Button */}
           <ChatButton onClick={() => onChatOpen?.()} unreadCount={unreadCount} />
           

@@ -1,0 +1,45 @@
+{
+  "status": {
+    "offen": "Open",
+    "ausstehend": "Pending",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled"
+  },
+  "statusDescriptions": {
+    "offen": "Needs user confirmation",
+    "ausstehend": "Confirmed, awaiting delivery",
+    "delivered": "Has been delivered",
+    "cancelled": "Cancelled"
+  },
+  "linenItems": {
+    "bedding": "Bedding",
+    "bath_mats": "Bath mats",
+    "sink_towels": "Sink towels",
+    "large_towels": "Bath towels",
+    "sauna_towels": "Sauna towels",
+    "small_towels": "Hand towels",
+    "pillow_cases": "Pillow cases",
+    "kitchen_towels": "Kitchen towels",
+    "blankets": "Blankets",
+    "table_linens": "Table linens"
+  },
+  "linenColors": {
+    "white_striped": "White striped",
+    "white": "White",
+    "grey": "Grey",
+    "grey_striped": "Grey striped",
+    "colorful": "Colorful"
+  },
+  "labels": {
+    "linenOrder": "Linen order",
+    "items": "Items",
+    "notes": "Notes",
+    "noOrders": "No orders",
+    "totalItems": "Total items"
+  },
+  "filter": {
+    "all": "All",
+    "allStatus": "All statuses",
+    "searchPlaceholder": "Search by house, guest..."
+  }
+}

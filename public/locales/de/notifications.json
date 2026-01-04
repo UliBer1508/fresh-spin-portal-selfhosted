@@ -1,0 +1,19 @@
+{
+  "settings": {
+    "title": "Benachrichtigungseinstellungen",
+    "types": "Benachrichtigungsarten",
+    "when": "Benachrichtigen bei"
+  },
+  "channels": {
+    "push": "Push-Benachrichtigungen",
+    "email": "E-Mail-Benachrichtigungen",
+    "toast": "In-App Benachrichtigungen",
+    "sound": "Ton-Benachrichtigungen"
+  },
+  "triggers": {
+    "newTasks": "Neue Aufgaben",
+    "statusUpdates": "Status-Updates",
+    "taskChanges": "Aufgabenänderungen",
+    "urgentTasks": "Dringende Aufgaben"
+  }
+}

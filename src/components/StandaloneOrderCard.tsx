@@ -1,4 +1,6 @@
+// v2 - Multi-language support
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,7 @@ import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
 import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
 import PrintDeliveryNoteDialog from "@/components/dialogs/PrintDeliveryNoteDialog";
 import { LINEN_LABELS, LINEN_ORDER, LINEN_COLOR_LABELS, getLinenColorLabel } from "@/lib/linenLabels";
+import { getOrderStatusColorClasses, getOrderStatusLabel } from "@/lib/constants";
 
 interface LaundryStaff {
   id: string;
@@ -23,6 +26,7 @@ interface StandaloneOrderCardProps {
 }
 
 const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
+  const { t, i18n } = useTranslation('orders');
   const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
@@ -51,9 +55,9 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
       .eq('id', order.id);
 
     if (error) {
-      toast.error('Fehler beim Aktualisieren des Status');
+      toast.error(t('common:error'));
     } else {
-      toast.success('Status aktualisiert');
+      toast.success(t('common:success'));
       onUpdate();
     }
   };
@@ -65,38 +69,16 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
       .eq('id', order.id);
 
     if (error) {
-      toast.error('Fehler beim Zuweisen');
+      toast.error(t('common:error'));
     } else {
-      toast.success('Mitarbeiter zugewiesen');
+      toast.success(t('common:success'));
       onUpdate();
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'offen': return 'bg-amber-100 text-amber-800 border-amber-300';
-      case 'ausstehend':
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'delivered': return 'bg-green-100 text-green-800 border-green-300';
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-300';
-      default: return 'bg-muted text-muted-foreground';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'offen': return '🟠 Offen';
-      case 'ausstehend':
-      case 'pending': return '🟡 Ausstehend';
-      case 'delivered': return '🟢 Geliefert';
-      case 'cancelled': return '🔴 Storniert';
-      default: return status;
     }
   };
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('de-DE', {
+    return new Date(dateString).toLocaleDateString(i18n.language, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
@@ -105,8 +87,8 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
 
   const getDeliveryTypeLabel = (type?: string) => {
     switch (type) {
-      case 'pickup': return 'Abholung';
-      case 'delivery': return 'Lieferung';
+      case 'pickup': return t('common:dates.checkOut');
+      case 'delivery': return t('common:dates.deliveryDate');
       default: return type || '-';
     }
   };
@@ -131,14 +113,14 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
           <div className="flex items-center gap-2">
             <Home className="w-5 h-5 text-muted-foreground" />
             <span className="font-semibold text-base">
-              {order.houses?.name || 'Unbekannte Unterkunft'}
+              {order.houses?.name || t('common:noData')}
             </span>
             <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
-              Einzelbestellung
+              {t('labels.linenOrder')}
             </Badge>
           </div>
-          <Badge className={`${getStatusColor(order.status)} text-xs`}>
-            {getStatusText(order.status)}
+          <Badge className={`${getOrderStatusColorClasses(order.status)} text-xs`}>
+            {getOrderStatusLabel(order.status)}
           </Badge>
         </div>
       </CardHeader>
@@ -176,15 +158,15 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
             <table className="w-full text-sm">
               <thead className="bg-muted/50">
                 <tr>
-                  <th className="text-left p-2 font-semibold text-foreground">Artikel</th>
-                  <th className="text-left p-2 font-semibold text-foreground">Farbe</th>
-                  <th className="text-right p-2 font-semibold text-foreground">Menge</th>
+                  <th className="text-left p-2 font-semibold text-foreground">{t('labels.items')}</th>
+                  <th className="text-left p-2 font-semibold text-foreground">{t('linenColors.white')}</th>
+                  <th className="text-right p-2 font-semibold text-foreground">#</th>
                 </tr>
               </thead>
               <tbody>
                 {orderedItems.map((key) => (
                   <tr key={key} className="border-t">
-                    <td className="p-2">{LINEN_LABELS[key] || key}</td>
+                    <td className="p-2">{t(`linenItems.${key}`, { defaultValue: LINEN_LABELS[key] || key })}</td>
                     <td className="p-2 font-medium text-foreground">{getItemColor(key)}</td>
                     <td className="p-2 text-right font-medium">{items[key]}</td>
                   </tr>
@@ -201,10 +183,10 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="offen">🟠 Offen</SelectItem>
-              <SelectItem value="ausstehend">🟡 Ausstehend</SelectItem>
-              <SelectItem value="delivered">🟢 Geliefert</SelectItem>
-              <SelectItem value="cancelled">🔴 Storniert</SelectItem>
+              <SelectItem value="offen">{getOrderStatusLabel('offen')}</SelectItem>
+              <SelectItem value="ausstehend">{getOrderStatusLabel('ausstehend')}</SelectItem>
+              <SelectItem value="delivered">{getOrderStatusLabel('delivered')}</SelectItem>
+              <SelectItem value="cancelled">{getOrderStatusLabel('cancelled')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -213,7 +195,7 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
             onValueChange={handleAssignStaff}
           >
             <SelectTrigger className="w-[160px] h-9 text-xs">
-              <SelectValue placeholder="Mitarbeiter..." />
+              <SelectValue placeholder={t('navigation:tabs.staff')} />
             </SelectTrigger>
             <SelectContent>
               {laundryStaff.map((staff) => (
@@ -236,7 +218,7 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
             onTouchEnd={(e) => e.stopPropagation()}
           >
             <Edit2 className="w-3 h-3 mr-1" />
-            Lieferung
+            {t('common:dates.deliveryDate')}
           </Button>
 
           <Button
@@ -251,7 +233,7 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
             onTouchEnd={(e) => e.stopPropagation()}
           >
             <Edit2 className="w-3 h-3 mr-1" />
-            Notizen
+            {t('labels.notes')}
           </Button>
 
           <Button
@@ -265,7 +247,7 @@ const StandaloneOrderCard = ({ order, onUpdate }: StandaloneOrderCardProps) => {
             }}
             onTouchEnd={(e) => e.stopPropagation()}
           >
-            🖨️ LS-Drucken
+            🖨️ {t('common:actions.print')}
           </Button>
         </div>
       </CardContent>

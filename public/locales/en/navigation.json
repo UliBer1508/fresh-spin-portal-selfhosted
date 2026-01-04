@@ -1,0 +1,9 @@
+{
+  "tabs": {
+    "bookings": "Bookings",
+    "orders": "Orders",
+    "calendar": "Calendar",
+    "staff": "Staff",
+    "notifications": "Notifications"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "status": {
+    "offen": "Open",
+    "ausstehend": "In afwachting",
+    "delivered": "Geleverd",
+    "cancelled": "Geannuleerd"
+  },
+  "statusDescriptions": {
+    "offen": "Gebruikersbevestiging nodig",
+    "ausstehend": "Bevestigd, wacht op levering",
+    "delivered": "Is geleverd",
+    "cancelled": "Geannuleerd"
+  },
+  "linenItems": {
+    "bedding": "Beddengoed",
+    "bath_mats": "Badmatten",
+    "sink_towels": "Wastafel handdoeken",
+    "large_towels": "Badhanddoeken",
+    "sauna_towels": "Saunahanddoeken",
+    "small_towels": "Handdoeken",
+    "pillow_cases": "Kussenslopen",
+    "kitchen_towels": "Theedoeken",
+    "blankets": "Dekens",
+    "table_linens": "Tafellinnen"
+  },
+  "linenColors": {
+    "white_striped": "Wit gestreept",
+    "white": "Wit",
+    "grey": "Grijs",
+    "grey_striped": "Grijs gestreept",
+    "colorful": "Kleurrijk"
+  },
+  "labels": {
+    "linenOrder": "Linnengoed bestelling",
+    "items": "Artikelen",
+    "notes": "Notities",
+    "noOrders": "Geen bestellingen",
+    "totalItems": "Totaal artikelen"
+  },
+  "filter": {
+    "all": "Alle",
+    "allStatus": "Alle statussen",
+    "searchPlaceholder": "Zoek op huis, gast..."
+  }
+}

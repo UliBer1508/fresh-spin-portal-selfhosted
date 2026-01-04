@@ -1,0 +1,19 @@
+{
+  "settings": {
+    "title": "Meldingsinstellingen",
+    "types": "Meldingstypes",
+    "when": "Melden wanneer"
+  },
+  "channels": {
+    "push": "Push-meldingen",
+    "email": "E-mailmeldingen",
+    "toast": "In-app meldingen",
+    "sound": "Geluidsmeldingen"
+  },
+  "triggers": {
+    "newTasks": "Nieuwe taken",
+    "statusUpdates": "Statusupdates",
+    "taskChanges": "Taakwijzigingen",
+    "urgentTasks": "Urgente taken"
+  }
+}

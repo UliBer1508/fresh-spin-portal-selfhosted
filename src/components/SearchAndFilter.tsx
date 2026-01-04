@@ -1,10 +1,12 @@
-// v8 - Performance-optimiert mit useCallback
+// v9 - Multi-language support
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useTranslation } from 'react-i18next';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking, LinenOrder } from "@/hooks/useBookings";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrderStatusLabel } from "@/lib/constants";
 
 interface LaundryStaff {
   id: string;
@@ -33,6 +35,7 @@ const SearchAndFilter = ({
   showButtonOnMobile,
   onShowButtonOnMobileChange
 }: SearchAndFilterProps) => {
+  const { t } = useTranslation('orders');
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ausstehend");
   const [houseFilter, setHouseFilter] = useState("all");
@@ -237,7 +240,7 @@ const SearchAndFilter = ({
         <div className="flex items-center space-x-2">
           <span className="text-lg">🔍</span>
           <span className="text-lg">🔽</span>
-          <h3 className="font-semibold text-foreground">Such & Filter</h3>
+          <h3 className="font-semibold text-foreground">{t('common:actions.search')} & Filter</h3>
         </div>
         <span className="text-2xl transition-transform duration-200" style={{ transform: isFilterOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
           ⌃
@@ -251,12 +254,12 @@ const SearchAndFilter = ({
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <span className="text-base">🔍</span>
-              <span className="font-medium text-foreground">Suche</span>
+              <span className="font-medium text-foreground">{t('common:actions.search')}</span>
             </div>
             <div className="relative">
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base">🔍</span>
               <Input
-                placeholder="Nach Gast, Haus oder Adresse suchen..."
+                placeholder={t('filter.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 h-11 text-base border-border focus:ring-primary focus:border-primary"
@@ -276,15 +279,15 @@ const SearchAndFilter = ({
                 <SelectTrigger className="w-full h-11">
                   <div className="flex items-center space-x-2">
                     <span className="text-base">📅</span>
-                    <SelectValue placeholder="Geplant" />
+                    <SelectValue placeholder={t('filter.allStatus')} />
                   </div>
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-md z-[100]">
-                  <SelectItem value="all">Alle Status</SelectItem>
-                  <SelectItem value="offen">🟠 Offen</SelectItem>
-                  <SelectItem value="ausstehend">🟡 Ausstehend</SelectItem>
-                  <SelectItem value="delivered">🟢 Geliefert</SelectItem>
-                  <SelectItem value="cancelled">🔴 Storniert</SelectItem>
+                  <SelectItem value="all">{t('filter.allStatus')}</SelectItem>
+                  <SelectItem value="offen">{getOrderStatusLabel('offen')}</SelectItem>
+                  <SelectItem value="ausstehend">{getOrderStatusLabel('ausstehend')}</SelectItem>
+                  <SelectItem value="delivered">{getOrderStatusLabel('delivered')}</SelectItem>
+                  <SelectItem value="cancelled">{getOrderStatusLabel('cancelled')}</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -292,11 +295,11 @@ const SearchAndFilter = ({
                 <SelectTrigger className="w-full h-11">
                   <div className="flex items-center space-x-2">
                     <span className="text-base">👥</span>
-                    <SelectValue placeholder="Alle Wäschekräfte" />
+                    <SelectValue placeholder={t('navigation:tabs.staff')} />
                   </div>
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-lg z-[100] max-h-60">
-                  <SelectItem value="all">Alle Wäschekräfte</SelectItem>
+                  <SelectItem value="all">{t('filter.all')} {t('navigation:tabs.staff')}</SelectItem>
                   {laundryStaff.map((staff) => (
                     <SelectItem key={staff.id} value={staff.id}>
                       {staff.name}
@@ -307,10 +310,10 @@ const SearchAndFilter = ({
 
               <Select value={houseFilter} onValueChange={setHouseFilter}>
                 <SelectTrigger className="w-full h-11">
-                  <SelectValue placeholder="Alle Häuser" />
+                  <SelectValue placeholder={t('filter.all')} />
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-md z-[100]">
-                  <SelectItem value="all">Alle Häuser</SelectItem>
+                  <SelectItem value="all">{t('filter.all')}</SelectItem>
                   {uniqueHouses.map(house => (
                     <SelectItem key={house} value={house?.toLowerCase().replace(/\s+/g, '-') || ''}>
                       {house}
@@ -323,14 +326,14 @@ const SearchAndFilter = ({
                 <SelectTrigger className="w-full h-11">
                   <div className="flex items-center space-x-2">
                     <span className="text-base">🕐</span>
-                    <SelectValue placeholder="Alle Zeiten" />
+                    <SelectValue placeholder={t('filter.all')} />
                   </div>
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-md z-[100]">
-                  <SelectItem value="all">Alle Zeiten</SelectItem>
-                  <SelectItem value="today">Heute</SelectItem>
-                  <SelectItem value="week">Diese Woche</SelectItem>
-                  <SelectItem value="month">Dieser Monat</SelectItem>
+                  <SelectItem value="all">{t('filter.all')}</SelectItem>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="week">This Week</SelectItem>
+                  <SelectItem value="month">This Month</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -338,7 +341,7 @@ const SearchAndFilter = ({
 
           {/* Zähler */}
           <div className="text-center text-sm text-muted-foreground pt-2">
-            {filteredBookings.length} von {bookings.length} Aufträgen
+            {filteredBookings.length} / {bookings.length}
           </div>
         </div>
       )}

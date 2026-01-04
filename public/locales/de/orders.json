@@ -1,0 +1,45 @@
+{
+  "status": {
+    "offen": "Offen",
+    "ausstehend": "Ausstehend",
+    "delivered": "Geliefert",
+    "cancelled": "Storniert"
+  },
+  "statusDescriptions": {
+    "offen": "Muss vom Benutzer bestätigt werden",
+    "ausstehend": "Bestätigt, wartet auf Lieferung",
+    "delivered": "Wurde geliefert",
+    "cancelled": "Storniert"
+  },
+  "linenItems": {
+    "bedding": "Bettwäsche",
+    "bath_mats": "Badematten",
+    "sink_towels": "WB-Handtücher",
+    "large_towels": "Badetücher",
+    "sauna_towels": "Saunatücher",
+    "small_towels": "Handtücher",
+    "pillow_cases": "Kissenbezüge",
+    "kitchen_towels": "Geschirrtücher",
+    "blankets": "Decken",
+    "table_linens": "Tischwäsche"
+  },
+  "linenColors": {
+    "white_striped": "Weiß gestreift",
+    "white": "Weiß",
+    "grey": "Grau",
+    "grey_striped": "Grau gestreift",
+    "colorful": "Bunt"
+  },
+  "labels": {
+    "linenOrder": "Wäschebestellung",
+    "items": "Artikel",
+    "notes": "Notizen",
+    "noOrders": "Keine Bestellungen",
+    "totalItems": "Gesamt Artikel"
+  },
+  "filter": {
+    "all": "Alle",
+    "allStatus": "Alle Status",
+    "searchPlaceholder": "Suche nach Haus, Gast..."
+  }
+}

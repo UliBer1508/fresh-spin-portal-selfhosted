@@ -1,4 +1,5 @@
-// v8 - Mehrsprachig mit i18n
+// v9 - Passende Reinigung pro Wäschebestellung
+import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import LinenOrderSection from "./LinenOrderSection";
@@ -15,6 +16,25 @@ interface BookingCardProps {
 
 const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
   const { t, i18n } = useTranslation(['common', 'bookings']);
+
+  // Finde die passende Reinigung basierend auf dem Lieferdatum der aktuellen Wäschebestellung
+  const matchingCleaning = useMemo(() => {
+    const cleaningTasks = booking.service_tasks?.filter(task => task.service_type === 'cleaning') || [];
+    if (cleaningTasks.length === 0) return null;
+    if (cleaningTasks.length === 1) return cleaningTasks[0];
+
+    const currentOrder = booking.linen_orders?.[0];
+    if (!currentOrder?.delivery_date) return cleaningTasks[0];
+
+    const deliveryDate = new Date(currentOrder.delivery_date).getTime();
+
+    // Finde die Reinigung mit geringstem Abstand zum Lieferdatum
+    return cleaningTasks.reduce((closest, task) => {
+      const taskDiff = Math.abs(deliveryDate - new Date(task.scheduled_date).getTime());
+      const closestDiff = Math.abs(deliveryDate - new Date(closest.scheduled_date).getTime());
+      return taskDiff < closestDiff ? task : closest;
+    });
+  }, [booking.service_tasks, booking.linen_orders]);
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -110,12 +130,12 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
             </div>
           )}
 
-          {/* Reinigungsdatum */}
-          {booking.service_tasks?.find(t => t.service_type === 'cleaning') && (
+          {/* Reinigungsdatum - passend zur aktuellen Wäschebestellung */}
+          {matchingCleaning && (
             <div className="flex items-center space-x-2 ml-3 sm:ml-7">
               <span className="text-base">🧹</span>
               <span className="text-foreground">
-                {t('common:dates.cleaningDate')}: {formatDate(booking.service_tasks.find(task => task.service_type === 'cleaning')!.scheduled_date)}
+                {t('common:dates.cleaningDate')}: {formatDate(matchingCleaning.scheduled_date)}
               </span>
             </div>
           )}

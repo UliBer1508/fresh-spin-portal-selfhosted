@@ -64,6 +64,9 @@
   "filter": {
     "all": "Alle",
     "allStatus": "Alle statussen",
-    "searchPlaceholder": "Zoek op huis, gast..."
+    "searchPlaceholder": "Zoek op huis, gast...",
+    "today": "Vandaag",
+    "thisWeek": "Deze Week",
+    "thisMonth": "Deze Maand"
   }
 }

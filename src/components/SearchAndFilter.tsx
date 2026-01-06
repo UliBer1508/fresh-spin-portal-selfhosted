@@ -70,9 +70,23 @@ const SearchAndFilter = ({
     fetchLaundryStaff();
   }, []);
 
+  // Transform bookings: create one entry per linen_order (for reorders)
+  const bookingsWithIndividualOrders = useMemo(() => {
+    return bookings.flatMap(booking => {
+      const orders = booking.linen_orders || [];
+      if (orders.length === 0) return [];
+      
+      return orders.map((order, index) => ({
+        ...booking,
+        linen_orders: [order],
+        _orderIndex: index
+      }));
+    });
+  }, [bookings]);
+
   // Filter logic
   const filteredBookings = useMemo(() => {
-    let filtered = [...bookings];
+    let filtered = [...bookingsWithIndividualOrders];
 
     // Search filter
     if (searchQuery.trim()) {
@@ -115,22 +129,30 @@ const SearchAndFilter = ({
       );
     }
 
-    // Time filter
+    // Time filter - filter by delivery_date instead of check_in
     if (timeFilter !== "all") {
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const weekStart = new Date(today.getTime() - (today.getDay() * 24 * 60 * 60 * 1000));
+      // Monday as week start
+      const dayOfWeek = today.getDay();
+      const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      const weekStart = new Date(today.getTime() - (mondayOffset * 24 * 60 * 60 * 1000));
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
       filtered = filtered.filter(booking => {
-        const checkIn = new Date(booking.check_in);
+        const linenOrder = booking.linen_orders?.[0];
+        // Use delivery_date if available, fallback to check_in
+        const filterDate = linenOrder?.delivery_date 
+          ? new Date(linenOrder.delivery_date) 
+          : new Date(booking.check_in);
+          
         switch (timeFilter) {
           case "today":
-            return checkIn >= today && checkIn < new Date(today.getTime() + 24 * 60 * 60 * 1000);
+            return filterDate >= today && filterDate < new Date(today.getTime() + 24 * 60 * 60 * 1000);
           case "week":
-            return checkIn >= weekStart;
+            return filterDate >= weekStart;
           case "month":
-            return checkIn >= monthStart;
+            return filterDate >= monthStart;
           default:
             return true;
         }
@@ -146,7 +168,7 @@ const SearchAndFilter = ({
     }
 
     return filtered;
-  }, [bookings, searchQuery, statusFilter, houseFilter, timeFilter, staffFilter]);
+  }, [bookingsWithIndividualOrders, searchQuery, statusFilter, houseFilter, timeFilter, staffFilter]);
 
   // Filter für Standalone-Bestellungen
   const filteredStandaloneOrders = useMemo(() => {
@@ -195,8 +217,34 @@ const SearchAndFilter = ({
       );
     }
 
+    // Time filter - filter by delivery_date
+    if (timeFilter !== "all") {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const dayOfWeek = today.getDay();
+      const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      const weekStart = new Date(today.getTime() - (mondayOffset * 24 * 60 * 60 * 1000));
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      filtered = filtered.filter(order => {
+        if (!order.delivery_date) return true;
+        const deliveryDate = new Date(order.delivery_date);
+        
+        switch (timeFilter) {
+          case "today":
+            return deliveryDate >= today && deliveryDate < new Date(today.getTime() + 24 * 60 * 60 * 1000);
+          case "week":
+            return deliveryDate >= weekStart;
+          case "month":
+            return deliveryDate >= monthStart;
+          default:
+            return true;
+        }
+      });
+    }
+
     return filtered;
-  }, [standaloneOrders, searchQuery, statusFilter, houseFilter, staffFilter]);
+  }, [standaloneOrders, searchQuery, statusFilter, houseFilter, staffFilter, timeFilter]);
 
   // Memoized callbacks um unnötige Re-renders zu vermeiden
   const stableBookingsCallback = useCallback(
@@ -331,9 +379,9 @@ const SearchAndFilter = ({
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-md z-[100]">
                   <SelectItem value="all">{t('filter.all')}</SelectItem>
-                  <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="week">This Week</SelectItem>
-                  <SelectItem value="month">This Month</SelectItem>
+                  <SelectItem value="today">{t('filter.today')}</SelectItem>
+                  <SelectItem value="week">{t('filter.thisWeek')}</SelectItem>
+                  <SelectItem value="month">{t('filter.thisMonth')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

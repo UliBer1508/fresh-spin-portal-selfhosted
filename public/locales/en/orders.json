@@ -64,6 +64,9 @@
   "filter": {
     "all": "All",
     "allStatus": "All statuses",
-    "searchPlaceholder": "Search by house, guest..."
+    "searchPlaceholder": "Search by house, guest...",
+    "today": "Today",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month"
   }
 }

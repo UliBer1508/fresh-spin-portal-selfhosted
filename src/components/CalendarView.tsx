@@ -413,8 +413,8 @@ const CalendarView = () => {
     
     // startCol: Check-in Tag (1-basiert)
     const startCol = Math.max(1, startDayRaw + 1);
-    // endCol: Check-out Tag + 1 (grid-column end ist exklusiv)
-    const endCol = Math.min(totalDays + 1, endDayRaw + 1);
+    // endCol: Check-out Tag einschließen (+1 für 1-basiert, +1 weil grid-column end exklusiv)
+    const endCol = Math.min(totalDays + 1, endDayRaw + 2);
     
     // Anzahl der Spalten für Breiten-Berechnung
     const spanCols = Math.max(1, endCol - startCol);

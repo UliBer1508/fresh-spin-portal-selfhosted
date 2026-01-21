@@ -408,19 +408,21 @@ const CalendarView = () => {
     const referenceStart = ganttStart;
     
     // Grid-Spalten sind 1-basiert
-    // Check-in Tag: Balken startet ab Mitte des Check-in Tages
     const startDayRaw = differenceInDays(booking.check_in, referenceStart);
-    // +1 für 1-basierte Grid-Spalten, dann noch +1 weil Gast ab Check-in Nachmittag da ist
-    const startCol = Math.max(1, startDayRaw + 1);
-    
-    // Check-out Tag: Balken endet am Check-out Tag (Gast geht mittags)
     const endDayRaw = differenceInDays(booking.check_out, referenceStart);
-    // +1 für 1-basierte Grid-Spalten, +1 weil grid-column end exklusiv ist
-    const endCol = Math.min(totalDays + 1, endDayRaw + 2);
+    
+    // startCol: Check-in Tag (1-basiert)
+    const startCol = Math.max(1, startDayRaw + 1);
+    // endCol: Check-out Tag + 1 (grid-column end ist exklusiv)
+    const endCol = Math.min(totalDays + 1, endDayRaw + 1);
+    
+    // Anzahl der Spalten für Breiten-Berechnung
+    const spanCols = Math.max(1, endCol - startCol);
     
     return { 
       gridColumn: `${startCol} / ${endCol}`,
-      // Zusätzliche Info für Styling am Rand
+      spanCols,
+      // Info für Styling am Rand
       startsBeforeRange: startDayRaw < 0,
       endsAfterRange: endDayRaw >= totalDays
     };
@@ -518,8 +520,10 @@ const CalendarView = () => {
                                   style={{ 
                                     gridColumn: gridPos.gridColumn, 
                                     gridRow: 1,
-                                    marginLeft: gridPos.startsBeforeRange ? 0 : '50%',
-                                    marginRight: gridPos.endsAfterRange ? 0 : undefined
+                                    // Halbtag-Verschiebung: Start ab Mitte Check-in Tag, Ende bis Mitte Check-out Tag
+                                    marginLeft: gridPos.startsBeforeRange ? 0 : `calc(50% / ${gridPos.spanCols})`,
+                                    marginRight: gridPos.endsAfterRange ? 0 : `calc(50% / ${gridPos.spanCols})`,
+                                    width: `calc(100% - ${gridPos.startsBeforeRange ? 0 : 50/gridPos.spanCols}% - ${gridPos.endsAfterRange ? 0 : 50/gridPos.spanCols}%)`
                                   }}
                                 >
                                   <span className="text-[9px] md:text-xs font-medium truncate">

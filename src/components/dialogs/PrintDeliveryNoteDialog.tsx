@@ -314,8 +314,8 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     `;
   };
 
-  // Robuste Druck-Lösung für Mobile + Desktop
-  // Verwendet opacity statt left:-9999px (funktioniert auf allen Geräten)
+  // iOS-kompatible Druck-Lösung für Mobile + Desktop
+  // Verwendet position:static und versteckt andere Elemente programmatisch
   const handlePrint = () => {
     // 1. Entferne existierenden Print-Container falls vorhanden
     const existingContainer = document.getElementById('print-container');
@@ -328,41 +328,55 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     printContainer.id = 'print-container';
     printContainer.innerHTML = generatePrintContent();
     
-    // 3. Container verstecken aber IM DOM-FLOW belassen (wichtig für Mobile!)
-    // opacity:0 statt left:-9999px - Mobile Browser ignorieren oft negative Positionen
+    // 3. STATISCHE Positionierung (iOS-kompatibel)
+    // iOS Safari hat Probleme mit position:fixed beim Drucken
     printContainer.style.cssText = `
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
+      position: static;
+      display: block;
       background: white;
-      z-index: 999999;
-      overflow: auto;
-      opacity: 0;
-      pointer-events: none;
+      width: 100%;
+      min-height: 100vh;
     `;
     
-    // 4. Zum DOM hinzufügen
-    document.body.appendChild(printContainer);
+    // 4. Am ANFANG von body einfügen (wichtig für iOS)
+    document.body.insertBefore(printContainer, document.body.firstChild);
+    
+    // 5. Alle anderen Elemente verstecken (programmatisch, nicht nur CSS)
+    const hiddenElements: HTMLElement[] = [];
+    const otherElements = document.body.children;
+    
+    for (let i = 0; i < otherElements.length; i++) {
+      const el = otherElements[i] as HTMLElement;
+      if (el.id !== 'print-container') {
+        el.dataset.wasPrintHidden = el.style.display;
+        el.style.display = 'none';
+        hiddenElements.push(el);
+      }
+    }
 
-    // 5. Warte auf DOM-Rendering, dann sichtbar machen und drucken
-    requestAnimationFrame(() => {
-      // Container für Druck sichtbar machen
-      printContainer.style.opacity = '1';
+    // 6. iOS benötigt längere Wartezeit für DOM-Rendering
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const delay = isIOS ? 500 : 100;
+    
+    // 7. Explizit display:block setzen vor dem Drucken
+    printContainer.style.display = 'block';
+    
+    setTimeout(() => {
+      window.print();
       
+      // 8. Nach dem Druck-Dialog: Elemente wiederherstellen
       setTimeout(() => {
-        window.print();
+        hiddenElements.forEach(el => {
+          el.style.display = el.dataset.wasPrintHidden || '';
+          delete el.dataset.wasPrintHidden;
+        });
         
-        // 6. Nach dem Druck-Dialog Container entfernen
-        setTimeout(() => {
-          const container = document.getElementById('print-container');
-          if (container) {
-            container.remove();
-          }
-        }, 1000);
-      }, 100);
-    });
+        const container = document.getElementById('print-container');
+        if (container) {
+          container.remove();
+        }
+      }, 1000);
+    }, delay);
   };
 
   const handleSaveAndPrint = async () => {

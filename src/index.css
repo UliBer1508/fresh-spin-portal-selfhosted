@@ -148,19 +148,15 @@ All colors MUST be HSL.
     display: none !important;
   }
   
-  /* Print-Container sichtbar und korrekt positioniert */
+  /* Print-Container - EINFACHE Styles für iOS AirPrint Kompatibilität */
   #print-container {
     display: block !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
+    position: static !important;
     width: 100% !important;
-    height: auto !important;
     background: white !important;
-    opacity: 1 !important;
-    z-index: 999999 !important;
-    overflow: visible !important;
-    pointer-events: auto !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   
   /* Entferne Schatten und andere visuelle Effekte */

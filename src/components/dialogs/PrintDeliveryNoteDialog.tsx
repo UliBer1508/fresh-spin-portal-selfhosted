@@ -267,6 +267,11 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
   };
 
   const handleSaveAndPrint = async () => {
+    // HINZUFÜGEN: Fokus sofort entfernen um iOS-Tastatur zu verhindern
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    
     setIsSaving(true);
     try {
       // Save notes to database
@@ -280,11 +285,14 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       toast.success('Notizen gespeichert');
       onUpdate?.();
 
-      // WARTEN bis Druck abgeschlossen ist
-      await handlePrint();
-      
-      // Dialog erst NACH dem Druck schließen
+      // Dialog VORHER schließen, dann drucken
       onOpenChange(false);
+      
+      // Kurz warten bis Dialog geschlossen ist
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Dann drucken
+      await handlePrint();
 
     } catch (error) {
       console.error('Error saving notes:', error);

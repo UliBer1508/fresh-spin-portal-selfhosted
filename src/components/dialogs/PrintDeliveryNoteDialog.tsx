@@ -215,27 +215,33 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       const content = generatePrintContent();
       printContainer.innerHTML = content;
       
-      // 4. Position fixed mit opacity 0 - wird vor print auf 1 gesetzt
+      // 4. iOS FIX: position:static statt fixed, sichtbar von Anfang an
       printContainer.style.cssText = `
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
+        position: static !important;
         width: 100% !important;
         height: auto !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
         background: white !important;
-        z-index: 999999 !important;
         overflow: visible !important;
       `;
       
-      // 5. An body anhängen
-      document.body.appendChild(printContainer);
+      // 5. Alle anderen Body-Kinder verstecken
+      const bodyChildren = Array.from(document.body.children) as HTMLElement[];
+      const hiddenElements: HTMLElement[] = [];
       
-      // 6. Erzwinge Reflow/Repaint vor dem Drucken
+      bodyChildren.forEach(child => {
+        if (child.id !== 'print-container') {
+          hiddenElements.push(child);
+          child.style.display = 'none';
+        }
+      });
+      
+      // 6. Als erstes Kind in body einfügen
+      document.body.insertBefore(printContainer, document.body.firstChild);
+      
+      // 7. Erzwinge Reflow/Repaint vor dem Drucken
       void printContainer.offsetHeight;
       
-      // 7. iOS/Mobile benötigt längere Wartezeit
+      // 8. iOS/Mobile benötigt längere Wartezeit
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       
@@ -246,27 +252,27 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       const delay = isMobile ? 500 : 200;
       
       setTimeout(() => {
-        // VOR dem Drucken: opacity auf 1 setzen
-        printContainer.style.opacity = '1';
+        // KRITISCH: Fokus entfernen direkt vor print() um Tastatur zu verhindern
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
         
-        // Kurz warten bis opacity-Änderung angewandt ist
+        window.print();
+        
+        // Nach dem Druck-Dialog: Container entfernen und Elemente wieder anzeigen
         setTimeout(() => {
-          // KRITISCH: Fokus entfernen direkt vor print() um Tastatur zu verhindern
-          if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
+          const containerToRemove = document.getElementById('print-container');
+          if (containerToRemove) {
+            containerToRemove.remove();
           }
           
-          window.print();
+          // Versteckte Elemente wieder anzeigen
+          hiddenElements.forEach(el => {
+            el.style.display = '';
+          });
           
-          // Nach dem Druck-Dialog: Container entfernen
-          setTimeout(() => {
-            const containerToRemove = document.getElementById('print-container');
-            if (containerToRemove) {
-              containerToRemove.remove();
-            }
-            resolve();
-          }, 500);
-        }, 100);
+          resolve();
+        }, 500);
       }, delay);
     });
   };
@@ -422,7 +428,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Notizen für den Lieferschein eingeben..."
               className="min-h-[80px]"
-              inputMode="none"
+              inputMode="text"
             />
           </div>
 

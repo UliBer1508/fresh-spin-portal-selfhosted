@@ -1,2 +1,2 @@
-// v12.12 - Prevent mobile keyboard on print, execute print directly
-export const APP_VERSION = '12.12.0';
+// v12.13 - iOS print fix: use position:static and hide other elements
+export const APP_VERSION = '12.13.0';

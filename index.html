@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- v12.12 - Prevent mobile keyboard on print, execute print directly -->
+    <!-- v12.13 - iOS print fix: use position:static and hide other elements -->
     
     <!-- Service Worker Registration with Auto-Update -->
     <script>
@@ -14,9 +14,9 @@
           window.location.reload();
         });
         
-        navigator.serviceWorker.register('/sw.js?v=12.12')
+        navigator.serviceWorker.register('/sw.js?v=12.13')
           .then(reg => {
-            console.log('[PWA] SW registered v12.12');
+            console.log('[PWA] SW registered v12.13');
             
             // Check for updates immediately
             reg.update();

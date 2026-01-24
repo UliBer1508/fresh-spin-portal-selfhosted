@@ -127,7 +127,7 @@ All colors MUST be HSL.
 
 /* ============================================
    PRINT STYLES - Robuste Lösung für Mobile + Desktop
-   Verwendet display:none statt visibility (Mobile-kompatibel)
+   iOS AirPrint kompatibel - keine flex/grid, nur block
    ============================================ */
 @media print {
   /* Seitengröße und Ränder */
@@ -136,40 +136,77 @@ All colors MUST be HSL.
     margin: 10mm;
   }
   
-  /* Verstecke ALLES außer dem Print-Container */
-  body > *:not(#print-container) {
-    display: none !important;
+  /* KRITISCH: html und body Einstellungen für iOS */
+  html, body {
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    overflow: visible !important;
   }
   
-  /* Radix Portal (Dialoge) verstecken beim Drucken */
+  /* Verstecke ALLES außer dem Print-Container - mehrere Selektoren */
+  body > *:not(#print-container),
+  body > div:not(#print-container),
+  body > header,
+  body > footer,
+  body > nav,
+  body > main,
+  body > aside,
   [data-radix-portal],
   [role="dialog"],
-  [data-radix-dialog-overlay] {
+  [data-radix-dialog-overlay],
+  .fixed,
+  .absolute {
     display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
   }
   
-  /* Print-Container - EINFACHE Styles für iOS AirPrint Kompatibilität */
+  /* Print-Container - MAXIMALE Sichtbarkeit für iOS */
   #print-container {
     display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     position: static !important;
     width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
     background: white !important;
     color: black !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    z-index: 999999 !important;
+  }
+  
+  /* Alle Kinder im Print-Container sichtbar machen */
+  #print-container * {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: revert !important;
+  }
+  
+  /* Tabellen im Print-Container */
+  #print-container table {
+    display: table !important;
+  }
+  
+  #print-container tr {
+    display: table-row !important;
+  }
+  
+  #print-container td, #print-container th {
+    display: table-cell !important;
   }
   
   /* Entferne Schatten und andere visuelle Effekte */
   * {
     box-shadow: none !important;
     text-shadow: none !important;
-  }
-  
-  /* Header, Nav, Footer verstecken */
-  header,
-  nav,
-  footer,
-  .no-print {
-    display: none !important;
   }
 }

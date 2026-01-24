@@ -89,6 +89,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
 
   // Generiert reines HTML für den Print-Container - iOS-kompatibel
   // KEINE Emojis, KEINE CSS-Klassen, NUR Inline-Styles
+  // KEINE flex/grid - nur einfache block-Elemente für maximale iOS-Kompatibilität
   const generatePrintContent = () => {
     const itemRows = LINEN_ORDER
       .filter(key => items[key] && items[key] > 0)
@@ -100,9 +101,9 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
         </tr>
       `).join('');
 
-    // Komplett inline-styles, keine Emojis, keine CSS-Klassen
+    // iOS-optimiert: KEINE flex/grid, nur block und table-Layouts
     return `
-      <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.5; color: #000; padding: 15mm; max-width: 210mm; background: white;">
+      <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.5; color: #000; padding: 10mm; background: white; width: 100%; box-sizing: border-box;">
         
         <!-- Header -->
         <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 16px; margin-bottom: 16px;">
@@ -114,7 +115,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
         </div>
 
         <!-- Lieferadresse -->
-        <div style="margin-bottom: 16px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #f5f5f5;">
+        <div style="margin-bottom: 16px; padding: 12px; border: 1px solid #ddd; background: #f5f5f5;">
           <p style="font-weight: 600; margin: 0 0 4px 0;">Lieferadresse:</p>
           <p style="font-size: 18px; font-weight: 600; margin: 0;">${order.houses?.name || 'Unbekanntes Haus'}</p>
           ${order.houses?.address ? `<p style="font-size: 14px; color: #666; margin: 4px 0 0 0;">${order.houses.address}</p>` : ''}
@@ -122,37 +123,45 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
 
         <!-- Buchungsdetails -->
         ${order.bookings ? `
-          <div style="margin-bottom: 16px; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+          <div style="margin-bottom: 16px; padding: 12px; border: 1px solid #ddd;">
             <p style="font-weight: 600; margin: 0 0 8px 0;">Buchungsdetails:</p>
-            <div style="display: flex; flex-wrap: wrap;">
-              <p style="width: 50%; margin: 4px 0; box-sizing: border-box;"><strong>Gast:</strong> ${order.bookings.guest_name}</p>
-              <p style="width: 50%; margin: 4px 0; box-sizing: border-box;"><strong>Gäste:</strong> ${order.bookings.number_of_guests} Personen</p>
-              <p style="width: 50%; margin: 4px 0; box-sizing: border-box;"><strong>Check-in:</strong> ${formatDate(order.bookings.check_in)}</p>
-              <p style="width: 50%; margin: 4px 0; box-sizing: border-box;"><strong>Check-out:</strong> ${formatDate(order.bookings.check_out)}</p>
-            </div>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 4px 0; width: 50%;"><strong>Gast:</strong> ${order.bookings.guest_name}</td>
+                <td style="padding: 4px 0; width: 50%;"><strong>Gäste:</strong> ${order.bookings.number_of_guests} Personen</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0;"><strong>Check-in:</strong> ${formatDate(order.bookings.check_in)}</td>
+                <td style="padding: 4px 0;"><strong>Check-out:</strong> ${formatDate(order.bookings.check_out)}</td>
+              </tr>
+            </table>
           </div>
         ` : ''}
 
-        <!-- Lieferinfo -->
-        <div style="display: flex; gap: 16px; margin-bottom: 16px;">
-          <div style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
-            <p style="font-weight: 600; font-size: 13px; margin: 0 0 4px 0;">Lieferdatum:</p>
-            <p style="font-size: 13px; margin: 0;">
-              ${formatDate(order.delivery_date)}${formatTime(order.delivery_time)}
-            </p>
-          </div>
-          <div style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
-            <p style="font-weight: 600; font-size: 13px; margin: 0 0 4px 0;">Lieferart:</p>
-            <p style="font-size: 13px; margin: 0;">${getDeliveryTypeText(order.delivery_type)}</p>
-          </div>
-        </div>
+        <!-- Lieferinfo - als Tabelle statt Flexbox -->
+        <table style="width: 100%; margin-bottom: 16px; border-collapse: separate; border-spacing: 8px 0;">
+          <tr>
+            <td style="width: 50%; padding: 12px; border: 1px solid #ddd; vertical-align: top;">
+              <p style="font-weight: 600; font-size: 13px; margin: 0 0 4px 0;">Lieferdatum:</p>
+              <p style="font-size: 13px; margin: 0;">
+                ${formatDate(order.delivery_date)}${formatTime(order.delivery_time)}
+              </p>
+            </td>
+            <td style="width: 50%; padding: 12px; border: 1px solid #ddd; vertical-align: top;">
+              <p style="font-weight: 600; font-size: 13px; margin: 0 0 4px 0;">Lieferart:</p>
+              <p style="font-size: 13px; margin: 0;">${getDeliveryTypeText(order.delivery_type)}</p>
+            </td>
+          </tr>
+        </table>
 
         <!-- Artikel-Tabelle -->
         <div style="margin-bottom: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <p style="font-weight: 600; margin: 0;">Artikel:</p>
-            <span style="font-size: 12px; background: #e0e7ff; color: #3730a3; padding: 4px 8px; border-radius: 4px;">${totalItems} Stück gesamt</span>
-          </div>
+          <table style="width: 100%; margin-bottom: 8px;">
+            <tr>
+              <td style="font-weight: 600;">Artikel:</td>
+              <td style="text-align: right;"><span style="font-size: 12px; background: #e0e7ff; color: #3730a3; padding: 4px 8px;">${totalItems} Stück gesamt</span></td>
+            </tr>
+          </table>
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
               <tr>
@@ -174,7 +183,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
         <!-- Notizen -->
         <div style="margin-bottom: 16px;">
           <p style="font-weight: 600; margin: 0 0 8px 0;">Notizen:</p>
-          <div style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; min-height: 60px; background: #fafafa;">
+          <div style="padding: 12px; border: 1px solid #ddd; min-height: 60px; background: #fafafa;">
             ${notes || 'Keine Notizen'}
           </div>
         </div>
@@ -201,54 +210,77 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       // 2. Erstelle neuen Print-Container
       const printContainer = document.createElement('div');
       printContainer.id = 'print-container';
-      printContainer.innerHTML = generatePrintContent();
       
-      // 3. STATISCHE Positionierung (iOS-kompatibel)
+      // 3. KRITISCH: Setze innerHTML BEVOR der Container ins DOM eingefügt wird
+      const content = generatePrintContent();
+      printContainer.innerHTML = content;
+      
+      // 4. STATISCHE Positionierung mit expliziter Sichtbarkeit (iOS-kompatibel)
       printContainer.style.cssText = `
-        position: static;
-        display: block;
-        background: white;
-        width: 100%;
-        min-height: 100vh;
+        position: static !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background: white !important;
+        width: 100% !important;
+        min-height: 100vh !important;
+        z-index: 999999 !important;
+        overflow: visible !important;
       `;
       
-      // 4. Am ANFANG von body einfügen (wichtig für iOS)
+      // 5. ALLE anderen body-Elemente verstecken (nicht nur direkte Kinder)
+      const hiddenElements: HTMLElement[] = [];
+      const allBodyElements = document.body.querySelectorAll('*');
+      
+      // Zuerst: Verstecke alle body-Kinder außer dem neuen Container
+      Array.from(document.body.children).forEach((el) => {
+        if (el.id !== 'print-container') {
+          const htmlEl = el as HTMLElement;
+          htmlEl.dataset.wasPrintHidden = htmlEl.style.display;
+          htmlEl.style.setProperty('display', 'none', 'important');
+          hiddenElements.push(htmlEl);
+        }
+      });
+      
+      // 6. Am ANFANG von body einfügen
       document.body.insertBefore(printContainer, document.body.firstChild);
       
-      // 5. Alle anderen Elemente verstecken
-      const hiddenElements: HTMLElement[] = [];
-      const otherElements = document.body.children;
+      // 7. Erzwinge Reflow/Repaint vor dem Drucken
+      void printContainer.offsetHeight;
       
-      for (let i = 0; i < otherElements.length; i++) {
-        const el = otherElements[i] as HTMLElement;
-        if (el.id !== 'print-container') {
-          el.dataset.wasPrintHidden = el.style.display;
-          el.style.display = 'none';
-          hiddenElements.push(el);
-        }
-      }
-
-      // 6. iOS benötigt längere Wartezeit (1000ms)
+      // 8. iOS/Mobile benötigt längere Wartezeit
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      console.log('[Print] iOS detected:', isIOS, 'Content length:', printContainer.innerHTML.length);
-      const delay = isIOS ? 1000 : 100;
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      console.log('[Print] Device:', { isIOS, isMobile });
+      console.log('[Print] Content length:', content.length);
+      console.log('[Print] Container in DOM:', !!document.getElementById('print-container'));
+      
+      // Längere Verzögerung für Mobile-Geräte
+      const delay = isMobile ? 1500 : 200;
       
       setTimeout(() => {
+        // Nochmal prüfen, ob Container sichtbar ist
+        const container = document.getElementById('print-container');
+        if (container) {
+          console.log('[Print] Container dimensions:', container.offsetWidth, container.offsetHeight);
+        }
+        
         window.print();
         
-        // 7. Nach dem Druck-Dialog: Elemente wiederherstellen
+        // 9. Nach dem Druck-Dialog: Elemente wiederherstellen
         setTimeout(() => {
           hiddenElements.forEach(el => {
             el.style.display = el.dataset.wasPrintHidden || '';
             delete el.dataset.wasPrintHidden;
           });
           
-          const container = document.getElementById('print-container');
-          if (container) {
-            container.remove();
+          const containerToRemove = document.getElementById('print-container');
+          if (containerToRemove) {
+            containerToRemove.remove();
           }
           
-          resolve(); // Promise erst HIER auflösen
+          resolve();
         }, 1000);
       }, delay);
     });

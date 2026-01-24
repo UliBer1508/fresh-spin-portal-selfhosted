@@ -251,6 +251,11 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
         
         // Kurz warten bis opacity-Änderung angewandt ist
         setTimeout(() => {
+          // KRITISCH: Fokus entfernen direkt vor print() um Tastatur zu verhindern
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+          
           window.print();
           
           // Nach dem Druck-Dialog: Container entfernen
@@ -267,14 +272,9 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
   };
 
   const handleSaveAndPrint = async () => {
-    // HINZUFÜGEN: Fokus sofort entfernen um iOS-Tastatur zu verhindern
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    
     setIsSaving(true);
     try {
-      // Save notes to database
+      // 1. Erst speichern (OHNE onUpdate noch aufzurufen)
       const { error } = await supabase
         .from('linen_orders')
         .update({ notes })
@@ -283,16 +283,13 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       if (error) throw error;
 
       toast.success('Notizen gespeichert');
-      onUpdate?.();
 
-      // Dialog VORHER schließen, dann drucken
-      onOpenChange(false);
-      
-      // Kurz warten bis Dialog geschlossen ist
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // Dann drucken
+      // 2. ERST DRUCKEN (Dialog ist noch offen, Container wird nicht gelöscht)
       await handlePrint();
+      
+      // 3. NACH dem Drucken: Dialog schließen und Daten aktualisieren
+      onOpenChange(false);
+      onUpdate?.();
 
     } catch (error) {
       console.error('Error saving notes:', error);

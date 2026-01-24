@@ -1,2 +1,2 @@
-// v12.10 - Fix keyboard appearing on mobile print button
-export const APP_VERSION = '12.10.0';
+// v12.11 - Fix empty print page by reordering save/print/close sequence
+export const APP_VERSION = '12.11.0';

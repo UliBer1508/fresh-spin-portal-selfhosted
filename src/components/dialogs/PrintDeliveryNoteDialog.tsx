@@ -316,67 +316,68 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
 
   // iOS-kompatible Druck-Lösung für Mobile + Desktop
   // Verwendet position:static und versteckt andere Elemente programmatisch
-  const handlePrint = () => {
-    // 1. Entferne existierenden Print-Container falls vorhanden
-    const existingContainer = document.getElementById('print-container');
-    if (existingContainer) {
-      existingContainer.remove();
-    }
-
-    // 2. Erstelle neuen Print-Container
-    const printContainer = document.createElement('div');
-    printContainer.id = 'print-container';
-    printContainer.innerHTML = generatePrintContent();
-    
-    // 3. STATISCHE Positionierung (iOS-kompatibel)
-    // iOS Safari hat Probleme mit position:fixed beim Drucken
-    printContainer.style.cssText = `
-      position: static;
-      display: block;
-      background: white;
-      width: 100%;
-      min-height: 100vh;
-    `;
-    
-    // 4. Am ANFANG von body einfügen (wichtig für iOS)
-    document.body.insertBefore(printContainer, document.body.firstChild);
-    
-    // 5. Alle anderen Elemente verstecken (programmatisch, nicht nur CSS)
-    const hiddenElements: HTMLElement[] = [];
-    const otherElements = document.body.children;
-    
-    for (let i = 0; i < otherElements.length; i++) {
-      const el = otherElements[i] as HTMLElement;
-      if (el.id !== 'print-container') {
-        el.dataset.wasPrintHidden = el.style.display;
-        el.style.display = 'none';
-        hiddenElements.push(el);
+  // Gibt Promise zurück, das erst nach dem Druck aufgelöst wird
+  const handlePrint = (): Promise<void> => {
+    return new Promise((resolve) => {
+      // 1. Entferne existierenden Print-Container falls vorhanden
+      const existingContainer = document.getElementById('print-container');
+      if (existingContainer) {
+        existingContainer.remove();
       }
-    }
 
-    // 6. iOS benötigt längere Wartezeit für DOM-Rendering
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const delay = isIOS ? 500 : 100;
-    
-    // 7. Explizit display:block setzen vor dem Drucken
-    printContainer.style.display = 'block';
-    
-    setTimeout(() => {
-      window.print();
+      // 2. Erstelle neuen Print-Container
+      const printContainer = document.createElement('div');
+      printContainer.id = 'print-container';
+      printContainer.innerHTML = generatePrintContent();
       
-      // 8. Nach dem Druck-Dialog: Elemente wiederherstellen
-      setTimeout(() => {
-        hiddenElements.forEach(el => {
-          el.style.display = el.dataset.wasPrintHidden || '';
-          delete el.dataset.wasPrintHidden;
-        });
-        
-        const container = document.getElementById('print-container');
-        if (container) {
-          container.remove();
+      // 3. STATISCHE Positionierung (iOS-kompatibel)
+      printContainer.style.cssText = `
+        position: static;
+        display: block;
+        background: white;
+        width: 100%;
+        min-height: 100vh;
+      `;
+      
+      // 4. Am ANFANG von body einfügen (wichtig für iOS)
+      document.body.insertBefore(printContainer, document.body.firstChild);
+      
+      // 5. Alle anderen Elemente verstecken
+      const hiddenElements: HTMLElement[] = [];
+      const otherElements = document.body.children;
+      
+      for (let i = 0; i < otherElements.length; i++) {
+        const el = otherElements[i] as HTMLElement;
+        if (el.id !== 'print-container') {
+          el.dataset.wasPrintHidden = el.style.display;
+          el.style.display = 'none';
+          hiddenElements.push(el);
         }
-      }, 1000);
-    }, delay);
+      }
+
+      // 6. iOS benötigt längere Wartezeit (800ms)
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const delay = isIOS ? 800 : 100;
+      
+      setTimeout(() => {
+        window.print();
+        
+        // 7. Nach dem Druck-Dialog: Elemente wiederherstellen
+        setTimeout(() => {
+          hiddenElements.forEach(el => {
+            el.style.display = el.dataset.wasPrintHidden || '';
+            delete el.dataset.wasPrintHidden;
+          });
+          
+          const container = document.getElementById('print-container');
+          if (container) {
+            container.remove();
+          }
+          
+          resolve(); // Promise erst HIER auflösen
+        }, 1000);
+      }, delay);
+    });
   };
 
   const handleSaveAndPrint = async () => {
@@ -393,10 +394,10 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       toast.success('Notizen gespeichert');
       onUpdate?.();
 
-      // Open print tab
-      handlePrint();
+      // WARTEN bis Druck abgeschlossen ist
+      await handlePrint();
       
-      // Close dialog
+      // Dialog erst NACH dem Druck schließen
       onOpenChange(false);
 
     } catch (error) {

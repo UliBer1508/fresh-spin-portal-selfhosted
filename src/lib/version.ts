@@ -1,2 +1,2 @@
-// v12.13 - iOS print fix: use position:static and hide other elements
-export const APP_VERSION = '12.13.0';
+// v12.14 - Simplified print: opacity-based approach, CSS @media print handles visibility
+export const APP_VERSION = '12.14.0';

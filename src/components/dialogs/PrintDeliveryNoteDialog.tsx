@@ -87,229 +87,102 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     }
   };
 
-  // Generiert reines HTML für den Print-Container (kein vollständiges Dokument)
+  // Generiert reines HTML für den Print-Container - iOS-kompatibel
+  // KEINE Emojis, KEINE CSS-Klassen, NUR Inline-Styles
   const generatePrintContent = () => {
     const itemRows = LINEN_ORDER
       .filter(key => items[key] && items[key] > 0)
       .map(key => `
         <tr>
-          <td style="padding: 8px; border: 1px solid #333;">${getLinenLabel(key)}</td>
-          <td style="padding: 8px; border: 1px solid #333;">${getItemColor(key)}</td>
-          <td style="padding: 8px; border: 1px solid #333; text-align: right; font-weight: 500;">${items[key]}</td>
+          <td style="padding: 8px; border: 1px solid #333; font-family: Arial, sans-serif;">${getLinenLabel(key)}</td>
+          <td style="padding: 8px; border: 1px solid #333; font-family: Arial, sans-serif;">${getItemColor(key)}</td>
+          <td style="padding: 8px; border: 1px solid #333; text-align: right; font-weight: 500; font-family: Arial, sans-serif;">${items[key]}</td>
         </tr>
       `).join('');
 
+    // Komplett inline-styles, keine Emojis, keine CSS-Klassen
     return `
-      <style>
-        #print-container {
-          font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          font-size: 14px;
-          line-height: 1.5;
-          color: #000;
-          padding: 15mm;
-          max-width: 210mm;
-          background: white;
-        }
-        #print-container .header {
-          text-align: center;
-          border-bottom: 2px solid #000;
-          padding-bottom: 16px;
-          margin-bottom: 16px;
-        }
-        #print-container .header h1 {
-          font-size: 24px;
-          font-weight: bold;
-          letter-spacing: 2px;
-          margin: 0;
-        }
-        #print-container .header p {
-          font-size: 16px;
-          color: #666;
-          margin: 4px 0 0 0;
-        }
-        #print-container .section {
-          margin-bottom: 16px;
-          padding: 12px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-        }
-        #print-container .section-muted {
-          background: #f5f5f5;
-        }
-        #print-container .section-title {
-          font-weight: 600;
-          margin-bottom: 8px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        #print-container .grid-2 {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 16px;
-          margin-bottom: 16px;
-        }
-        #print-container .house-name {
-          font-size: 18px;
-          font-weight: 600;
-          margin: 0;
-        }
-        #print-container .house-address {
-          font-size: 14px;
-          color: #666;
-          margin: 0;
-        }
-        #print-container .booking-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 8px;
-          font-size: 13px;
-          margin-left: 24px;
-        }
-        #print-container .booking-grid p {
-          margin: 0;
-        }
-        #print-container table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 8px;
-        }
-        #print-container th {
-          padding: 8px;
-          border: 1px solid #333;
-          background: #f0f0f0;
-          font-weight: bold;
-          text-align: left;
-        }
-        #print-container th:last-child {
-          text-align: right;
-        }
-        #print-container .total-row {
-          font-weight: bold;
-          border-top: 2px solid #000;
-        }
-        #print-container .total-badge {
-          font-size: 12px;
-          background: #e0e7ff;
-          color: #3730a3;
-          padding: 4px 8px;
-          border-radius: 4px;
-        }
-        #print-container .notes-box {
-          padding: 12px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          min-height: 60px;
-          background: #fafafa;
-        }
-        #print-container .footer {
-          border-top: 1px solid #ddd;
-          padding-top: 12px;
-          margin-top: 16px;
-          font-size: 12px;
-          color: #666;
-          display: flex;
-          justify-content: space-between;
-        }
-      </style>
-
-      <!-- Header -->
-      <div class="header">
-        <h1>LIEFERSCHEIN</h1>
-        <p>Wäsche Pinzgau</p>
-        <p style="margin-top: 8px; font-size: 14px; font-weight: 600;">
-          Bestell-Nr: #${order.id.substring(0, 8).toUpperCase()}
-        </p>
-      </div>
-
-      <!-- Delivery Address -->
-      <div class="section section-muted">
-        <div style="display: flex; align-items: flex-start; gap: 8px;">
-          <span>🏠</span>
-          <div>
-            <p class="house-name">${order.houses?.name || 'Unbekanntes Haus'}</p>
-            ${order.houses?.address ? `<p class="house-address">${order.houses.address}</p>` : ''}
-          </div>
-        </div>
-      </div>
-
-      <!-- Booking Details -->
-      ${order.bookings ? `
-        <div class="section">
-          <div class="section-title">
-            <span>👤</span>
-            <span>Buchungsdetails</span>
-          </div>
-          <div class="booking-grid">
-            <p><strong>Gast:</strong> ${order.bookings.guest_name}</p>
-            <p><strong>Gäste:</strong> ${order.bookings.number_of_guests} Personen</p>
-            <p><strong>Check-in:</strong> ${formatDate(order.bookings.check_in)}</p>
-            <p><strong>Check-out:</strong> ${formatDate(order.bookings.check_out)}</p>
-          </div>
-        </div>
-      ` : ''}
-
-      <!-- Delivery Info -->
-      <div class="grid-2">
-        <div class="section">
-          <div class="section-title">
-            <span>📅</span>
-            <span style="font-size: 13px;">Lieferdatum</span>
-          </div>
-          <p style="font-size: 13px; margin: 0 0 0 24px;">
-            ${formatDate(order.delivery_date)}${formatTime(order.delivery_time)}
+      <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.5; color: #000; padding: 15mm; max-width: 210mm; background: white;">
+        
+        <!-- Header -->
+        <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 16px; margin-bottom: 16px;">
+          <h1 style="font-size: 24px; font-weight: bold; letter-spacing: 2px; margin: 0;">LIEFERSCHEIN</h1>
+          <p style="font-size: 16px; color: #666; margin: 4px 0 0 0;">Wäsche Pinzgau</p>
+          <p style="margin-top: 8px; font-size: 14px; font-weight: 600;">
+            Bestell-Nr: #${order.id.substring(0, 8).toUpperCase()}
           </p>
         </div>
-        <div class="section">
-          <div class="section-title">
-            <span>🚚</span>
-            <span style="font-size: 13px;">Lieferart</span>
+
+        <!-- Lieferadresse -->
+        <div style="margin-bottom: 16px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #f5f5f5;">
+          <p style="font-weight: 600; margin: 0 0 4px 0;">Lieferadresse:</p>
+          <p style="font-size: 18px; font-weight: 600; margin: 0;">${order.houses?.name || 'Unbekanntes Haus'}</p>
+          ${order.houses?.address ? `<p style="font-size: 14px; color: #666; margin: 4px 0 0 0;">${order.houses.address}</p>` : ''}
+        </div>
+
+        <!-- Buchungsdetails -->
+        ${order.bookings ? `
+          <div style="margin-bottom: 16px; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+            <p style="font-weight: 600; margin: 0 0 8px 0;">Buchungsdetails:</p>
+            <div style="display: flex; flex-wrap: wrap;">
+              <p style="width: 50%; margin: 4px 0; box-sizing: border-box;"><strong>Gast:</strong> ${order.bookings.guest_name}</p>
+              <p style="width: 50%; margin: 4px 0; box-sizing: border-box;"><strong>Gäste:</strong> ${order.bookings.number_of_guests} Personen</p>
+              <p style="width: 50%; margin: 4px 0; box-sizing: border-box;"><strong>Check-in:</strong> ${formatDate(order.bookings.check_in)}</p>
+              <p style="width: 50%; margin: 4px 0; box-sizing: border-box;"><strong>Check-out:</strong> ${formatDate(order.bookings.check_out)}</p>
+            </div>
           </div>
-          <p style="font-size: 13px; margin: 0 0 0 24px;">${getDeliveryTypeText(order.delivery_type)}</p>
-        </div>
-      </div>
+        ` : ''}
 
-      <!-- Items Table -->
-      <div style="margin-bottom: 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <div class="section-title" style="margin: 0;">
-            <span>📋</span>
-            <span>Artikel</span>
+        <!-- Lieferinfo -->
+        <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+          <div style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+            <p style="font-weight: 600; font-size: 13px; margin: 0 0 4px 0;">Lieferdatum:</p>
+            <p style="font-size: 13px; margin: 0;">
+              ${formatDate(order.delivery_date)}${formatTime(order.delivery_time)}
+            </p>
           </div>
-          <span class="total-badge">${totalItems} Stück gesamt</span>
+          <div style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+            <p style="font-weight: 600; font-size: 13px; margin: 0 0 4px 0;">Lieferart:</p>
+            <p style="font-size: 13px; margin: 0;">${getDeliveryTypeText(order.delivery_type)}</p>
+          </div>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Artikel</th>
-              <th>Farbe</th>
-              <th style="text-align: right;">Anzahl</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemRows}
-            <tr class="total-row">
-              <td style="padding: 8px; border: 1px solid #333;" colspan="2">GESAMT</td>
-              <td style="padding: 8px; border: 1px solid #333; text-align: right;">${totalItems}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
 
-      <!-- Notes -->
-      <div style="margin-bottom: 16px;">
-        <div class="section-title">
-          <span>📝</span>
-          <span>Notizen</span>
+        <!-- Artikel-Tabelle -->
+        <div style="margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <p style="font-weight: 600; margin: 0;">Artikel:</p>
+            <span style="font-size: 12px; background: #e0e7ff; color: #3730a3; padding: 4px 8px; border-radius: 4px;">${totalItems} Stück gesamt</span>
+          </div>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr>
+                <th style="padding: 8px; border: 1px solid #333; background: #f0f0f0; font-weight: bold; text-align: left;">Artikel</th>
+                <th style="padding: 8px; border: 1px solid #333; background: #f0f0f0; font-weight: bold; text-align: left;">Farbe</th>
+                <th style="padding: 8px; border: 1px solid #333; background: #f0f0f0; font-weight: bold; text-align: right;">Anzahl</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemRows}
+              <tr>
+                <td style="padding: 8px; border: 1px solid #333; border-top: 2px solid #000; font-weight: bold;" colspan="2">GESAMT</td>
+                <td style="padding: 8px; border: 1px solid #333; border-top: 2px solid #000; text-align: right; font-weight: bold;">${totalItems}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="notes-box">
-          ${notes || 'Keine Notizen'}
-        </div>
-      </div>
 
-      <!-- Footer -->
-      <div class="footer">
-        <span>Erstellt: ${new Date().toLocaleDateString('de-DE')}</span>
+        <!-- Notizen -->
+        <div style="margin-bottom: 16px;">
+          <p style="font-weight: 600; margin: 0 0 8px 0;">Notizen:</p>
+          <div style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; min-height: 60px; background: #fafafa;">
+            ${notes || 'Keine Notizen'}
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="border-top: 1px solid #ddd; padding-top: 12px; margin-top: 16px; font-size: 12px; color: #666;">
+          <span>Erstellt: ${new Date().toLocaleDateString('de-DE')}</span>
+        </div>
       </div>
     `;
   };
@@ -355,9 +228,10 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
         }
       }
 
-      // 6. iOS benötigt längere Wartezeit (800ms)
+      // 6. iOS benötigt längere Wartezeit (1000ms)
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      const delay = isIOS ? 800 : 100;
+      console.log('[Print] iOS detected:', isIOS, 'Content length:', printContainer.innerHTML.length);
+      const delay = isIOS ? 1000 : 100;
       
       setTimeout(() => {
         window.print();

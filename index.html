@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- v12.11 - Force new service worker on all devices -->
+    <!-- v12.12 - Prevent mobile keyboard on print, execute print directly -->
     
     <!-- Service Worker Registration with Auto-Update -->
     <script>
@@ -14,9 +14,9 @@
           window.location.reload();
         });
         
-        navigator.serviceWorker.register('/sw.js?v=12.11')
+        navigator.serviceWorker.register('/sw.js?v=12.12')
           .then(reg => {
-            console.log('[PWA] SW registered v12.11');
+            console.log('[PWA] SW registered v12.12');
             
             // Check for updates immediately
             reg.update();

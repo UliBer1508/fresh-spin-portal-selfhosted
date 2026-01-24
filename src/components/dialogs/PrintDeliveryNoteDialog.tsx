@@ -272,6 +272,11 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
   };
 
   const handleSaveAndPrint = async () => {
+    // SOFORT: Fokus entfernen um Tastatur zu verhindern
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    
     setIsSaving(true);
     try {
       // 1. Erst speichern (OHNE onUpdate noch aufzurufen)
@@ -417,6 +422,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Notizen für den Lieferschein eingeben..."
               className="min-h-[80px]"
+              inputMode="none"
             />
           </div>
 
@@ -433,7 +439,16 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Abbrechen
           </Button>
-          <Button onClick={handleSaveAndPrint} disabled={isSaving}>
+          <Button 
+            onClick={handleSaveAndPrint} 
+            disabled={isSaving}
+            onTouchStart={() => {
+              // Fokus entfernen bei Touch-Start (vor Click-Event)
+              if (document.activeElement instanceof HTMLElement) {
+                document.activeElement.blur();
+              }
+            }}
+          >
             {isSaving ? '⏳ Speichere...' : '💾 Speichern & 🖨️ Drucken'}
           </Button>
         </DialogFooter>

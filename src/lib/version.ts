@@ -1,2 +1,2 @@
-// v12.6 - Translation Cache Busting Fix
-export const APP_VERSION = '12.6.0';
+// v12.7 - i18n Suspense Integration Fix
+export const APP_VERSION = '12.7.0';

@@ -138,7 +138,7 @@ All colors MUST be HSL.
   
   /* KRITISCH: html und body Einstellungen für iOS */
   html, body {
-    width: 210mm !important;  /* Explizit A4-Breite für Safari */
+    width: 100% !important;
     height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -184,21 +184,10 @@ All colors MUST be HSL.
     z-index: 999999 !important;
   }
   
-  /* Alle Kinder im Print-Container müssen sichtbar sein */
+  /* Alle Kinder im Print-Container sichtbar machen */
   #print-container * {
     visibility: visible !important;
     opacity: 1 !important;
-    /* KEIN display: revert - verursacht iOS Layout-Kollaps */
-  }
-
-  /* Explizite Block-Elemente für iOS Safari */
-  #print-container div,
-  #print-container p,
-  #print-container h1,
-  #print-container h2,
-  #print-container h3,
-  #print-container span {
-    display: block !important;
   }
   
   /* Tabellen im Print-Container */

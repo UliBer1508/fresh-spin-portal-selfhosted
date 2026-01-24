@@ -1,12 +1,12 @@
-const VERSION = '12.8';
+const VERSION = '12.9';
 const CACHE_NAME = `teuni-waescheportal-v${VERSION}`;
 const RUNTIME_CACHE = `teuni-runtime-v${VERSION}`;
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
-  '/?v=12.8',
+  '/?v=12.9',
   '/offline.html',
-  '/manifest.json?v=12.8',
+  '/manifest.json?v=12.9',
   '/icons/icon-72x72.png',
   '/icons/icon-96x96.png',
   '/icons/icon-128x128.png',
@@ -31,7 +31,7 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating new service worker v12.8');
+  console.log('[SW] Activating new service worker v12.9');
   event.waitUntil(
     caches.keys()
       .then(cacheNames => {

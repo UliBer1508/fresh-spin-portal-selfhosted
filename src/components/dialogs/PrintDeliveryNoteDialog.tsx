@@ -215,75 +215,53 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       const content = generatePrintContent();
       printContainer.innerHTML = content;
       
-      // 4. STATISCHE Positionierung mit expliziter Sichtbarkeit (iOS-kompatibel)
+      // 4. Position fixed mit opacity 0 - wird vor print auf 1 gesetzt
       printContainer.style.cssText = `
-        position: static !important;
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
         background: white !important;
-        width: 210mm !important;
-        max-width: 210mm !important;
-        min-height: 297mm !important;
         z-index: 999999 !important;
         overflow: visible !important;
-        margin: 0 auto !important;
       `;
       
-      // 5. ALLE anderen body-Elemente verstecken (nicht nur direkte Kinder)
-      const hiddenElements: HTMLElement[] = [];
-      const allBodyElements = document.body.querySelectorAll('*');
+      // 5. An body anhängen
+      document.body.appendChild(printContainer);
       
-      // Zuerst: Verstecke alle body-Kinder außer dem neuen Container
-      Array.from(document.body.children).forEach((el) => {
-        if (el.id !== 'print-container') {
-          const htmlEl = el as HTMLElement;
-          htmlEl.dataset.wasPrintHidden = htmlEl.style.display;
-          htmlEl.style.setProperty('display', 'none', 'important');
-          hiddenElements.push(htmlEl);
-        }
-      });
-      
-      // 6. Am ANFANG von body einfügen
-      document.body.insertBefore(printContainer, document.body.firstChild);
-      
-      // 7. Erzwinge Reflow/Repaint vor dem Drucken
+      // 6. Erzwinge Reflow/Repaint vor dem Drucken
       void printContainer.offsetHeight;
       
-      // 8. iOS/Mobile benötigt längere Wartezeit
+      // 7. iOS/Mobile benötigt längere Wartezeit
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       
       console.log('[Print] Device:', { isIOS, isMobile });
       console.log('[Print] Content length:', content.length);
-      console.log('[Print] Container in DOM:', !!document.getElementById('print-container'));
       
-      // Längere Verzögerung für Mobile-Geräte
-      const delay = isMobile ? 2000 : 200;
+      // Verzögerung für Mobile-Geräte
+      const delay = isMobile ? 500 : 200;
       
       setTimeout(() => {
-        // Nochmal prüfen, ob Container sichtbar ist
-        const container = document.getElementById('print-container');
-        if (container) {
-          console.log('[Print] Container dimensions:', container.offsetWidth, container.offsetHeight);
-        }
+        // VOR dem Drucken: opacity auf 1 setzen
+        printContainer.style.opacity = '1';
         
-        window.print();
-        
-        // 9. Nach dem Druck-Dialog: Elemente wiederherstellen
+        // Kurz warten bis opacity-Änderung angewandt ist
         setTimeout(() => {
-          hiddenElements.forEach(el => {
-            el.style.display = el.dataset.wasPrintHidden || '';
-            delete el.dataset.wasPrintHidden;
-          });
+          window.print();
           
-          const containerToRemove = document.getElementById('print-container');
-          if (containerToRemove) {
-            containerToRemove.remove();
-          }
-          
-          resolve();
-        }, 1000);
+          // Nach dem Druck-Dialog: Container entfernen
+          setTimeout(() => {
+            const containerToRemove = document.getElementById('print-container');
+            if (containerToRemove) {
+              containerToRemove.remove();
+            }
+            resolve();
+          }, 500);
+        }, 100);
       }, delay);
     });
   };

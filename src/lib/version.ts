@@ -1,2 +1,2 @@
-// v12.8 - iOS AirPrint Fix - display:revert entfernt
-export const APP_VERSION = '12.8.0';
+// v12.9 - Revert to original print architecture (fixed + opacity)
+export const APP_VERSION = '12.9.0';

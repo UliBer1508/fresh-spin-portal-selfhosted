@@ -1,12 +1,12 @@
-const VERSION = '12.13';
+const VERSION = '12.14';
 const CACHE_NAME = `teuni-waescheportal-v${VERSION}`;
 const RUNTIME_CACHE = `teuni-runtime-v${VERSION}`;
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
-  '/?v=12.13',
+  '/?v=12.14',
   '/offline.html',
-  '/manifest.json?v=12.13',
+  '/manifest.json?v=12.14',
   '/icons/icon-72x72.png',
   '/icons/icon-96x96.png',
   '/icons/icon-128x128.png',

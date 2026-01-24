@@ -196,84 +196,49 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     `;
   };
 
-  // iOS-kompatible Druck-Lösung für Mobile + Desktop
-  // Verwendet position:static und versteckt andere Elemente programmatisch
-  // Gibt Promise zurück, das erst nach dem Druck aufgelöst wird
+  // Einfacher Druck-Ansatz: opacity-basiert, CSS @media print erledigt den Rest
   const handlePrint = (): Promise<void> => {
     return new Promise((resolve) => {
-      // 1. Entferne existierenden Print-Container falls vorhanden
+      // 1. Existierenden Container entfernen
       const existingContainer = document.getElementById('print-container');
-      if (existingContainer) {
-        existingContainer.remove();
-      }
+      if (existingContainer) existingContainer.remove();
 
-      // 2. Erstelle neuen Print-Container
+      // 2. Neuen Container erstellen
       const printContainer = document.createElement('div');
       printContainer.id = 'print-container';
+      printContainer.innerHTML = generatePrintContent();
       
-      // 3. KRITISCH: Setze innerHTML BEVOR der Container ins DOM eingefügt wird
-      const content = generatePrintContent();
-      printContainer.innerHTML = content;
-      
-      // 4. iOS FIX: position:static statt fixed, sichtbar von Anfang an
+      // 3. Mit opacity: 0 einfügen (CSS @media print macht den Rest)
       printContainer.style.cssText = `
-        position: static !important;
-        width: 100% !important;
-        height: auto !important;
-        background: white !important;
-        overflow: visible !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        opacity: 0;
+        pointer-events: none;
+        background: white;
       `;
       
-      // 5. Alle anderen Body-Kinder verstecken
-      const bodyChildren = Array.from(document.body.children) as HTMLElement[];
-      const hiddenElements: HTMLElement[] = [];
+      document.body.appendChild(printContainer);
       
-      bodyChildren.forEach(child => {
-        if (child.id !== 'print-container') {
-          hiddenElements.push(child);
-          child.style.display = 'none';
-        }
-      });
-      
-      // 6. Als erstes Kind in body einfügen
-      document.body.insertBefore(printContainer, document.body.firstChild);
-      
-      // 7. Erzwinge Reflow/Repaint vor dem Drucken
-      void printContainer.offsetHeight;
-      
-      // 8. iOS/Mobile benötigt längere Wartezeit
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
-      console.log('[Print] Device:', { isIOS, isMobile });
-      console.log('[Print] Content length:', content.length);
-      
-      // Verzögerung für Mobile-Geräte
-      const delay = isMobile ? 500 : 200;
-      
+      // 4. Kurze Verzögerung, dann drucken
       setTimeout(() => {
-        // KRITISCH: Fokus entfernen direkt vor print() um Tastatur zu verhindern
+        // Fokus entfernen (Tastatur-Fix)
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
         }
         
+        // Sichtbar machen für Print
+        printContainer.style.opacity = '1';
+        
         window.print();
         
-        // Nach dem Druck-Dialog: Container entfernen und Elemente wieder anzeigen
+        // Aufräumen
         setTimeout(() => {
-          const containerToRemove = document.getElementById('print-container');
-          if (containerToRemove) {
-            containerToRemove.remove();
-          }
-          
-          // Versteckte Elemente wieder anzeigen
-          hiddenElements.forEach(el => {
-            el.style.display = '';
-          });
-          
+          printContainer.remove();
           resolve();
-        }, 500);
-      }, delay);
+        }, 300);
+      }, 100);
     });
   };
 

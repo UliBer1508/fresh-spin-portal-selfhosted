@@ -1,4 +1,4 @@
-// v12.4 - Version aus version.ts
+// v12.11 - Version aus version.ts
 import { StrictMode, Component, ErrorInfo, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";

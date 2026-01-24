@@ -222,10 +222,12 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
         visibility: visible !important;
         opacity: 1 !important;
         background: white !important;
-        width: 100% !important;
-        min-height: 100vh !important;
+        width: 210mm !important;
+        max-width: 210mm !important;
+        min-height: 297mm !important;
         z-index: 999999 !important;
         overflow: visible !important;
+        margin: 0 auto !important;
       `;
       
       // 5. ALLE anderen body-Elemente verstecken (nicht nur direkte Kinder)
@@ -257,7 +259,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
       console.log('[Print] Container in DOM:', !!document.getElementById('print-container'));
       
       // Längere Verzögerung für Mobile-Geräte
-      const delay = isMobile ? 1500 : 200;
+      const delay = isMobile ? 2000 : 200;
       
       setTimeout(() => {
         // Nochmal prüfen, ob Container sichtbar ist

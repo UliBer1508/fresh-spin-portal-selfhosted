@@ -1,2 +1,2 @@
-// v12.7 - i18n Suspense Integration Fix
-export const APP_VERSION = '12.7.0';
+// v12.8 - iOS AirPrint Fix - display:revert entfernt
+export const APP_VERSION = '12.8.0';

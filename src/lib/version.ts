@@ -1,2 +1,2 @@
-// v12.14 - Simplified print: opacity-based approach, CSS @media print handles visibility
-export const APP_VERSION = '12.14.0';
+// v12.15 - Remove notes editing from print dialog to prevent keyboard popup
+export const APP_VERSION = '12.15.0';

@@ -7,11 +7,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { LinenOrder } from "@/hooks/useBookings";
 import { getLinenLabel, getLinenColorLabel, LINEN_ORDER } from "@/lib/linenLabels";
 
@@ -23,15 +20,7 @@ interface PrintDeliveryNoteDialogProps {
 }
 
 const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintDeliveryNoteDialogProps) => {
-  const [notes, setNotes] = useState(order?.notes || "");
-  const [isSaving, setIsSaving] = useState(false);
-
-  // Update notes when order changes
-  useEffect(() => {
-    if (order) {
-      setNotes(order.notes || "");
-    }
-  }, [order]);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   // Cleanup print container when dialog closes
   useEffect(() => {
@@ -184,7 +173,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
         <div style="margin-bottom: 16px;">
           <p style="font-weight: 600; margin: 0 0 8px 0;">Notizen:</p>
           <div style="padding: 12px; border: 1px solid #ddd; min-height: 60px; background: #fafafa;">
-            ${notes || 'Keine Notizen'}
+            ${order.notes || 'Keine Notizen'}
           </div>
         </div>
 
@@ -242,36 +231,18 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     });
   };
 
-  const handleSaveAndPrint = async () => {
+  const handlePrintClick = async () => {
     // SOFORT: Fokus entfernen um Tastatur zu verhindern
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
     
-    setIsSaving(true);
+    setIsPrinting(true);
     try {
-      // 1. Erst speichern (OHNE onUpdate noch aufzurufen)
-      const { error } = await supabase
-        .from('linen_orders')
-        .update({ notes })
-        .eq('id', order.id);
-
-      if (error) throw error;
-
-      toast.success('Notizen gespeichert');
-
-      // 2. ERST DRUCKEN (Dialog ist noch offen, Container wird nicht gelöscht)
       await handlePrint();
-      
-      // 3. NACH dem Drucken: Dialog schließen und Daten aktualisieren
       onOpenChange(false);
-      onUpdate?.();
-
-    } catch (error) {
-      console.error('Error saving notes:', error);
-      toast.error('Fehler beim Speichern der Notizen');
     } finally {
-      setIsSaving(false);
+      setIsPrinting(false);
     }
   };
 
@@ -382,19 +353,15 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
             </Table>
           </div>
 
-          {/* Notes */}
+          {/* Notes - READ ONLY */}
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span>📝</span>
               <Label className="font-semibold">Notizen</Label>
             </div>
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Notizen für den Lieferschein eingeben..."
-              className="min-h-[80px]"
-              inputMode="text"
-            />
+            <div className="min-h-[60px] p-3 bg-muted/30 rounded-lg text-sm">
+              {order.notes || <span className="text-muted-foreground italic">Keine Notizen vorhanden</span>}
+            </div>
           </div>
 
           {/* Footer Preview */}
@@ -411,16 +378,10 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
             Abbrechen
           </Button>
           <Button 
-            onClick={handleSaveAndPrint} 
-            disabled={isSaving}
-            onTouchStart={() => {
-              // Fokus entfernen bei Touch-Start (vor Click-Event)
-              if (document.activeElement instanceof HTMLElement) {
-                document.activeElement.blur();
-              }
-            }}
+            onClick={handlePrintClick} 
+            disabled={isPrinting}
           >
-            {isSaving ? '⏳ Speichere...' : '💾 Speichern & 🖨️ Drucken'}
+            {isPrinting ? '⏳ Drucke...' : '🖨️ Drucken'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -50,6 +50,12 @@ export const usePWA = () => {
 
     // Access existing service worker (registered in index.html)
     if ('serviceWorker' in navigator) {
+      // Listen for controller change and reload automatically
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('[PWA] Controller changed, reloading for new version...');
+        window.location.reload();
+      });
+
       navigator.serviceWorker.ready
         .then((reg) => {
           console.log('[PWA] SW ready with scope:', reg.scope);

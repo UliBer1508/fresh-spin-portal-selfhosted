@@ -1,4 +1,4 @@
-const VERSION = '12.15';
+const VERSION = '12.16';
 const CACHE_NAME = `teuni-waescheportal-v${VERSION}`;
 const RUNTIME_CACHE = `teuni-runtime-v${VERSION}`;
 

@@ -11,7 +11,7 @@ import { de, enUS, nl } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { HOUSE_COLORS, getColorByHash } from "@/lib/constants";
+import { HOUSE_COLORS, getColorByHash, BOOKING_STATUS } from "@/lib/constants";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTranslation } from "react-i18next";
 
@@ -139,7 +139,7 @@ const CalendarView = () => {
         setHouses(housesData);
       }
 
-      // Fetch bookings with house_id - only tourist rentals
+      // Fetch bookings with house_id - only tourist rentals, exclude cancelled
       const { data: bookings } = await supabase
         .from('bookings')
         .select(`
@@ -151,6 +151,7 @@ const CalendarView = () => {
           houses!bookings_house_id_fkey!inner (name, rental_type)
         `)
         .eq('houses.rental_type', 'tourist')
+        .neq('status', BOOKING_STATUS.CANCELLED)
         .gte('check_out', startDate)
         .lte('check_in', endDate);
 

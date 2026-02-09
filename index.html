@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- v12.15 - Remove notes editing from print dialog -->
+    <!-- v12.16 - Filter cancelled bookings from calendar -->
     
     <!-- Service Worker Registration with Auto-Update -->
     <script>
@@ -14,9 +14,9 @@
           window.location.reload();
         });
         
-        navigator.serviceWorker.register('/sw.js?v=12.15')
+        navigator.serviceWorker.register('/sw.js?v=12.16')
           .then(reg => {
-            console.log('[PWA] SW registered v12.15');
+            console.log('[PWA] SW registered v12.16');
             
             // Check for updates immediately
             reg.update();

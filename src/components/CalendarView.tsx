@@ -9,8 +9,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay } from "date-fns";
 
 // Parst "YYYY-MM-DD" als lokales Datum (kein UTC-Offset Problem)
-const parseLocalDate = (dateStr: string): Date => {
-  const [year, month, day] = dateStr.split('-').map(Number);
+const parseLocalDate = (dateStr: string | null | undefined): Date | null => {
+  if (!dateStr) return null;
+  const parts = dateStr.split('-').map(Number);
+  if (parts.length !== 3 || parts.some(isNaN)) return null;
+  const [year, month, day] = parts;
   return new Date(year, month - 1, day);
 };
 import { de, enUS, nl } from "date-fns/locale";
@@ -63,8 +66,8 @@ interface House {
 interface GanttBooking {
   id: string;
   guest_name: string;
-  check_in: Date;
-  check_out: Date;
+  check_in: Date | null;
+  check_out: Date | null;
   house_id: string;
   house_name: string;
 }
@@ -197,6 +200,9 @@ const CalendarView = () => {
         const checkInDate = parseLocalDate(booking.check_in);
         const checkOutDate = parseLocalDate(booking.check_out);
 
+        // Skip bookings with invalid dates
+        if (!checkInDate || !checkOutDate) return;
+
         // Add to Gantt data
         ganttData.push({
           id: booking.id,
@@ -248,10 +254,12 @@ const CalendarView = () => {
 
       // Process service tasks (cleaning)
       serviceTasks?.forEach((task: ServiceTask) => {
+        const taskDate = parseLocalDate(task.scheduled_date);
+        if (!taskDate) return;
         calendarEvents.push({
           id: `cleaning-${task.id}`,
           type: 'cleaning',
-          date: parseLocalDate(task.scheduled_date),
+          date: taskDate,
           title: t('events.cleaning'),
           house: task.houses?.name,
           house_id: task.house_id
@@ -261,10 +269,12 @@ const CalendarView = () => {
       // Process linen orders
       linenOrders?.forEach((order: LinenOrder) => {
         if (order.delivery_date) {
+          const deliveryDate = parseLocalDate(order.delivery_date);
+          if (!deliveryDate) return;
           calendarEvents.push({
             id: `linen-${order.id}`,
             type: 'linen',
-            date: parseLocalDate(order.delivery_date),
+            date: deliveryDate,
             title: t('events.linen'),
             house: order.houses?.name,
             house_id: order.house_id
@@ -414,6 +424,10 @@ const CalendarView = () => {
     const totalDays = ganttDays.length;
     const referenceStart = ganttStart;
     
+    if (!booking.check_in || !booking.check_out) {
+      return { gridColumn: '1 / 2', spanCols: 1, startsBeforeRange: false, endsAfterRange: false };
+    }
+    
     // Grid-Spalten sind 1-basiert
     const startDayRaw = differenceInDays(booking.check_in, referenceStart);
     const endDayRaw = differenceInDays(booking.check_out, referenceStart);
@@ -509,7 +523,7 @@ const CalendarView = () => {
                       {/* Booking bars as grid items */}
                       {bookings.map((booking) => {
                         const gridPos = getGanttGridPosition(booking);
-                        const nights = differenceInDays(booking.check_out, booking.check_in);
+                        const nights = (booking.check_in && booking.check_out) ? differenceInDays(booking.check_out, booking.check_in) : 0;
                         
                         return (
                           <TooltipProvider key={booking.id}>
@@ -542,7 +556,7 @@ const CalendarView = () => {
                                 <div className="space-y-1">
                                   <p className="font-medium">{booking.guest_name}</p>
                                   <p className="text-xs text-muted-foreground">
-                                    {format(booking.check_in, 'd. MMM', { locale: dateLocale })} - {format(booking.check_out, 'd. MMM yyyy', { locale: dateLocale })}
+                                    {booking.check_in ? format(booking.check_in, 'd. MMM', { locale: dateLocale }) : '?'} - {booking.check_out ? format(booking.check_out, 'd. MMM yyyy', { locale: dateLocale }) : '?'}
                                   </p>
                                   <p className="text-xs text-muted-foreground">
                                     {nights} {nights === 1 ? t('gantt.night') : t('gantt.nights')} • {booking.house_name}

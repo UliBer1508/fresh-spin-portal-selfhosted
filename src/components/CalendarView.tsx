@@ -505,85 +505,85 @@ const CalendarView = () => {
                     </div>
 
                     {/* Timeline with bookings - Grid-based */}
-                    <div className="flex-1 grid items-center" style={{ gridTemplateColumns: gridCols }}>
-                      {/* Background grid cells */}
-                      {ganttDays.map((day) => {
-                        const isToday = isSameDay(day, new Date());
-                        const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                        return (
-                          <div
-                            key={day.toISOString()}
-                            className={cn(
-                              "border-r last:border-r-0 h-full",
-                              isToday && "bg-primary/10",
-                              isWeekend && "bg-muted/20"
-                            )}
-                            style={{ gridRow: 1 }}
-                          />
-                        );
-                      })}
+                     <div className="flex-1 relative" style={{ minHeight: isMobile ? '44px' : '60px' }}>
+                       {/* Background grid lines layer (absolute, always visible) */}
+                       <div className="absolute inset-0 grid" style={{ gridTemplateColumns: gridCols, zIndex: 0 }}>
+                         {ganttDays.map((day) => {
+                           const isToday = isSameDay(day, new Date());
+                           const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                           return (
+                             <div
+                               key={day.toISOString()}
+                               className={cn(
+                                 "border-r last:border-r-0 h-full",
+                                 isToday && "bg-primary/10",
+                                 isWeekend && "bg-muted/20"
+                               )}
+                             />
+                           );
+                         })}
+                       </div>
+                       {/* Booking bars layer (on top of grid lines) */}
+                       <div className="absolute inset-0 grid items-center" style={{ gridTemplateColumns: gridCols, zIndex: 1 }}>
+                         {bookings.map((booking) => {
+                           const gridPos = getGanttGridPosition(booking);
+                           const nights = (booking.check_in && booking.check_out) ? differenceInDays(booking.check_out, booking.check_in) : 0;
+                           
+                           return (
+                             <TooltipProvider key={booking.id}>
+                               <Tooltip>
+                                 <TooltipTrigger asChild>
+                                   <div
+                                     className={cn(
+                                       "h-6 md:h-8 rounded-md flex items-center px-1 md:px-2 cursor-pointer hover:opacity-90 transition-opacity mx-0.5",
+                                       "border border-white/40 shadow-md",
+                                       houseColor.bg, houseColor.text,
+                                       gridPos.startsBeforeRange && "rounded-l-none",
+                                       gridPos.endsAfterRange && "rounded-r-none"
+                                     )}
+                                     style={{ 
+                                       gridColumn: gridPos.gridColumn, 
+                                       gridRow: 1,
+                                       marginLeft: gridPos.startsBeforeRange ? 0 : `calc(50% / ${gridPos.spanCols})`,
+                                       marginRight: gridPos.endsAfterRange ? 0 : `calc(50% / ${gridPos.spanCols})`,
+                                       width: `calc(100% - ${gridPos.startsBeforeRange ? 0 : 50/gridPos.spanCols}% - ${gridPos.endsAfterRange ? 0 : 50/gridPos.spanCols}%)`
+                                     }}
+                                   >
+                                     <span className="truncate text-[9px] md:text-xs font-medium leading-tight">
+                                       {booking.guest_name}
+                                     </span>
+                                   </div>
+                                 </TooltipTrigger>
+                                 <TooltipContent side="top" className="max-w-xs">
+                                   <div className="space-y-1">
+                                     <p className="font-medium">{booking.guest_name}</p>
+                                     <p className="text-xs text-muted-foreground">
+                                       {booking.check_in ? format(booking.check_in, 'dd.MM.yyyy') : ''} – {booking.check_out ? format(booking.check_out, 'dd.MM.yyyy') : ''}
+                                     </p>
+                                     <p className="text-xs">
+                                       {nights} {nights === 1 ? t('gantt.night') : t('gantt.nights')} • {booking.house_name}
+                                     </p>
+                                   </div>
+                                 </TooltipContent>
+                               </Tooltip>
+                             </TooltipProvider>
+                           );
+                         })}
 
-                      {/* Booking bars as grid items */}
-                      {bookings.map((booking) => {
-                        const gridPos = getGanttGridPosition(booking);
-                        const nights = (booking.check_in && booking.check_out) ? differenceInDays(booking.check_out, booking.check_in) : 0;
-                        
-                        return (
-                          <TooltipProvider key={booking.id}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div
-                                  className={cn(
-                                    "h-6 md:h-8 rounded-md flex items-center px-1 md:px-2 cursor-pointer hover:opacity-90 transition-opacity mx-0.5",
-                                    "border border-white/40 shadow-md",
-                                    houseColor.bg, houseColor.text,
-                                    // Spezielle Ecken wenn Buchung über Monatsgrenzen geht
-                                    gridPos.startsBeforeRange && "rounded-l-none",
-                                    gridPos.endsAfterRange && "rounded-r-none"
-                                  )}
-                                  style={{ 
-                                    gridColumn: gridPos.gridColumn, 
-                                    gridRow: 1,
-                                    // Halbtag-Verschiebung: Start ab Mitte Check-in Tag, Ende bis Mitte Check-out Tag
-                                    marginLeft: gridPos.startsBeforeRange ? 0 : `calc(50% / ${gridPos.spanCols})`,
-                                    marginRight: gridPos.endsAfterRange ? 0 : `calc(50% / ${gridPos.spanCols})`,
-                                    width: `calc(100% - ${gridPos.startsBeforeRange ? 0 : 50/gridPos.spanCols}% - ${gridPos.endsAfterRange ? 0 : 50/gridPos.spanCols}%)`
-                                  }}
-                                >
-                                  <span className="text-[9px] md:text-xs font-medium truncate">
-                                    {booking.guest_name}
-                                  </span>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="max-w-xs">
-                                <div className="space-y-1">
-                                  <p className="font-medium">{booking.guest_name}</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {booking.check_in ? format(booking.check_in, 'd. MMM', { locale: dateLocale }) : '?'} - {booking.check_out ? format(booking.check_out, 'd. MMM yyyy', { locale: dateLocale }) : '?'}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {nights} {nights === 1 ? t('gantt.night') : t('gantt.nights')} • {booking.house_name}
-                                  </p>
-                                </div>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        );
-                      })}
-
-                      {/* Empty state */}
-                      {bookings.length === 0 && (
-                        <div 
-                          className="flex items-center justify-center"
-                          style={{ gridColumn: `1 / -1`, gridRow: 1 }}
-                        >
-                          <span className="text-[10px] md:text-xs text-muted-foreground">{t('gantt.noBookings')}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                         {/* Empty state */}
+                         {bookings.length === 0 && (
+                           <div 
+                             className="flex items-center justify-center"
+                             style={{ gridColumn: `1 / -1`, gridRow: 1 }}
+                           >
+                             <span className="text-[10px] md:text-xs text-muted-foreground">{t('gantt.noBookings')}</span>
+                           </div>
+                         )}
+                       </div>
+                     </div>
+                   </div>
+                 );
+               })}
 
               {/* Empty state if no houses */}
               {houses.length === 0 && (

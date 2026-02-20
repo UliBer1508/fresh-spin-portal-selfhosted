@@ -1,2 +1,2 @@
-// v12.17 - Fix timezone offset for check-in/check-out dates in calendar
-export const APP_VERSION = '12.17.0';
+// v12.18 - Fix parseLocalDate to support ISO timestamps with timezone
+export const APP_VERSION = '12.18.0';

@@ -8,12 +8,15 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay } from "date-fns";
 
-// Parst "YYYY-MM-DD" als lokales Datum (kein UTC-Offset Problem)
+// Parst "YYYY-MM-DD" und "YYYY-MM-DDTHH:mm:ss+00:00" als lokales Datum (kein UTC-Offset Problem)
 const parseLocalDate = (dateStr: string | null | undefined): Date | null => {
   if (!dateStr) return null;
-  const parts = dateStr.split('-').map(Number);
+  // Datumsteil extrahieren (vor dem 'T' bei ISO-Timestamps)
+  const datePart = dateStr.split('T')[0];
+  const parts = datePart.split('-').map(Number);
   if (parts.length !== 3 || parts.some(isNaN)) return null;
   const [year, month, day] = parts;
+  if (year < 2000 || month < 1 || month > 12 || day < 1 || day > 31) return null;
   return new Date(year, month - 1, day);
 };
 import { de, enUS, nl } from "date-fns/locale";

@@ -23,7 +23,8 @@ const PushNotificationSetup = () => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       try {
         const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.getSubscription();
+        const pm = (registration as unknown as { pushManager: { getSubscription: () => Promise<{ unsubscribe: () => Promise<boolean> } | null> } }).pushManager;
+        const subscription = await pm.getSubscription();
         setIsSubscribed(!!subscription);
       } catch (error) {
         console.error('[PushNotification] Error checking subscription:', error);
@@ -66,32 +67,22 @@ const PushNotificationSetup = () => {
 
     try {
       const registration = await navigator.serviceWorker.ready;
+      const pm = (registration as unknown as { pushManager: PushManager }).pushManager;
       
       // Check if already subscribed
-      let subscription = await registration.pushManager.getSubscription();
+      let subscription = await pm.getSubscription();
       
       if (!subscription) {
-        // Subscribe to push notifications
-        // Note: In production, you would use your VAPID public key here
         const vapidKey = urlBase64ToUint8Array(
-          // This is a placeholder VAPID key - replace with your actual key
           'BEl62iUYgUivxIkv69yViEuiBIa-Ib37J8xQmrNcXmMXS4kC5jdlxDGOv2TJLLgCqxOC6aeRjdWMFmfKJLLFkU0'
         );
         
-        subscription = await registration.pushManager.subscribe({
+        subscription = await pm.subscribe({
           userVisibleOnly: true,
           applicationServerKey: vapidKey as BufferSource,
         });
 
-        // In production, send subscription to your backend
         console.log('[PushNotification] Subscription created:', subscription);
-        
-        // You would typically send this to your backend:
-        // await fetch('/api/push-subscription', {
-        //   method: 'POST',
-        //   body: JSON.stringify(subscription),
-        //   headers: { 'Content-Type': 'application/json' }
-        // });
       }
 
       setIsSubscribed(true);
@@ -106,7 +97,8 @@ const PushNotificationSetup = () => {
     try {
       if ('serviceWorker' in navigator) {
         const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.getSubscription();
+        const pm = (registration as unknown as { pushManager: PushManager }).pushManager;
+        const subscription = await pm.getSubscription();
         
         if (subscription) {
           await subscription.unsubscribe();

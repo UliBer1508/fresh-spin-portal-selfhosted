@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- v12.17 - Fix timezone offset for check-in/check-out dates -->
+    <!-- v12.18 - Fix parseLocalDate to support ISO timestamps with timezone -->
     
     <!-- Service Worker Registration with Auto-Update -->
     <script>
@@ -14,9 +14,9 @@
           window.location.reload();
         });
         
-        navigator.serviceWorker.register('/sw.js?v=12.17')
+        navigator.serviceWorker.register('/sw.js?v=12.18')
           .then(reg => {
-            console.log('[PWA] SW registered v12.17');
+            console.log('[PWA] SW registered v12.18');
             
             // Check for updates immediately
             reg.update();

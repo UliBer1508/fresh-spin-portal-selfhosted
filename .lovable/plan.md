@@ -1,78 +1,61 @@
 
-## Problem: Timezone-Verschiebung bei Datumsanzeige im Gantt-Kalender
+## Problem: Buchungen werden nicht angezeigt — `parseLocalDate` versteht ISO-Timestamps nicht
 
 ### Ursache
-In `src/components/CalendarView.tsx` (Zeile 191-192) werden Datum-Strings aus der Datenbank mit `parseISO()` geparst:
-
-```typescript
-const checkInDate = parseISO(booking.check_in);   // "2026-02-03" → 2026-02-03T00:00:00Z (UTC)
-const checkOutDate = parseISO(booking.check_out);
+Die Datenbank gibt `check_in` und `check_out` als vollständige ISO-Timestamps mit Zeitzone zurück:
+```
+"2025-08-09T13:00:00+00:00"
 ```
 
-`parseISO("2026-02-03")` liefert **UTC-Mitternacht**. In der Zeitzone `Europe/Vienna` (UTC+1) wird das lokal als `2026-02-02T23:00:00` dargestellt – also **einen Tag zu früh**. Deshalb erscheinen Check-in und Check-out Tage im Gantt-Chart verschoben.
-
-Das gleiche Problem betrifft auch die Monatsansicht und Wochenansicht bei der Event-Generierung (Check-in/Check-out Events auf den falschen Tagen).
-
-### Lösung: Lokales Datum ohne Zeitzone parsen
-
-Statt `parseISO()` wird ein einfaches Hilfsfunktion eingesetzt, die einen `YYYY-MM-DD` String in ein lokales Datum (Mitternacht Lokalzeit) umwandelt:
+Die aktuelle `parseLocalDate`-Funktion erwartet jedoch nur das Format `YYYY-MM-DD`.  
+Beim Aufteilen nach `-` entsteht als drittes Segment `"09T13:00:00+00:00"`, was `NaN` ergibt:
 
 ```typescript
-// Parst "YYYY-MM-DD" als lokales Datum (kein UTC-Offset Problem)
-const parseLocalDate = (dateStr: string): Date => {
-  const [year, month, day] = dateStr.split('-').map(Number);
+parts.some(isNaN) → true → gibt null zurück
+```
+
+Dadurch greift diese Zeile und **alle Buchungen werden übersprungen**:
+```typescript
+if (!checkInDate || !checkOutDate) return;
+```
+
+### Lösung: `parseLocalDate` für beide Formate robust machen
+
+Die Funktion muss beide Datums-Formate unterstützen:
+- `"2025-08-09"` (Datumsformat — z.B. `delivery_date`, `scheduled_date`)
+- `"2025-08-09T13:00:00+00:00"` (ISO-Timestamp — z.B. `check_in`, `check_out`)
+
+**Neue robuste Implementierung:**
+```typescript
+const parseLocalDate = (dateStr: string | null | undefined): Date | null => {
+  if (!dateStr) return null;
+  
+  // Datumsteil extrahieren (vor dem 'T' bei ISO-Timestamps)
+  const datePart = dateStr.split('T')[0];
+  
+  const parts = datePart.split('-').map(Number);
+  if (parts.length !== 3 || parts.some(isNaN)) return null;
+  
+  const [year, month, day] = parts;
+  if (year < 2000 || month < 1 || month > 12 || day < 1 || day > 31) return null;
+  
   return new Date(year, month - 1, day); // Lokale Mitternacht
 };
 ```
 
-### Betroffene Stellen in `CalendarView.tsx`
+### Warum `.split('T')[0]` die richtige Lösung ist
+- `"2025-08-09T13:00:00+00:00".split('T')[0]` → `"2025-08-09"` ✓
+- `"2025-08-09".split('T')[0]` → `"2025-08-09"` ✓ (unverändert, da kein T vorhanden)
 
-**Zeile 191-192** (Gantt + Calendar Events):
-```typescript
-// VORHER:
-const checkInDate = parseISO(booking.check_in);
-const checkOutDate = parseISO(booking.check_out);
-
-// NACHHER:
-const checkInDate = parseLocalDate(booking.check_in);
-const checkOutDate = parseLocalDate(booking.check_out);
-```
-
-**Zeile 248** (Service Tasks / Cleaning):
-```typescript
-// VORHER:
-date: parseISO(task.scheduled_date),
-
-// NACHHER:
-date: parseLocalDate(task.scheduled_date),
-```
-
-**Zeile ~262** (Linen Orders):
-```typescript
-// VORHER:
-date: parseISO(order.delivery_date),
-
-// NACHHER:
-date: parseLocalDate(order.delivery_date),
-```
-
-### Technische Details
-
-```text
-Beispiel mit UTC+1 (Wien, Berlin, Amsterdam):
-
-parseISO("2026-02-03")
-→ 2026-02-03T00:00:00.000Z (UTC)
-→ Lokal: 2026-02-02T23:00:00+01:00  ← FALSCH (einen Tag zu früh!)
-
-new Date(2026, 1, 3)  // Lokale Mitternacht
-→ 2026-02-03T00:00:00+01:00          ← RICHTIG
-```
-
-### Import bereinigen
-Da `parseISO` nicht mehr benötigt wird, wird es aus dem `date-fns` Import entfernt.
+### Betroffene Datei
+**`src/components/CalendarView.tsx`** — Zeile 12-18: Nur die `parseLocalDate`-Funktion wird geändert.
 
 ### Versions-Update
-- `public/sw.js`: VERSION auf `12.17`
-- `src/lib/version.ts`: APP_VERSION auf `12.17.0`
-- `index.html`: Service Worker auf `?v=12.17`
+- `src/lib/version.ts`: APP_VERSION auf `12.18.0`
+- `public/sw.js`: VERSION auf `12.18`
+- `index.html`: Service Worker auf `?v=12.18`
+
+### Ergebnis
+- Alle Buchungen mit ISO-Timestamp-Datumsfeldern werden korrekt geparst
+- Datumsfelder wie `delivery_date` und `scheduled_date` (reines `YYYY-MM-DD`) funktionieren weiterhin
+- Gantt-Ansicht zeigt wieder alle Buchungen für den gewählten Monat

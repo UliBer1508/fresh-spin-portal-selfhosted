@@ -1,2 +1,2 @@
-// v12.16 - Filter cancelled bookings from calendar view
-export const APP_VERSION = '12.16.0';
+// v12.17 - Fix timezone offset for check-in/check-out dates in calendar
+export const APP_VERSION = '12.17.0';

@@ -6,7 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay } from "date-fns";
+
+// Parst "YYYY-MM-DD" als lokales Datum (kein UTC-Offset Problem)
+const parseLocalDate = (dateStr: string): Date => {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
 import { de, enUS, nl } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -188,8 +194,8 @@ const CalendarView = () => {
 
       // Process bookings
       bookings?.forEach((booking: Booking) => {
-        const checkInDate = parseISO(booking.check_in);
-        const checkOutDate = parseISO(booking.check_out);
+        const checkInDate = parseLocalDate(booking.check_in);
+        const checkOutDate = parseLocalDate(booking.check_out);
 
         // Add to Gantt data
         ganttData.push({
@@ -245,7 +251,7 @@ const CalendarView = () => {
         calendarEvents.push({
           id: `cleaning-${task.id}`,
           type: 'cleaning',
-          date: parseISO(task.scheduled_date),
+          date: parseLocalDate(task.scheduled_date),
           title: t('events.cleaning'),
           house: task.houses?.name,
           house_id: task.house_id
@@ -258,7 +264,7 @@ const CalendarView = () => {
           calendarEvents.push({
             id: `linen-${order.id}`,
             type: 'linen',
-            date: parseISO(order.delivery_date),
+            date: parseLocalDate(order.delivery_date),
             title: t('events.linen'),
             house: order.houses?.name,
             house_id: order.house_id

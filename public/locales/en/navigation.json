@@ -3,6 +3,7 @@
     "bookings": "Bookings",
     "orders": "Orders",
     "calendar": "Calendar",
+    "invoices": "Invoices",
     "staff": "Staff",
     "notifications": "Notifications"
   }

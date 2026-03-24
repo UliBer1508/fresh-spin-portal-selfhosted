@@ -1,56 +1,46 @@
 
+## Plan: Entwurf-Rechnungen per Rechnungsnummer ausblenden (Status beibehalten)
 
-## Plan: Rechnungen-Tab in die Navigation integrieren
+### Kurzdiagnose
+- Aktuell wird in `src/components/InvoiceList.tsx` mit `.neq("status", "Entwurf")` gefiltert.
+- In den echten Daten sind Entwürfe aber `status = "offen"` und an `rechnungsnummer` wie `ENTWURF-...` erkennbar.
+- Dadurch ist Status allein kein verlässlicher Entwurfs-Filter.
+- Gleichzeitig soll der Status wichtig bleiben, damit **nicht bezahlte echte Rechnungen** weiterhin sichtbar sind.
 
-### Ziel
-Neues Tab "Rechnungen" (🧾) in der Tab-Navigation hinzufügen, das alle Rechnungen aus der `laundry_invoices`-Tabelle anzeigt -- formatiert wie im Screenshot (Tabelle mit Rechnungsnr., Datum, Fällig, Betrag, Status, Aktionen).
+### Umsetzung
+1. **Filterlogik in `src/components/InvoiceList.tsx` umstellen**
+   - Status-Filter für Entwurf entfernen.
+   - Stattdessen nach Rechnungsnummer filtern:
+   ```ts
+   .not("rechnungsnummer", "ilike", "ENTWURF-%")
+   ```
+   - `ilike` sorgt dafür, dass auch `entwurf-...`/`Entwurf-...` ausgeschlossen wird.
 
-### Vorhandene Daten
-Die Tabelle `laundry_invoices` existiert bereits mit allen nötigen Feldern:
-- `rechnungsnummer` -- Rechnungsnr.
-- `rechnungsdatum` -- Datum
-- `faelligkeitsdatum` -- Fällig
-- `bruttobetrag` -- Betrag
-- `status` -- Status (z.B. "Bezahlt")
-- `positionen` (JSON) -- Rechnungspositionen für Detailansicht
+2. **Status-Anzeige unverändert lassen**
+   - Badge-Logik bleibt aktiv (bezahlt/offen/überfällig).
+   - Es werden weiterhin alle fachlich relevanten Stati gezeigt; nur Entwurfsnummern fliegen raus.
 
-### Änderungen
+3. **Defensive Absicherung (optional, aber robust)**
+   - Nach dem Fetch zusätzlich clientseitig filtern:
+   - `!inv.rechnungsnummer?.toLowerCase().startsWith("entwurf-")`
+   - Falls Daten mal mit ungewöhnlicher Groß-/Kleinschreibung oder Whitespace zurückkommen.
 
-**1. Neue Komponente: `src/components/InvoiceList.tsx`**
-- Lädt Rechnungen aus `laundry_invoices` via Supabase, sortiert nach `rechnungsdatum` absteigend
-- Tabellenansicht (Desktop) mit Spalten: Rechnungsnr., Datum, Fällig, Betrag, Status, Aktionen
-- Kartenansicht (Mobile) mit gleichen Infos
-- Aktionen: Ansehen (Eye-Icon) oeffnet Detail-Dialog mit Positionen
-- Status-Badge: gruen fuer "Bezahlt", gelb fuer "Offen", rot fuer "Überfällig"
-- Datumsformatierung: DD.MM.YYYY (deutsch)
-- Betragsformatierung: EUR mit Komma-Dezimaltrennzeichen
-
-**2. Datei: `src/components/TabNavigation.tsx`**
-- Neuen Tab hinzufuegen: `{ id: "rechnungen", labelKey: "tabs.invoices", emoji: "🧾" }`
-
-**3. Datei: `src/pages/Index.tsx`**
-- Neuen Case `"rechnungen"` im `renderTabContent()` Switch hinzufuegen
-- `<InvoiceList />` rendern
-
-**4. Übersetzungsdateien**
-- `public/locales/de/navigation.json`: `"invoices": "Rechnungen"`
-- `public/locales/en/navigation.json`: `"invoices": "Invoices"`
-- `public/locales/nl/navigation.json`: `"invoices": "Facturen"`
-
-**5. Versions-Update**
-- `src/lib/version.ts`: APP_VERSION auf `12.19.0`
-- `public/sw.js`: VERSION auf `12.19`
-- `index.html`: Service Worker auf `?v=12.19`
+4. **Cache/Version aktualisieren (PWA-Sichtbarkeit)**
+   - `src/lib/version.ts` → `12.20.0`
+   - `public/sw.js` → `12.20`
+   - `index.html` SW-Query auf `?v=12.20`
+   - Damit die neue Filterlogik sofort in der Vorschau/PWA ankommt.
 
 ### Technische Details
-
-Die Supabase-Abfrage:
-```typescript
-const { data } = await supabase
-  .from('laundry_invoices')
-  .select('*')
-  .order('rechnungsdatum', { ascending: false });
+```ts
+const { data, error } = await supabase
+  .from("laundry_invoices")
+  .select("*")
+  .not("rechnungsnummer", "ilike", "ENTWURF-%")
+  .order("rechnungsdatum", { ascending: false });
 ```
 
-Detail-Dialog zeigt `positionen` (JSON-Array) als Tabelle mit Artikelbezeichnung, Menge, Einzelpreis, Gesamtpreis.
-
+### Erwartetes Ergebnis
+- Alle `ENTWURF-...` Rechnungen werden ausgeblendet.
+- Echte Rechnungen bleiben sichtbar, auch wenn sie **noch nicht bezahlt** sind.
+- Status bleibt für die Anzeige/Einordnung vollständig erhalten.

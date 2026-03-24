@@ -183,6 +183,9 @@ const Index = () => {
       case "kalender":
         return <CalendarView />;
       
+      case "rechnungen":
+        return <InvoiceList />;
+      
       case "waeschekraefte":
         return <LaundryStaffManagement />;
       

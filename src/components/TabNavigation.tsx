@@ -14,6 +14,7 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationPr
   const tabs = [
     { id: "waesche", labelKey: "tabs.bookings", emoji: "🧺" },
     { id: "kalender", labelKey: "tabs.calendar", emoji: "📅" },
+    { id: "rechnungen", labelKey: "tabs.invoices", emoji: "🧾" },
     { id: "waeschekraefte", labelKey: "tabs.staff", emoji: "👥" },
     { id: "benachrichtigungen", labelKey: "tabs.notifications", emoji: "🔔" },
   ];

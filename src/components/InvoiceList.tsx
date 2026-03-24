@@ -56,7 +56,12 @@ const InvoiceList = () => {
         .not("rechnungsnummer", "ilike", "ENTWURF-%")
         .order("rechnungsdatum", { ascending: false });
 
-      if (!error && data) setInvoices(data as Invoice[]);
+      if (!error && data) {
+        const filtered = (data as Invoice[]).filter(
+          inv => !inv.rechnungsnummer?.toLowerCase().startsWith("entwurf-")
+        );
+        setInvoices(filtered);
+      }
       setLoading(false);
     };
     fetchInvoices();

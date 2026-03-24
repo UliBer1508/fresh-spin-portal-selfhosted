@@ -14,9 +14,9 @@
           window.location.reload();
         });
         
-        navigator.serviceWorker.register('/sw.js?v=12.19')
+        navigator.serviceWorker.register('/sw.js?v=12.20')
           .then(reg => {
-            console.log('[PWA] SW registered v12.19');
+            console.log('[PWA] SW registered v12.20');
             
             // Check for updates immediately
             reg.update();

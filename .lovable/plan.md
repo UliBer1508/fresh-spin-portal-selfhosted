@@ -1,61 +1,56 @@
 
-## Problem: Buchungen werden nicht angezeigt — `parseLocalDate` versteht ISO-Timestamps nicht
 
-### Ursache
-Die Datenbank gibt `check_in` und `check_out` als vollständige ISO-Timestamps mit Zeitzone zurück:
-```
-"2025-08-09T13:00:00+00:00"
-```
+## Plan: Rechnungen-Tab in die Navigation integrieren
 
-Die aktuelle `parseLocalDate`-Funktion erwartet jedoch nur das Format `YYYY-MM-DD`.  
-Beim Aufteilen nach `-` entsteht als drittes Segment `"09T13:00:00+00:00"`, was `NaN` ergibt:
+### Ziel
+Neues Tab "Rechnungen" (🧾) in der Tab-Navigation hinzufügen, das alle Rechnungen aus der `laundry_invoices`-Tabelle anzeigt -- formatiert wie im Screenshot (Tabelle mit Rechnungsnr., Datum, Fällig, Betrag, Status, Aktionen).
 
+### Vorhandene Daten
+Die Tabelle `laundry_invoices` existiert bereits mit allen nötigen Feldern:
+- `rechnungsnummer` -- Rechnungsnr.
+- `rechnungsdatum` -- Datum
+- `faelligkeitsdatum` -- Fällig
+- `bruttobetrag` -- Betrag
+- `status` -- Status (z.B. "Bezahlt")
+- `positionen` (JSON) -- Rechnungspositionen für Detailansicht
+
+### Änderungen
+
+**1. Neue Komponente: `src/components/InvoiceList.tsx`**
+- Lädt Rechnungen aus `laundry_invoices` via Supabase, sortiert nach `rechnungsdatum` absteigend
+- Tabellenansicht (Desktop) mit Spalten: Rechnungsnr., Datum, Fällig, Betrag, Status, Aktionen
+- Kartenansicht (Mobile) mit gleichen Infos
+- Aktionen: Ansehen (Eye-Icon) oeffnet Detail-Dialog mit Positionen
+- Status-Badge: gruen fuer "Bezahlt", gelb fuer "Offen", rot fuer "Überfällig"
+- Datumsformatierung: DD.MM.YYYY (deutsch)
+- Betragsformatierung: EUR mit Komma-Dezimaltrennzeichen
+
+**2. Datei: `src/components/TabNavigation.tsx`**
+- Neuen Tab hinzufuegen: `{ id: "rechnungen", labelKey: "tabs.invoices", emoji: "🧾" }`
+
+**3. Datei: `src/pages/Index.tsx`**
+- Neuen Case `"rechnungen"` im `renderTabContent()` Switch hinzufuegen
+- `<InvoiceList />` rendern
+
+**4. Übersetzungsdateien**
+- `public/locales/de/navigation.json`: `"invoices": "Rechnungen"`
+- `public/locales/en/navigation.json`: `"invoices": "Invoices"`
+- `public/locales/nl/navigation.json`: `"invoices": "Facturen"`
+
+**5. Versions-Update**
+- `src/lib/version.ts`: APP_VERSION auf `12.19.0`
+- `public/sw.js`: VERSION auf `12.19`
+- `index.html`: Service Worker auf `?v=12.19`
+
+### Technische Details
+
+Die Supabase-Abfrage:
 ```typescript
-parts.some(isNaN) → true → gibt null zurück
+const { data } = await supabase
+  .from('laundry_invoices')
+  .select('*')
+  .order('rechnungsdatum', { ascending: false });
 ```
 
-Dadurch greift diese Zeile und **alle Buchungen werden übersprungen**:
-```typescript
-if (!checkInDate || !checkOutDate) return;
-```
+Detail-Dialog zeigt `positionen` (JSON-Array) als Tabelle mit Artikelbezeichnung, Menge, Einzelpreis, Gesamtpreis.
 
-### Lösung: `parseLocalDate` für beide Formate robust machen
-
-Die Funktion muss beide Datums-Formate unterstützen:
-- `"2025-08-09"` (Datumsformat — z.B. `delivery_date`, `scheduled_date`)
-- `"2025-08-09T13:00:00+00:00"` (ISO-Timestamp — z.B. `check_in`, `check_out`)
-
-**Neue robuste Implementierung:**
-```typescript
-const parseLocalDate = (dateStr: string | null | undefined): Date | null => {
-  if (!dateStr) return null;
-  
-  // Datumsteil extrahieren (vor dem 'T' bei ISO-Timestamps)
-  const datePart = dateStr.split('T')[0];
-  
-  const parts = datePart.split('-').map(Number);
-  if (parts.length !== 3 || parts.some(isNaN)) return null;
-  
-  const [year, month, day] = parts;
-  if (year < 2000 || month < 1 || month > 12 || day < 1 || day > 31) return null;
-  
-  return new Date(year, month - 1, day); // Lokale Mitternacht
-};
-```
-
-### Warum `.split('T')[0]` die richtige Lösung ist
-- `"2025-08-09T13:00:00+00:00".split('T')[0]` → `"2025-08-09"` ✓
-- `"2025-08-09".split('T')[0]` → `"2025-08-09"` ✓ (unverändert, da kein T vorhanden)
-
-### Betroffene Datei
-**`src/components/CalendarView.tsx`** — Zeile 12-18: Nur die `parseLocalDate`-Funktion wird geändert.
-
-### Versions-Update
-- `src/lib/version.ts`: APP_VERSION auf `12.18.0`
-- `public/sw.js`: VERSION auf `12.18`
-- `index.html`: Service Worker auf `?v=12.18`
-
-### Ergebnis
-- Alle Buchungen mit ISO-Timestamp-Datumsfeldern werden korrekt geparst
-- Datumsfelder wie `delivery_date` und `scheduled_date` (reines `YYYY-MM-DD`) funktionieren weiterhin
-- Gantt-Ansicht zeigt wieder alle Buchungen für den gewählten Monat

@@ -53,6 +53,7 @@ const InvoiceList = () => {
       const { data, error } = await supabase
         .from("laundry_invoices")
         .select("*")
+        .neq("status", "Entwurf")
         .order("rechnungsdatum", { ascending: false });
 
       if (!error && data) setInvoices(data as Invoice[]);

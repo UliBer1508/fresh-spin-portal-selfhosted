@@ -2451,6 +2451,7 @@ export type Database = {
           pricing_config: Json | null
           property_type: string | null
           rental_type: string | null
+          scrape_search_params: Json | null
           tenant_info: Json | null
           updated_at: string | null
         }
@@ -2483,6 +2484,7 @@ export type Database = {
           pricing_config?: Json | null
           property_type?: string | null
           rental_type?: string | null
+          scrape_search_params?: Json | null
           tenant_info?: Json | null
           updated_at?: string | null
         }
@@ -2515,6 +2517,7 @@ export type Database = {
           pricing_config?: Json | null
           property_type?: string | null
           rental_type?: string | null
+          scrape_search_params?: Json | null
           tenant_info?: Json | null
           updated_at?: string | null
         }
@@ -3002,9 +3005,13 @@ export type Database = {
           created_at: string
           currency: string
           final_price_7nights: number | null
+          guests_adults: number | null
+          guests_children: number | null
           house_id: string | null
           id: string
           markup_percentage: number | null
+          nights: number | null
+          platform_source: string | null
           scraped_at: string | null
           source: string
           updated_at: string
@@ -3017,9 +3024,13 @@ export type Database = {
           created_at?: string
           currency?: string
           final_price_7nights?: number | null
+          guests_adults?: number | null
+          guests_children?: number | null
           house_id?: string | null
           id?: string
           markup_percentage?: number | null
+          nights?: number | null
+          platform_source?: string | null
           scraped_at?: string | null
           source?: string
           updated_at?: string
@@ -3032,9 +3043,13 @@ export type Database = {
           created_at?: string
           currency?: string
           final_price_7nights?: number | null
+          guests_adults?: number | null
+          guests_children?: number | null
           house_id?: string | null
           id?: string
           markup_percentage?: number | null
+          nights?: number | null
+          platform_source?: string | null
           scraped_at?: string | null
           source?: string
           updated_at?: string
@@ -3341,6 +3356,100 @@ export type Database = {
           },
         ]
       }
+      pricelabs_listings: {
+        Row: {
+          base_price: number | null
+          created_at: string
+          health_score: string | null
+          house_id: string
+          id: string
+          last_synced_at: string | null
+          listing_name: string | null
+          max_price: number | null
+          min_price: number | null
+          pms_name: string | null
+          pricelabs_listing_id: string
+          updated_at: string
+        }
+        Insert: {
+          base_price?: number | null
+          created_at?: string
+          health_score?: string | null
+          house_id: string
+          id?: string
+          last_synced_at?: string | null
+          listing_name?: string | null
+          max_price?: number | null
+          min_price?: number | null
+          pms_name?: string | null
+          pricelabs_listing_id: string
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number | null
+          created_at?: string
+          health_score?: string | null
+          house_id?: string
+          id?: string
+          last_synced_at?: string | null
+          listing_name?: string | null
+          max_price?: number | null
+          min_price?: number | null
+          pms_name?: string | null
+          pricelabs_listing_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricelabs_listings_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricelabs_market_data: {
+        Row: {
+          created_at: string
+          data_date: string
+          fetched_at: string
+          house_id: string
+          id: string
+          neighborhood_data: Json | null
+          pricelabs_listing_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_date?: string
+          fetched_at?: string
+          house_id: string
+          id?: string
+          neighborhood_data?: Json | null
+          pricelabs_listing_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_date?: string
+          fetched_at?: string
+          house_id?: string
+          id?: string
+          neighborhood_data?: Json | null
+          pricelabs_listing_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricelabs_market_data_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -3517,6 +3626,59 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      rental_price_analysis: {
+        Row: {
+          analysis_date: string
+          avg_rent: number | null
+          comparable_count: number | null
+          created_at: string
+          house_id: string
+          id: string
+          max_rent: number | null
+          min_rent: number | null
+          price_per_sqm: number | null
+          search_params: Json | null
+          sources: Json | null
+          updated_at: string
+        }
+        Insert: {
+          analysis_date?: string
+          avg_rent?: number | null
+          comparable_count?: number | null
+          created_at?: string
+          house_id: string
+          id?: string
+          max_rent?: number | null
+          min_rent?: number | null
+          price_per_sqm?: number | null
+          search_params?: Json | null
+          sources?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          analysis_date?: string
+          avg_rent?: number | null
+          comparable_count?: number | null
+          created_at?: string
+          house_id?: string
+          id?: string
+          max_rent?: number | null
+          min_rent?: number | null
+          price_per_sqm?: number | null
+          search_params?: Json | null
+          sources?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_price_analysis_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       route_cache: {
         Row: {

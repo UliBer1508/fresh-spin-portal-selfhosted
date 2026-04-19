@@ -50,16 +50,19 @@ const InvoiceList = () => {
 
   useEffect(() => {
     const fetchInvoices = async () => {
-      const { data, error } = await supabase
+      const { data, error, count } = await supabase
         .from("laundry_invoices")
-        .select("*")
-        .not("rechnungsnummer", "ilike", "ENTWURF-%")
-        .order("rechnungsdatum", { ascending: false });
+        .select("*", { count: "exact" })
+        .order("rechnungsdatum", { ascending: false })
+        .limit(5000);
+
+      console.log("[InvoiceList] fetched rows:", data?.length, "total in DB:", count, "error:", error);
 
       if (!error && data) {
         const filtered = (data as Invoice[]).filter(
           inv => !inv.rechnungsnummer?.toLowerCase().startsWith("entwurf-")
         );
+        console.log("[InvoiceList] after filter:", filtered.length, "invoices");
         setInvoices(filtered);
       }
       setLoading(false);

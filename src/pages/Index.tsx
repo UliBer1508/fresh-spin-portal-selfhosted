@@ -71,8 +71,63 @@ const Index = () => {
       console.log('[Cleanup] Removed old localStorage settings keys');
     }
   }, []);
-  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
-  const [filteredStandaloneOrders, setFilteredStandaloneOrders] = useState<LinenOrder[]>([]);
+  // Helper: get week range (Monday-Sunday)
+  const getWeekRange = (weekOffset: number) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dayOfWeek = today.getDay();
+    const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - mondayOffset + weekOffset * 7);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 7);
+    return { weekStart, weekEnd };
+  };
+
+  // Transform bookings: one entry per linen_order, then apply quickFilter
+  const filteredBookings = useMemo(() => {
+    const expanded = bookings.flatMap((booking) => {
+      const orders = booking.linen_orders || [];
+      if (orders.length === 0) return [];
+      return orders.map((order, index) => ({
+        ...booking,
+        linen_orders: [order],
+        _orderIndex: index,
+      }));
+    });
+
+    if (!quickFilter) return expanded;
+
+    if (quickFilter.type === "house") {
+      return expanded.filter((b) => b.houses?.name === quickFilter.value);
+    }
+    if (quickFilter.type === "thisWeek" || quickFilter.type === "nextWeek") {
+      const { weekStart, weekEnd } = getWeekRange(quickFilter.type === "thisWeek" ? 0 : 1);
+      return expanded.filter((b) => {
+        const order = b.linen_orders?.[0];
+        const d = order?.delivery_date ? new Date(order.delivery_date) : new Date(b.check_in);
+        return d >= weekStart && d < weekEnd;
+      });
+    }
+    return expanded;
+  }, [bookings, quickFilter]);
+
+  const filteredStandaloneOrders = useMemo(() => {
+    if (!standaloneOrders) return [];
+    if (!quickFilter) return standaloneOrders;
+    if (quickFilter.type === "house") {
+      return standaloneOrders.filter((o) => o.houses?.name === quickFilter.value);
+    }
+    if (quickFilter.type === "thisWeek" || quickFilter.type === "nextWeek") {
+      const { weekStart, weekEnd } = getWeekRange(quickFilter.type === "thisWeek" ? 0 : 1);
+      return standaloneOrders.filter((o) => {
+        if (!o.delivery_date) return false;
+        const d = new Date(o.delivery_date);
+        return d >= weekStart && d < weekEnd;
+      });
+    }
+    return standaloneOrders;
+  }, [standaloneOrders, quickFilter]);
 
   // Group filtered (one-per-order) bookings back by booking id for grouped rendering
   const groupedBookings = useMemo(() => {

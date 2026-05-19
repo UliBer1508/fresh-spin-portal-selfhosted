@@ -620,27 +620,29 @@ const CalendarView = () => {
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="icon"
                     onClick={goToPrevious}
-                    className="h-8 px-2 md:h-9 md:px-3"
+                    aria-label="Vorheriger Zeitraum"
+                    className="h-11 w-11 rounded-full shadow-sm active:scale-95 transition-transform md:h-10 md:w-10"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-5 h-5" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={goToToday}
-                    className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
+                    className="h-11 px-4 text-sm rounded-full shadow-sm active:scale-95 transition-transform md:h-10 md:px-4"
                   >
                     {t('navigation.today')}
                   </Button>
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="icon"
                     onClick={goToNext}
-                    className="h-8 px-2 md:h-9 md:px-3"
+                    aria-label="Nächster Zeitraum"
+                    className="h-11 w-11 rounded-full shadow-sm active:scale-95 transition-transform md:h-10 md:w-10"
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-5 h-5" />
                   </Button>
                 </div>
               </div>

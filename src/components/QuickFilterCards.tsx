@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Home, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Booking, LinenOrder } from "@/hooks/useBookings";
+import { Booking } from "@/hooks/useBookings";
 
 export type QuickFilter =
   | { type: "house"; value: string }

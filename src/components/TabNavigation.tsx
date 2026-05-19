@@ -58,44 +58,47 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationPr
           </div>
         </div>
 
-        {/* Mobile Layout - Icon-Only Horizontal */}
-        <div className="md:hidden py-2">
-          <div className="flex justify-around w-full">
-            {tabs.map((tab) => {
-              const label = t(tab.labelKey);
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => onTabChange(tab.id)}
-                  className={cn(
-                    "flex flex-col items-center justify-center w-14 h-14 rounded-full transition-colors relative",
-                    activeTab === tab.id
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <span 
-                    className={cn(
-                      "text-2xl relative",
-                      tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
-                    )} 
-                    role="img" 
-                    aria-label={label}
-                  >
-                    {tab.emoji}
-                    {tab.id === "benachrichtigungen" && hasNewOrders && (
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                    )}
-                  </span>
-                  {activeTab === tab.id && (
-                    <span className="absolute bottom-2 w-6 h-0.5 bg-primary rounded-full" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
       </div>
+
+      {/* Mobile Layout - Fixed Bottom Navigation */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-t border-border shadow-[0_-2px_8px_rgba(0,0,0,0.04)]"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className="flex justify-around w-full px-1 pt-1.5 pb-1">
+          {tabs.map((tab) => {
+            const label = t(tab.labelKey);
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={cn(
+                  "flex flex-col items-center justify-center flex-1 min-w-0 py-1 gap-0.5 transition-colors",
+                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <span
+                  className={cn(
+                    "text-2xl relative leading-none",
+                    tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
+                  )}
+                  role="img"
+                  aria-label={label}
+                >
+                  {tab.emoji}
+                  {tab.id === "benachrichtigungen" && hasNewOrders && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  )}
+                </span>
+                <span className={cn("text-[11px] font-medium truncate max-w-full", isActive && "font-semibold")}>
+                  {label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 };

@@ -299,6 +299,16 @@ const Index = () => {
       <PWAInstallPrompt />
       <PWAUpdatePrompt />
       <PortalChat isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      <NotificationSettingsDialog
+        open={notifSettingsOpen}
+        onOpenChange={setNotifSettingsOpen}
+      />
+      <OrderNotificationDialog
+        open={orderAlertOpen}
+        onOpenChange={setOrderAlertOpen}
+        booking={alertBooking}
+        viewSettings={viewSettings}
+      />
       <Toaster />
       <Sonner />
     </div>

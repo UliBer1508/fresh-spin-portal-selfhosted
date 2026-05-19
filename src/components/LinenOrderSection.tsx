@@ -370,8 +370,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                         onClick={() => handleEditNotes(order)}
                         className="w-full text-left p-2 sm:p-3 rounded-lg bg-accent-strong hover:brightness-95 shadow-sm transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
                       >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-accent-strong-foreground text-xs sm:text-sm font-bold truncate">
+                        <div className="flex items-center gap-2">
+                          <span className="text-accent-strong-foreground text-xs sm:text-sm font-bold truncate text-left">
                             {order.notes 
 
                               ? (order.notes.length > 50 
@@ -396,7 +396,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     <Button
                       size="sm"
                       onClick={() => handleOpenPrintDialog(order)}
-                      className="w-full no-print min-h-[40px] sm:min-h-[44px] bg-accent-strong text-accent-strong-foreground hover:brightness-95 shadow-sm"
+                      className="w-full no-print min-h-[40px] sm:min-h-[44px] bg-accent-strong text-accent-strong-foreground hover:brightness-95 shadow-sm justify-start text-left"
                     >
                       Drucken
                     </Button>
@@ -422,7 +422,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                         type="button"
                         onClick={() => toggleItems(order.id)}
                         aria-expanded={!isCollapsed}
-                        className="w-full p-2 sm:p-3 rounded-lg bg-accent-strong hover:brightness-95 shadow-sm transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px] text-accent-strong-foreground text-xs sm:text-sm font-bold text-center"
+                        className="w-full p-2 sm:p-3 rounded-lg bg-accent-strong hover:brightness-95 shadow-sm transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px] text-accent-strong-foreground text-xs sm:text-sm font-bold text-left"
                       >
                         Anzeigen ({getTotalItems(order.items as Record<string, number>)})
                       </button>

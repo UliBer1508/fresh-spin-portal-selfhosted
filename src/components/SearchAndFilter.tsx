@@ -36,6 +36,7 @@ interface SearchAndFilterProps {
   onViewSettingsChange: (settings: ViewSettings) => void;
   showButtonOnMobile?: boolean;
   onShowButtonOnMobileChange?: (value: boolean) => void;
+  quickFilter?: QuickFilter;
 }
 
 const SearchAndFilter = ({ 
@@ -46,7 +47,8 @@ const SearchAndFilter = ({
   viewSettings, 
   onViewSettingsChange,
   showButtonOnMobile,
-  onShowButtonOnMobileChange
+  onShowButtonOnMobileChange,
+  quickFilter,
 }: SearchAndFilterProps) => {
   const { t } = useTranslation('orders');
   const [searchQuery, setSearchQuery] = useState("");

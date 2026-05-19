@@ -2,6 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
 import { usePortalMessages } from "@/hooks/usePortalMessages";
+import { usePendingOrderCount } from "@/hooks/usePendingOrderCount";
 import { Home, Calendar, Receipt, Bell, MessageCircle, type LucideIcon } from "lucide-react";
 
 interface TabNavigationProps {
@@ -21,6 +22,7 @@ interface TabDef {
 const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNotificationSettingsOpen }: TabNavigationProps) => {
   const { t } = useTranslation('navigation');
   const { unreadCount } = usePortalMessages();
+  const pendingOrders = usePendingOrderCount();
 
   const tabs: TabDef[] = [
     { id: "waesche", labelKey: "tabs.bookings", icon: Home },

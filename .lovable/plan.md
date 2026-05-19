@@ -1,15 +1,17 @@
 ## Ziel
-Wäschebestellungs-Bereich = eine einzige grüne Karte (wie die blaue Reinigungskarte im Beispiel). Kein Kasten im Kasten mehr.
+Die Wäschebestellungs-Karte soll den gleichen grünen Hintergrund haben wie die Buttons darin (`bg-accent`), damit sie als grüne Karte erkennbar ist.
 
-## Änderungen
+## Änderung
 
-**1. `src/components/BookingCard.tsx` (Zeile 64)**
-Äußere Buchungskarte bekommt grünen Hintergrund statt gelb:
-- `bg-yellow-50` → `bg-accent`
+**`src/components/LinenOrderSection.tsx`** (Zeile 246)
 
-**2. `src/components/LinenOrderSection.tsx` (Zeile 246)**
-Innerer Wrapper verliert eigenen Hintergrund / Rahmen / Padding — wird ein flacher Block innerhalb der bereits grünen Karte:
-- `bg-accent rounded-lg p-3 sm:p-4 mb-3` → `mb-3`
+Wrapper-Div der Wäschebestellung von:
+```
+<div key={order.id} className="mb-3">
+```
+zu:
+```
+<div key={order.id} className="bg-accent rounded-lg p-3 sm:p-4 mb-3">
+```
 
-## Ergebnis
-Eine durchgehend grüne Karte mit dem farbigen Rand links, analog zur Reinigungskarte. Innenstruktur (Lieferdatum, Status, Notizen, Artikel) bleibt unverändert.
+Die Buchungskarte (außen) bleibt unverändert. Nur der Wäsche-Block wird wieder grün hinterlegt.

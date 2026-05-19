@@ -243,7 +243,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
         )}
         
         {linenOrders.map((order) => (
-          <div key={order.id} className="mb-3">
+          <div key={order.id} className="bg-accent rounded-lg p-3 sm:p-4 mb-3">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               
               {/* ========== LINKE SPALTE - Metadaten & Aktionen ========== */}

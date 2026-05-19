@@ -61,7 +61,7 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
 
   return (
     <Card
-      className={`w-full hover:shadow-md transition-shadow border-border bg-accent border-l-8 ${getBookingColor(
+      className={`w-full hover:shadow-md transition-shadow border-border bg-yellow-50 border-l-8 ${getBookingColor(
         booking.id,
       )}`}
     >

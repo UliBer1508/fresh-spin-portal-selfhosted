@@ -747,15 +747,18 @@ const CalendarView = () => {
                   const dayEvents = getEventsByDate(date);
                   const isToday = isSameDay(date, new Date());
                   const isCurrentMonth = view === 'month' ? format(date, 'M') === format(currentDate, 'M') : true;
+                  const isOccupied = dayEvents.some(e => e.type === 'occupied' || e.type === 'check-in' || e.type === 'check-out');
 
                   return (
                     <div
                       key={date.toISOString()}
                       className={cn(
                         view === 'month' ? "min-h-[80px] md:min-h-[120px]" : "min-h-[120px] md:min-h-[150px]",
-                        "p-1 md:p-2 border-r border-b last:border-r-0 cursor-pointer hover:bg-accent/10",
-                        isToday && "bg-accent/20",
-                        !isCurrentMonth && "text-muted-foreground bg-muted/20"
+                        "p-1 md:p-2 border-r border-b last:border-r-0 cursor-pointer transition-colors",
+                        "bg-blue-50 hover:bg-blue-100",
+                        isOccupied && "bg-blue-200 hover:bg-blue-300",
+                        isToday && "ring-2 ring-primary ring-inset",
+                        !isCurrentMonth && "text-muted-foreground opacity-60"
                       )}
                       onClick={() => handleDayClick(date)}
                     >

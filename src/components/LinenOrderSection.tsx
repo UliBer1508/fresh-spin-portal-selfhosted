@@ -243,8 +243,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                       {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
                         <button
                           onClick={() => handleEditDelivery(order)}
-                          className="w-full sm:w-auto text-left p-3 rounded-lg border border-border bg-background 
-                                   hover:bg-accent hover:border-accent-foreground transition-colors 
+                          className="w-full text-left p-3 rounded-lg border border-border bg-accent 
+                                   hover:brightness-95 transition-all 
                                    cursor-pointer touch-manipulation min-h-[44px]"
                         >
                           <div className="flex items-center justify-between gap-2">
@@ -328,7 +328,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                           }
                         }}
                       >
-                        <SelectTrigger className="w-full min-h-[44px] touch-manipulation">
+                        <SelectTrigger className="w-full min-h-[44px] touch-manipulation bg-accent border-border">
                           <SelectValue placeholder={t('labels.assignStaff')} />
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
@@ -372,8 +372,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     <div>
                       <button
                         onClick={() => handleEditNotes(order)}
-                        className="w-full text-left p-3 rounded-lg border border-border bg-background 
-                                   hover:bg-accent hover:border-accent-foreground transition-colors 
+                        className="w-full text-left p-3 rounded-lg border border-border bg-accent 
+                                   hover:brightness-95 transition-all 
                                    cursor-pointer touch-manipulation min-h-[44px]"
                       >
                         <div className="flex items-center justify-between gap-2">
@@ -399,7 +399,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     variant="outline"
                     size="sm"
                     onClick={() => handleOpenPrintDialog(order)}
-                    className="w-full sm:w-auto no-print"
+                    className="w-full bg-accent border-border hover:brightness-95 no-print min-h-[44px]"
                   >
                     🖨️ {t('labels.printDeliveryNote')}
                   </Button>

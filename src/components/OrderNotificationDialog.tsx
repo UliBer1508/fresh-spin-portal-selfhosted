@@ -17,7 +17,7 @@ const OrderNotificationDialog = ({ open, onOpenChange, booking, viewSettings }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[88vw] max-w-sm rounded-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>🔔 Neue Wäschebestellung</DialogTitle>
         </DialogHeader>

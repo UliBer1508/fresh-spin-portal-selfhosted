@@ -162,7 +162,7 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
           {matchingCleaning && (
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-foreground">
+              <span className="text-foreground text-sm font-bold">
                 {t("common:dates.cleaningDate")}: {formatDate(matchingCleaning.scheduled_date)}
               </span>
             </div>

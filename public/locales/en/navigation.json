@@ -1,13 +1,10 @@
 {
   "tabs": {
-    "dashboard": "Dashboard",
     "bookings": "Bookings",
     "orders": "Orders",
     "calendar": "Calendar",
     "invoices": "Invoices",
     "staff": "Staff",
-    "notifications": "Notifications",
-    "messages": "Messages",
-    "settings": "Settings"
+    "notifications": "Notifications"
   }
 }

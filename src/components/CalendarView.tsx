@@ -263,7 +263,7 @@ const CalendarView = () => {
       });
 
       // Process service tasks (cleaning)
-      serviceTasks?.forEach((task: ServiceTask) => {
+      serviceTasks?.forEach((task: any) => {
         const taskDate = parseLocalDate(task.scheduled_date);
         if (!taskDate) return;
         calendarEvents.push({
@@ -272,12 +272,14 @@ const CalendarView = () => {
           date: taskDate,
           title: t('events.cleaning'),
           house: task.houses?.name,
-          house_id: task.house_id
+          house_id: task.house_id,
+          time: task.scheduled_time ? String(task.scheduled_time).slice(0, 5) : undefined,
+          status: task.status || undefined,
         });
       });
 
       // Process linen orders
-      linenOrders?.forEach((order: LinenOrder) => {
+      linenOrders?.forEach((order: any) => {
         if (order.delivery_date) {
           const deliveryDate = parseLocalDate(order.delivery_date);
           if (!deliveryDate) return;
@@ -287,7 +289,9 @@ const CalendarView = () => {
             date: deliveryDate,
             title: t('events.linen'),
             house: order.houses?.name,
-            house_id: order.house_id
+            house_id: order.house_id,
+            time: order.delivery_time ? String(order.delivery_time).slice(0, 5) : undefined,
+            status: order.status || undefined,
           });
         }
       });

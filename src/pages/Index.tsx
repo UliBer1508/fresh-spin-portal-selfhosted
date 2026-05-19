@@ -190,11 +190,12 @@ const Index = () => {
                     <p className="text-muted-foreground">Keine Buchungen gefunden.</p>
                   </div>
                 ) : filteredBookings.length > 0 && (
-                  <div className="space-y-4">
-                    {filteredBookings.map((booking) => (
-                      <BookingCard 
-                        key={booking.id} 
-                        booking={booking} 
+                  <div className="space-y-6">
+                    {groupedBookings.map((g) => (
+                      <BookingWithOrdersGroup
+                        key={g.booking.id}
+                        booking={g.booking}
+                        orders={g.orders}
                         viewSettings={viewSettings}
                         onUpdate={refetch}
                       />

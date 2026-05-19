@@ -4,5 +4,8 @@
     "cancelled": "Storniert",
     "pending": "Ausstehend",
     "unknown": "Unbekannt"
+  },
+  "labels": {
+    "booking": "Buchung"
   }
 }

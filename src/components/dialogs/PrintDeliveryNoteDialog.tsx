@@ -22,13 +22,11 @@ interface PrintDeliveryNoteDialogProps {
 const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintDeliveryNoteDialogProps) => {
   const [isPrinting, setIsPrinting] = useState(false);
 
-  // Cleanup print container when dialog closes
+  // Cleanup print iframe when dialog closes
   useEffect(() => {
     if (!open) {
-      const existingContainer = document.getElementById('print-container');
-      if (existingContainer) {
-        existingContainer.remove();
-      }
+      const existing = document.getElementById('print-iframe');
+      if (existing) existing.remove();
     }
   }, [open]);
 

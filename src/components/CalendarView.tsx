@@ -856,6 +856,56 @@ const CalendarView = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Day-Detail Dialog */}
+      <Dialog open={mobileDayOpen} onOpenChange={setMobileDayOpen}>
+        <DialogContent className="md:hidden w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] max-h-[80vh] overflow-y-auto rounded-3xl p-5 border-0 shadow-2xl">
+          <DialogHeader className="text-left pr-10">
+            <DialogTitle className="text-base font-semibold">
+              {selectedDate ? format(selectedDate, 'EEEE, d. MMMM', { locale: dateLocale }) : ''}
+            </DialogTitle>
+            <DialogClose className="absolute right-3 top-3 w-11 h-11 rounded-full flex items-center justify-center hover:bg-muted active:scale-95 transition-transform">
+              <X className="w-5 h-5" />
+              <span className="sr-only">Schließen</span>
+            </DialogClose>
+          </DialogHeader>
+          <div className="mt-3 space-y-2">
+            {getSelectedDateEvents().length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">
+                {t('sidebar.noEvents')}
+              </p>
+            ) : (
+              getSelectedDateEvents().map((event) => (
+                <div
+                  key={event.id}
+                  className="flex items-start gap-3 rounded-xl border border-border bg-card p-3"
+                >
+                  <div className={cn("w-1 self-stretch rounded-full", getEventIconColor(event))} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", getEventIconColor(event))} />
+                      <span className="font-medium text-sm truncate text-foreground">{event.title}</span>
+                    </div>
+                    {event.guest && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {t('sidebar.guest')}: {event.guest}
+                      </p>
+                    )}
+                    {event.house && (
+                      <p className="text-xs text-muted-foreground">{event.house}</p>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <DialogClose asChild>
+            <Button variant="outline" className="w-full h-11 mt-4 rounded-full">
+              Schließen
+            </Button>
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

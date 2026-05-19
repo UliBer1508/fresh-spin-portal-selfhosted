@@ -113,6 +113,7 @@ export const useBookings = (onNewOrder?: () => void) => {
           )
         `)
         .not('linen_orders', 'is', null)
+        .gte('check_out', new Date().toISOString().split('T')[0])
         .order('check_in', { ascending: true });
 
       if (bookingsError) throw bookingsError;

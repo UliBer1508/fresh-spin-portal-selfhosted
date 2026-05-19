@@ -1,30 +1,22 @@
 ## Problem
-Aktuell stecken zwei Karten ineinander:
-- Außen: `LinenOrderCard` mit weißem `bg-card` + Padding + farbiger linker Rand
-- Innen: in `LinenOrderSection` (Zeile 246) ein grünes `bg-accent rounded-lg p-3 sm:p-4` Kästchen
+In `src/hooks/useBookings.ts` werden aktuell **alle** Buchungen mit Wäschebestellungen geladen – inklusive abgeschlossener Buchungen aus dem letzten Jahr. Es gibt keinen Datumsfilter.
 
-Ergebnis: grüne Karte schwebt mit weißem Rand innerhalb der äußeren weißen Karte → Karte-in-Karte.
+## Lösung
+Nur Buchungen anzeigen, deren **Check-Out heute oder in der Zukunft** liegt. Damit:
+- laufende Aufenthalte (Gäste schon eingecheckt) bleiben sichtbar
+- zukünftige Buchungen bleiben sichtbar
+- vergangene/abgeschlossene Buchungen verschwinden aus der Liste
 
-## Ziel
-Eine einzige Wäschebestell-Karte: außen grün, klar getrennt von der Buchungskarte darüber (die Trennung passiert ohnehin schon in `BookingWithOrdersGroup` durch `space-y-3` plus die "Wäschebestellungen zu dieser Buchung"-Überschrift).
+## Änderung
 
-## Änderungen
+**`src/hooks/useBookings.ts`** (Zeile 115)
 
-**1. `src/components/LinenOrderCard.tsx` (Zeile 18)**
-Äußere Karte selbst grün machen:
+Vor dem `.order(...)` einen Filter ergänzen:
+```ts
+.gte('check_out', new Date().toISOString().split('T')[0])
 ```
-<Card className={`w-full border-border bg-accent border-l-8 ${borderColor}`}>
-```
-(`bg-card` → `bg-accent`)
 
-**2. `src/components/LinenOrderSection.tsx` (Zeile 246)**
-Inneren grünen Wrapper wieder entfernen, da die Farbe jetzt von außen kommt:
-```
-<div key={order.id} className="mb-3">
-```
-(`bg-accent rounded-lg p-3 sm:p-4 mb-3` → `mb-3`)
+Damit lädt Supabase nur Buchungen mit `check_out >= heute`. Die nachgelagerte Filterung auf `linen_orders.length > 0` bleibt unverändert.
 
-## Ergebnis
-- Buchungskarte: bisheriges Aussehen (z.B. gelblich)
-- Darunter: Zähler-Überschrift "N Wäschebestellungen zu dieser Buchung"
-- Darunter: eine flache grüne Wäschebestell-Karte ohne Karte-in-Karte-Optik
+## Hinweis
+Falls du lieber nur **zukünftige** Buchungen sehen willst (also Check-In ab heute, laufende Aufenthalte ausgeblendet), würde ich stattdessen `check_in` filtern. Sag Bescheid, falls das gemeint war.

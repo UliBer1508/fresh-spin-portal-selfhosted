@@ -272,7 +272,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <PWAStatusBar />
-      <div className="pt-12 md:pt-0 flex-1">
+      <div className="flex-1">
       <Header 
         viewSettings={viewSettings}
         onSettingsChange={handleSettingsChange}

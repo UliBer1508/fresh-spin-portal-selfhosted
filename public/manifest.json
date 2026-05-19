@@ -2,15 +2,18 @@
   "name": "Teuni Wäscheportal",
   "short_name": "Wäscheportal",
   "description": "Verwalten Sie alle Wäscheaufträge für Ihre Gäste",
-  "start_url": "/?v=12.3",
+  "start_url": "/?v=12.20",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#10b981",
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "de",
-  "categories": ["business", "utilities"],
-  "version": "12.3",
+  "categories": [
+    "business",
+    "utilities"
+  ],
+  "version": "12.20",
   "screenshots": [
     {
       "src": "/icons/screenshot-wide.png",
@@ -20,7 +23,7 @@
       "label": "Wäscheportal Dashboard"
     },
     {
-      "src": "/icons/screenshot-narrow.png", 
+      "src": "/icons/screenshot-narrow.png",
       "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow",
@@ -36,7 +39,7 @@
     },
     {
       "src": "/icons/icon-96x96.png",
-      "sizes": "96x96", 
+      "sizes": "96x96",
       "type": "image/png",
       "purpose": "maskable any"
     },
@@ -65,7 +68,7 @@
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-384x384.png", 
+      "src": "/icons/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "maskable any"

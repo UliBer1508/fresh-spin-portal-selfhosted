@@ -265,10 +265,10 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                         <div className="flex-1 min-w-0">
                           <button
                             onClick={() => handleEditDelivery(order)}
-                            className="w-full text-left p-2 sm:p-3 rounded-lg bg-primary hover:bg-primary/90 shadow-sm transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
+                            className="w-full text-left p-2 sm:p-3 rounded-lg bg-accent-strong hover:brightness-95 shadow-sm transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
                           >
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-primary-foreground text-xs sm:text-sm font-bold">
+                              <span className="text-accent-strong-foreground text-xs sm:text-sm font-bold">
                                 {formatDateTime(
                                   viewSettings.showDeliveryDate ? order.delivery_date : undefined,
                                   viewSettings.showDeliveryTime ? order.delivery_time : undefined
@@ -368,10 +368,10 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     <div className="flex-1 min-w-0">
                       <button
                         onClick={() => handleEditNotes(order)}
-                        className="w-full text-left p-2 sm:p-3 rounded-lg bg-primary hover:bg-primary/90 shadow-sm transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
+                        className="w-full text-left p-2 sm:p-3 rounded-lg bg-accent-strong hover:brightness-95 shadow-sm transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-primary-foreground text-xs sm:text-sm font-bold truncate">
+                          <span className="text-accent-strong-foreground text-xs sm:text-sm font-bold truncate">
                             {order.notes 
 
                               ? (order.notes.length > 50 
@@ -396,7 +396,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     <Button
                       size="sm"
                       onClick={() => handleOpenPrintDialog(order)}
-                      className="w-full no-print min-h-[40px] sm:min-h-[44px]"
+                      className="w-full no-print min-h-[40px] sm:min-h-[44px] bg-accent-strong text-accent-strong-foreground hover:brightness-95 shadow-sm"
                     >
                       Drucken
                     </Button>

@@ -340,7 +340,7 @@ const SearchAndFilter = ({
       >
         <div className="flex items-center space-x-2">
           <span className="text-lg">🔍</span>
-          <span className="text-lg">🔽</span>
+          
           <h3 className="font-semibold text-foreground">{t('common:actions.search')} & Filter</h3>
         </div>
         <span className="text-2xl transition-transform duration-200" style={{ transform: isFilterOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>

@@ -798,40 +798,8 @@ const CalendarView = () => {
 
         {/* Sidebar - hide in Gantt view on mobile */}
         <div className={cn("w-full lg:w-80 space-y-4 lg:space-y-6", view === 'gantt' && "hidden lg:block")}>
-          {/* Selected Date Events */}
-          {selectedDate && view !== 'gantt' && (
-            <div className="bg-background border rounded-lg p-3 md:p-4">
-              <h3 className="font-medium mb-3 text-sm md:text-base">
-                {t('sidebar.eventsFor', { date: format(selectedDate, 'd. MMMM', { locale: dateLocale }) })}
-              </h3>
-              {getSelectedDateEvents().length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {t('sidebar.noEvents')}
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {getSelectedDateEvents().map((event) => (
-                    <div key={event.id} className="border-l-4 border-l-primary pl-3">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <div className={cn("w-3 h-3 rounded", getEventIconColor(event))}></div>
-                        <span className="font-medium text-sm">{event.title}</span>
-                      </div>
-                      {event.guest && (
-                        <p className="text-sm text-muted-foreground">
-                          {t('sidebar.guest')}: {event.guest}
-                        </p>
-                      )}
-                      {event.house && (
-                        <p className="text-sm text-muted-foreground">
-                          {event.house}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+
+
 
           {/* Date Picker */}
           <div className="bg-background border rounded-lg p-3 md:p-4">

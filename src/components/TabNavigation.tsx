@@ -19,7 +19,7 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNot
     { id: "waesche", labelKey: "tabs.bookings", emoji: "🧺" },
     { id: "kalender", labelKey: "tabs.calendar", emoji: "📅" },
     { id: "rechnungen", labelKey: "tabs.invoices", emoji: "🧾" },
-    { id: "waeschekraefte", labelKey: "tabs.staff", emoji: "👥" },
+    
     { id: "benachrichtigungen", labelKey: "tabs.notifications", emoji: "🔔" },
   ];
 

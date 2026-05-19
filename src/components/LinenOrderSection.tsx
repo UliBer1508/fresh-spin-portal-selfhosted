@@ -366,8 +366,9 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                                    cursor-pointer touch-manipulation min-h-[44px]"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-sm text-foreground truncate">
+                          <span className="text-foreground text-sm font-bold truncate">
                             {order.notes 
+
                               ? (order.notes.length > 50 
                                   ? order.notes.substring(0, 50) + '...' 
                                   : order.notes)

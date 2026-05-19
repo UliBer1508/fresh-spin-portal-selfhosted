@@ -237,7 +237,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                                    cursor-pointer touch-manipulation min-h-[44px]"
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-sm text-foreground">
+                            <span className="text-foreground text-sm font-bold">
                               {formatDateTime(
                                 viewSettings.showDeliveryDate ? order.delivery_date : undefined,
                                 viewSettings.showDeliveryTime ? order.delivery_time : undefined

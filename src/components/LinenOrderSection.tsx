@@ -247,7 +247,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               
               {/* ========== LINKE SPALTE - Metadaten & Aktionen ========== */}
-              <div className="space-y-4">
+              <div className="space-y-2">
                 
                 {/* Lieferung mit Bearbeiten-Button */}
                 {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (

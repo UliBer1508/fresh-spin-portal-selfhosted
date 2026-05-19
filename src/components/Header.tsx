@@ -48,9 +48,6 @@ const Header = ({
         </div>
         
         <div className="flex items-center space-x-3">
-          {/* Language Switcher */}
-          <LanguageSwitcher />
-          
           {/* Chat Button (Desktop only - mobile has it in bottom tab nav) */}
           <div className="hidden md:block">
             <ChatButton onClick={() => onChatOpen?.()} unreadCount={unreadCount} />

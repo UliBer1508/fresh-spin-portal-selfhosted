@@ -1,20 +1,13 @@
 ## Ziel
-Platz im Header sparen, indem die Sprachauswahl in den Benachrichtigungs-Dialog wandert und die obere PWA-Statusleiste nur noch bei Offline oder verfügbarem Update sichtbar ist.
+Den Header-Bereich mit Logo (🧺) und Titel „Teuni Wäscheportal" entfernen, um Platz zu sparen. PWA-relevante Felder (App-Name beim Installieren, Icon, Splash) bleiben unverändert, da sie aus `manifest.json` und `index.html`-Metadaten stammen — nicht aus dem Header.
 
 ## Änderungen
 
-### 1. PWA-Statusleiste (`src/components/PWAStatusBar.tsx`)
-- Sichtbarkeitslogik anpassen: Komponente rendert nur noch, wenn `!isOnline` **oder** `updateAvailable === true`.
-- Mobile-immer-anzeigen-Verhalten entfernen (kein `isMobile`-State mehr nötig).
-- Inhalt bleibt unverändert (Offline-Hinweis bzw. „Aktualisiere…"-Badge).
-
-### 2. Sprachauswahl in Benachrichtigungs-Dialog verschieben
-- `src/components/NotificationSettingsDialog.tsx`: Neuen Abschnitt „Sprache" unterhalb der bestehenden Einstellungen hinzufügen, dort `<LanguageSwitcher />` einbinden (mit Trenner/Überschrift im gleichen Stil wie die anderen Felder).
-- `src/components/Header.tsx`: Import und Verwendung von `LanguageSwitcher` entfernen.
-
-### 3. Memory-Update
-- `mem://features/pwa-status-bar` aktualisieren: Status-Leiste erscheint nur noch bei Offline / Update; vorherige „auf Mobile immer sichtbar"-Regel entfernen.
+### `src/components/Header.tsx`
+- Linken Block (Icon-Quadrat + `h1` Titel + Versionstext) entfernen.
+- Verbleibende rechte Seite (Chat-Button auf Desktop + ⚙️-ViewSettings) bleibt erhalten.
+- Wenn auf Mobile dadurch ein leerer Header sichtbar wäre, gesamte `<header>`-Leiste auf Mobile ausblenden (`hidden md:block`), sodass mobil direkt mit dem Inhalt gestartet wird; auf Desktop kompakte Leiste mit `justify-end`.
 
 ## Nicht-Ziele
-- Funktionalität der Sprachumschaltung bleibt identisch (gleiche Komponente, gleiches Verhalten).
-- Keine Änderungen am PWA-Service-Worker, Update-Mechanismus oder anderen Header-Elementen (Logo, Titel, Chat, ⚙️).
+- Keine Änderung an `public/manifest.json`, `index.html` oder den PWA-Icons → installierte App heißt weiterhin „Teuni Wäscheportal" mit Basket-Icon.
+- Keine Änderung an Sprachauswahl, Chat-Logik oder ⚙️-Einstellungen.

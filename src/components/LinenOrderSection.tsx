@@ -308,7 +308,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {viewSettings.showAssignedStaff && (
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg">👤</span>
+                      <User className="w-5 h-5 text-foreground" strokeWidth={2} />
                       <span className="text-sm font-semibold text-foreground">{t('labels.assigned')}</span>
                     </div>
                     

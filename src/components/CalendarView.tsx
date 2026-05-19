@@ -1,10 +1,11 @@
 // v12 - Full i18n Translation Support
 import { useState, useEffect, useRef, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, Sparkles, Shirt, LogIn, LogOut, BedDouble, ChevronRight as ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay } from "date-fns";
 
@@ -35,6 +36,8 @@ interface CalendarEvent {
   house?: string;
   house_id?: string;
   guest?: string;
+  time?: string;
+  status?: string;
 }
 
 interface Booking {
@@ -92,6 +95,7 @@ const CalendarView = () => {
   const { t, i18n } = useTranslation('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [dayDialogOpen, setDayDialogOpen] = useState(false);
   const [view, setView] = useState<'month' | 'week' | 'gantt'>(() => {
     const saved = localStorage.getItem('calendar-view');
     return (saved === 'month' || saved === 'week' || saved === 'gantt') ? saved : 'gantt';
@@ -173,6 +177,8 @@ const CalendarView = () => {
         .select(`
           id,
           scheduled_date,
+          scheduled_time,
+          status,
           service_type,
           house_id,
           houses!service_tasks_house_id_fkey!inner (name, rental_type)
@@ -188,6 +194,8 @@ const CalendarView = () => {
         .select(`
           id,
           delivery_date,
+          delivery_time,
+          status,
           house_id,
           houses!linen_orders_house_id_fkey!inner (name, rental_type)
         `)
@@ -256,7 +264,7 @@ const CalendarView = () => {
       });
 
       // Process service tasks (cleaning)
-      serviceTasks?.forEach((task: ServiceTask) => {
+      serviceTasks?.forEach((task: any) => {
         const taskDate = parseLocalDate(task.scheduled_date);
         if (!taskDate) return;
         calendarEvents.push({
@@ -265,12 +273,14 @@ const CalendarView = () => {
           date: taskDate,
           title: t('events.cleaning'),
           house: task.houses?.name,
-          house_id: task.house_id
+          house_id: task.house_id,
+          time: task.scheduled_time ? String(task.scheduled_time).slice(0, 5) : undefined,
+          status: task.status || undefined,
         });
       });
 
       // Process linen orders
-      linenOrders?.forEach((order: LinenOrder) => {
+      linenOrders?.forEach((order: any) => {
         if (order.delivery_date) {
           const deliveryDate = parseLocalDate(order.delivery_date);
           if (!deliveryDate) return;
@@ -280,7 +290,9 @@ const CalendarView = () => {
             date: deliveryDate,
             title: t('events.linen'),
             house: order.houses?.name,
-            house_id: order.house_id
+            house_id: order.house_id,
+            time: order.delivery_time ? String(order.delivery_time).slice(0, 5) : undefined,
+            status: order.status || undefined,
           });
         }
       });
@@ -309,6 +321,7 @@ const CalendarView = () => {
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
+    setDayDialogOpen(true);
   };
 
   // Get event color - for occupied events use house color
@@ -785,40 +798,8 @@ const CalendarView = () => {
 
         {/* Sidebar - hide in Gantt view on mobile */}
         <div className={cn("w-full lg:w-80 space-y-4 lg:space-y-6", view === 'gantt' && "hidden lg:block")}>
-          {/* Selected Date Events */}
-          {selectedDate && view !== 'gantt' && (
-            <div className="bg-background border rounded-lg p-3 md:p-4">
-              <h3 className="font-medium mb-3 text-sm md:text-base">
-                {t('sidebar.eventsFor', { date: format(selectedDate, 'd. MMMM', { locale: dateLocale }) })}
-              </h3>
-              {getSelectedDateEvents().length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {t('sidebar.noEvents')}
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {getSelectedDateEvents().map((event) => (
-                    <div key={event.id} className="border-l-4 border-l-primary pl-3">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <div className={cn("w-3 h-3 rounded", getEventIconColor(event))}></div>
-                        <span className="font-medium text-sm">{event.title}</span>
-                      </div>
-                      {event.guest && (
-                        <p className="text-sm text-muted-foreground">
-                          {t('sidebar.guest')}: {event.guest}
-                        </p>
-                      )}
-                      {event.house && (
-                        <p className="text-sm text-muted-foreground">
-                          {event.house}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+
+
 
           {/* Date Picker */}
           <div className="bg-background border rounded-lg p-3 md:p-4">
@@ -893,6 +874,69 @@ const CalendarView = () => {
           </div>
         </div>
       </div>
+
+      {/* Day details popup */}
+      <Dialog open={dayDialogOpen} onOpenChange={setDayDialogOpen}>
+        <DialogContent className="max-w-md rounded-2xl p-5">
+          <DialogHeader className="space-y-1 text-left">
+            <DialogTitle className="text-xl font-bold">
+              {selectedDate ? format(selectedDate, 'EEEE', { locale: dateLocale }) : ''}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              {selectedDate ? format(selectedDate, 'd. MMMM yyyy', { locale: dateLocale }) : ''}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-3 space-y-2">
+            {selectedDate && getSelectedDateEvents().length === 0 && (
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                {t('sidebar.noEvents')}
+              </p>
+            )}
+            {selectedDate && getSelectedDateEvents().map((event) => {
+              const IconCmp =
+                event.type === 'cleaning' ? Sparkles :
+                event.type === 'linen' ? Shirt :
+                event.type === 'check-in' ? LogIn :
+                event.type === 'check-out' ? LogOut :
+                BedDouble;
+              const statusLower = (event.status || '').toLowerCase();
+              const statusDotColor =
+                statusLower.includes('geliefert') || statusLower.includes('delivered') || statusLower.includes('abgeschlossen') || statusLower.includes('completed') || statusLower.includes('done')
+                  ? 'bg-emerald-500'
+                  : statusLower.includes('offen') || statusLower.includes('open') || statusLower.includes('pending')
+                  ? 'bg-amber-500'
+                  : 'bg-blue-500';
+              return (
+                <div
+                  key={event.id}
+                  className="flex items-center gap-3 bg-card border rounded-xl p-3"
+                >
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <IconCmp className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm truncate">
+                      {event.house || event.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap mt-0.5">
+                      <span>{event.title}</span>
+                      {event.time && <><span>·</span><span>{event.time}</span></>}
+                      {event.status && (
+                        <>
+                          <span className={cn('inline-block w-1.5 h-1.5 rounded-full ml-1', statusDotColor)} />
+                          <span>{event.status}</span>
+                        </>
+                      )}
+                      {event.guest && <><span>·</span><span className="truncate">{event.guest}</span></>}
+                    </div>
+                  </div>
+                  <ChevronRightIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                </div>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

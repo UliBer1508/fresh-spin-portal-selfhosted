@@ -205,7 +205,7 @@ export const useBookings = (onNewOrder?: () => void) => {
 
   return { 
     bookings,
-    standaloneOrders,
+    
     loading, 
     error, 
     isOnline,

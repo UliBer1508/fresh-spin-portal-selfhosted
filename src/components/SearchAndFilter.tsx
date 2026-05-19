@@ -182,8 +182,28 @@ const SearchAndFilter = ({
       });
     }
 
+    // Quick filter
+    if (quickFilter) {
+      if (quickFilter.type === "house") {
+        filtered = filtered.filter(
+          (booking) => booking.houses?.name === quickFilter.value,
+        );
+      } else if (quickFilter.type === "thisWeek" || quickFilter.type === "nextWeek") {
+        const { weekStart, weekEnd } = getWeekRange(
+          quickFilter.type === "thisWeek" ? 0 : 1,
+        );
+        filtered = filtered.filter((booking) => {
+          const linenOrder = booking.linen_orders?.[0];
+          const d = linenOrder?.delivery_date
+            ? new Date(linenOrder.delivery_date)
+            : new Date(booking.check_in);
+          return d >= weekStart && d < weekEnd;
+        });
+      }
+    }
+
     return filtered;
-  }, [bookingsWithIndividualOrders, searchQuery, statusFilter, houseFilter, timeFilter, staffFilter]);
+  }, [bookingsWithIndividualOrders, searchQuery, statusFilter, houseFilter, timeFilter, staffFilter, quickFilter]);
 
   // Filter für Standalone-Bestellungen
   const filteredStandaloneOrders = useMemo(() => {

@@ -1,5 +1,6 @@
-// v8 - Mehrsprachig mit i18n
+// v9 - Mehrsprachig + einklappbare Artikelliste
 import { useState, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -33,6 +34,16 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
   const [printDialogOpen, setPrintDialogOpen] = useState(false);
   const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
+  const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set());
+
+  const toggleItems = (orderId: string) => {
+    setCollapsedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(orderId)) next.delete(orderId);
+      else next.add(orderId);
+      return next;
+    });
+  };
 
   // Fetch laundry staff for assignment dropdown
   useEffect(() => {
@@ -396,77 +407,94 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
               </div>
 
               {/* ========== RECHTE SPALTE - Artikel Tabelle ========== */}
-              {viewSettings.showOrderItems && (
+              {viewSettings.showOrderItems && (() => {
+                const isCollapsed = collapsedItems.has(order.id);
+                return (
                 <div className="space-y-3">
-                  {/* Sticky Header auf Mobile */}
-                  <div className="flex items-center justify-between sticky top-0 bg-accent py-2 -mx-3 px-3 sm:static sm:bg-transparent sm:p-0 sm:m-0 z-10 lg:static lg:bg-transparent lg:p-0 lg:m-0">
+                  {/* Toggle Header */}
+                  <button
+                    type="button"
+                    onClick={() => toggleItems(order.id)}
+                    className="flex w-full items-center justify-between py-2 touch-manipulation min-h-[44px]"
+                    aria-expanded={!isCollapsed}
+                  >
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">📋</span>
                       <span className="text-sm font-semibold text-foreground">
                         {t('labels.items')}
                       </span>
                     </div>
-                    <Badge variant="secondary" className="ml-2">
-                      {getTotalItems(order.items as Record<string, number>)} {t('labels.total')}
-                    </Badge>
-                  </div>
-                  
-                  {/* Artikel-Tabelle mit Mobile-optimiertem Design */}
-                  <div className="bg-background rounded-lg border border-border overflow-hidden shadow-sm">
-                    {Object.values(order.items as Record<string, number>).some(qty => qty > 0) ? (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="py-2 px-3 sm:px-4 text-left text-sm font-semibold text-foreground">
-                              {t('labels.items')}
-                            </TableHead>
-                            <TableHead className="py-2 px-3 sm:px-4 text-left text-sm font-semibold text-foreground">
-                              {t('labels.color')}
-                            </TableHead>
-                            <TableHead className="py-2 px-3 sm:px-4 text-right text-sm font-semibold text-foreground">
-                              {t('labels.quantity')}
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {LINEN_ORDER
-                            .filter(key => {
-                              const items = order.items as Record<string, number>;
-                              return items[key] && items[key] > 0;
-                            })
-                            .map(key => {
-                              const items = order.items as Record<string, number>;
-                              const quantity = items[key];
-                              return (
-                                <TableRow 
-                                  key={key} 
-                                  className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
-                                >
-                                  <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
-                                    {t(`linenItems.${key}`, { defaultValue: getLinenLabel(key) })}
-                                  </TableCell>
-                                  <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
-                                    {getItemColor(order, key)}
-                                  </TableCell>
-                                  <TableCell className="py-3 px-3 sm:px-4 text-right">
-                                    <Badge variant="outline" className="font-semibold tabular-nums">
-                                      {quantity}×
-                                    </Badge>
-                                  </TableCell>
-                                </TableRow>
-                              );
-                            })
-                          }
-                        </TableBody>
-                      </Table>
-                    ) : (
-                      <div className="p-4 text-center text-sm text-muted-foreground">
-                        {t('labels.noItems')}
-                      </div>
-                    )}
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">
+                        {getTotalItems(order.items as Record<string, number>)} {t('labels.total')}
+                      </Badge>
+                      <ChevronDown
+                        className={`w-5 h-5 text-muted-foreground transition-transform ${
+                          isCollapsed ? '' : 'rotate-180'
+                        }`}
+                      />
+                    </div>
+                  </button>
+
+                  {/* Artikel-Tabelle – einklappbar, transparenter Hintergrund */}
+                  {!isCollapsed && (
+                    <div className="rounded-lg border border-border overflow-hidden bg-transparent">
+                      {Object.values(order.items as Record<string, number>).some(qty => qty > 0) ? (
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="py-2 px-3 sm:px-4 text-left text-sm font-semibold text-foreground">
+                                {t('labels.items')}
+                              </TableHead>
+                              <TableHead className="py-2 px-3 sm:px-4 text-left text-sm font-semibold text-foreground">
+                                {t('labels.color')}
+                              </TableHead>
+                              <TableHead className="py-2 px-3 sm:px-4 text-right text-sm font-semibold text-foreground">
+                                {t('labels.quantity')}
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {LINEN_ORDER
+                              .filter(key => {
+                                const items = order.items as Record<string, number>;
+                                return items[key] && items[key] > 0;
+                              })
+                              .map(key => {
+                                const items = order.items as Record<string, number>;
+                                const quantity = items[key];
+                                return (
+                                  <TableRow
+                                    key={key}
+                                    className="border-b border-border last:border-0 hover:bg-black/5 transition-colors"
+                                  >
+                                    <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
+                                      {t(`linenItems.${key}`, { defaultValue: getLinenLabel(key) })}
+                                    </TableCell>
+                                    <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
+                                      {getItemColor(order, key)}
+                                    </TableCell>
+                                    <TableCell className="py-3 px-3 sm:px-4 text-right">
+                                      <Badge variant="outline" className="font-semibold tabular-nums bg-background">
+                                        {quantity}×
+                                      </Badge>
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })
+                            }
+                          </TableBody>
+                        </Table>
+                      ) : (
+                        <div className="p-4 text-center text-sm text-muted-foreground">
+                          {t('labels.noItems')}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              )}
+                );
+              })()}
 
             </div>
           </div>

@@ -8,8 +8,6 @@ import CalendarView from "@/components/CalendarView";
 import LaundryStaffManagement from "@/components/LaundryStaffManagement";
 
 import InvoiceList from "@/components/InvoiceList";
-import PWAInstallPrompt from "@/components/PWAInstallPrompt";
-import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import PWAStatusBar from "@/components/PWAStatusBar";
 import PortalChat from "@/components/PortalChat";
 import Footer from "@/components/Footer";
@@ -296,8 +294,6 @@ const Index = () => {
 
       <Footer />
 
-      <PWAInstallPrompt />
-      <PWAUpdatePrompt />
       <PortalChat isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       <NotificationSettingsDialog
         open={notifSettingsOpen}

@@ -155,9 +155,9 @@ const ViewSettingsDialog = ({
         </Button>
       </div>
 
-      {/* Buchungsdetails */}
+      {/* Bestelldetails */}
       <div className="space-y-2">
-        <h3 className="font-medium text-base">Buchungsdetails</h3>
+        <h3 className="font-medium text-base">Bestelldetails</h3>
         <div className="bg-muted/30 rounded-lg p-4 space-y-1">
           <SettingRow
             label="Unterkunftsname"
@@ -170,8 +170,8 @@ const ViewSettingsDialog = ({
             settingKey="showAccommodationAddress"
           />
           <SettingRow
-            label="Buchungsstatus"
-            description="Status der Buchung (Bestätigt, Storniert, etc.)"
+            label="Bestellstatus"
+            description="Status der Bestellung (Bestätigt, Storniert, etc.)"
             settingKey="showBookingStatus"
           />
           <SettingRow
@@ -181,7 +181,7 @@ const ViewSettingsDialog = ({
           />
           <SettingRow
             label="Gästeanzahl"
-            description="Anzahl der Personen in der Buchung"
+            description="Anzahl der Personen in der Bestellung"
             settingKey="showGuestCount"
           />
           <SettingRow

@@ -1,10 +1,9 @@
 // v12.4 - Copyright Footer + Cache Fix
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 
 import BookingWithOrdersGroup from "@/components/BookingWithOrdersGroup";
-import StandaloneOrderCard from "@/components/StandaloneOrderCard";
 import CalendarView from "@/components/CalendarView";
 import LaundryStaffManagement from "@/components/LaundryStaffManagement";
 import NotificationSettings from "@/components/NotificationSettings";
@@ -20,7 +19,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { Package } from "lucide-react";
 import QuickFilterCards, { QuickFilter } from "@/components/QuickFilterCards";
 
 const Index = () => {
@@ -29,7 +27,7 @@ const Index = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState<QuickFilter>(null);
   
-  const { bookings, standaloneOrders, loading, error, refetch } = useBookings(() => {
+  const { bookings, loading, error, refetch } = useBookings(() => {
     setHasNewOrders(true);
     toast.info("Neue Bestellung eingegangen!");
   });
@@ -110,24 +108,6 @@ const Index = () => {
     return filtered;
   }, [bookingsWithIndividualOrders, quickFilter]);
 
-  // Apply quick filter to standalone orders
-  const filteredStandaloneOrders = useMemo(() => {
-    let filtered = standaloneOrders;
-    if (quickFilter) {
-      if (quickFilter.type === "house") {
-        filtered = filtered.filter((o) => o.houses?.name === quickFilter.value);
-      } else if (quickFilter.type === "thisWeek" || quickFilter.type === "nextWeek") {
-        const { weekStart, weekEnd } = getWeekRange(quickFilter.type === "thisWeek" ? 0 : 1);
-        filtered = filtered.filter((o) => {
-          if (!o.delivery_date) return false;
-          const d = new Date(o.delivery_date);
-          return d >= weekStart && d < weekEnd;
-        });
-      }
-    }
-    return filtered;
-  }, [standaloneOrders, quickFilter]);
-
   // Group filtered (one-per-order) bookings back by booking id for grouped rendering
   const groupedBookings = useMemo(() => {
     const map = new Map<string, { booking: Booking; orders: LinenOrder[] }>();
@@ -191,7 +171,6 @@ const Index = () => {
           <div className="space-y-6">
             <QuickFilterCards
               bookings={bookings}
-              standaloneOrders={standaloneOrders}
               value={quickFilter}
               onChange={setQuickFilter}
             />
@@ -205,46 +184,22 @@ const Index = () => {
               <div className="text-center py-8 text-destructive">
                 <p>Fehler beim Laden der Buchungen: {error}</p>
               </div>
+            ) : filteredBookings.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Keine Buchungen gefunden.</p>
+              </div>
             ) : (
-              <>
-                {/* Standalone Orders Section */}
-                {filteredStandaloneOrders.length > 0 && (
-                  <div className="mb-6">
-                    <h2 className="text-base font-semibold mb-3 flex items-center gap-2 text-foreground">
-                      <Package className="w-5 h-5 text-orange-500" />
-                      Einzelbestellungen ({filteredStandaloneOrders.length})
-                    </h2>
-                    <div className="space-y-4">
-                      {filteredStandaloneOrders.map((order) => (
-                        <StandaloneOrderCard 
-                          key={order.id} 
-                          order={order} 
-                          onUpdate={refetch}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Bookings with Linen Orders */}
-                {filteredBookings.length === 0 && standaloneOrders.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">Keine Buchungen gefunden.</p>
-                  </div>
-                ) : filteredBookings.length > 0 && (
-                  <div className="space-y-6">
-                    {groupedBookings.map((g) => (
-                      <BookingWithOrdersGroup
-                        key={g.booking.id}
-                        booking={g.booking}
-                        orders={g.orders}
-                        viewSettings={viewSettings}
-                        onUpdate={refetch}
-                      />
-                    ))}
-                  </div>
-                )}
-              </>
+              <div className="space-y-6">
+                {groupedBookings.map((g) => (
+                  <BookingWithOrdersGroup
+                    key={g.booking.id}
+                    booking={g.booking}
+                    orders={g.orders}
+                    viewSettings={viewSettings}
+                    onUpdate={refetch}
+                  />
+                ))}
+              </div>
             )}
           </div>
         );

@@ -1,6 +1,6 @@
 // v9 - Mehrsprachig + einklappbare Artikelliste
 import { useState, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Calendar, BarChart3, User, FileText, Printer, ClipboardList, Shirt } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

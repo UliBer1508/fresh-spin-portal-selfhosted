@@ -34,6 +34,9 @@ All colors MUST be HSL.
     --accent: 142 76% 92%;  /* Very light green */
     --accent-foreground: 142 76% 20%;
 
+    --accent-strong: 142 50% 78%;  /* Slightly darker than accent for clickable elements */
+    --accent-strong-foreground: 142 76% 18%;
+
     --success: 142 76% 36%;  /* Green for success states */
     --success-foreground: 0 0% 100%;
 

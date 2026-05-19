@@ -412,7 +412,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     aria-expanded={!isCollapsed}
                   >
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg">📋</span>
+                      <ClipboardList className="w-5 h-5 text-foreground" strokeWidth={2} />
                       <span className="text-sm font-semibold text-foreground">
                         {t('labels.items')}
                       </span>

@@ -1,7 +1,8 @@
-// v9 - Passende Reinigung pro Wäschebestellung
+// v10 - New layout matching reference: icon tile, address row, guest row, check-in/out subcards
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Home, MapPin, User, Users, Calendar, Sparkles } from "lucide-react";
 import LinenOrderSection from "./LinenOrderSection";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking } from "@/hooks/useBookings";
@@ -15,20 +16,16 @@ interface BookingCardProps {
 }
 
 const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
-  const { t, i18n } = useTranslation(['common', 'bookings']);
+  const { t, i18n } = useTranslation(["common", "bookings"]);
 
-  // Finde die passende Reinigung basierend auf dem Lieferdatum der aktuellen Wäschebestellung
   const matchingCleaning = useMemo(() => {
-    const cleaningTasks = booking.service_tasks?.filter(task => task.service_type === 'cleaning') || [];
+    const cleaningTasks =
+      booking.service_tasks?.filter((task) => task.service_type === "cleaning") || [];
     if (cleaningTasks.length === 0) return null;
     if (cleaningTasks.length === 1) return cleaningTasks[0];
-
     const currentOrder = booking.linen_orders?.[0];
     if (!currentOrder?.delivery_date) return cleaningTasks[0];
-
     const deliveryDate = new Date(currentOrder.delivery_date).getTime();
-
-    // Finde die Reinigung mit geringstem Abstand zum Lieferdatum
     return cleaningTasks.reduce((closest, task) => {
       const taskDiff = Math.abs(deliveryDate - new Date(task.scheduled_date).getTime());
       const closestDiff = Math.abs(deliveryDate - new Date(closest.scheduled_date).getTime());
@@ -50,40 +47,42 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
   };
 
   const getStatusText = (status: string) => {
-    const normalizedStatus = status?.toLowerCase() || 'unknown';
-    return t(`bookings:status.${normalizedStatus}`, { defaultValue: status || t('common:unknown') });
+    const normalizedStatus = status?.toLowerCase() || "unknown";
+    return t(`bookings:status.${normalizedStatus}`, {
+      defaultValue: status || t("common:unknown"),
+    });
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(i18n.language);
-  };
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString(i18n.language);
 
-  const getBookingColor = (bookingId: string) => {
-    return getColorByHash(BOOKING_COLORS, bookingId);
-  };
+  const getBookingColor = (bookingId: string) =>
+    getColorByHash(BOOKING_COLORS, bookingId);
 
   return (
-    <Card className={`w-full hover:shadow-md transition-shadow border-border bg-yellow-50 border-l-8 ${getBookingColor(booking.id)}`}>
-      <CardContent className="p-6">
+    <Card
+      className={`w-full hover:shadow-md transition-shadow border-border bg-yellow-50 border-l-8 ${getBookingColor(
+        booking.id,
+      )}`}
+    >
+      <CardContent className="p-4 sm:p-6">
         <div className="space-y-4">
-          {/* Header with accommodation and status */}
-          {(viewSettings.showAccommodationName || viewSettings.showAccommodationAddress || viewSettings.showBookingStatus) && (
-            <div className="flex items-start justify-between">
-              {(viewSettings.showAccommodationName || viewSettings.showAccommodationAddress) && (
-                <div className="space-y-1">
-                  {viewSettings.showAccommodationName && (
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg">📍</span>
-                      <h3 className="font-semibold text-lg text-foreground">
-                        {booking.houses?.name || t('common:unknown')}
-                      </h3>
-                    </div>
-                  )}
-                  {viewSettings.showAccommodationAddress && (
-                  <div className="flex items-center space-x-2 text-muted-foreground ml-3 sm:ml-7">
-                    <span className="text-sm">{booking.houses?.address || t('common:noAddress')}</span>
+          {/* Header: icon tile + house name + booking subtitle + status */}
+          {(viewSettings.showAccommodationName || viewSettings.showBookingStatus) && (
+            <div className="flex items-start justify-between gap-3">
+              {viewSettings.showAccommodationName && (
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                    <Home className="w-6 h-6" />
                   </div>
-                  )}
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-lg text-foreground truncate leading-tight">
+                      {booking.houses?.name || t("common:unknown")}
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-tight">
+                      {t("bookings:labels.booking", { defaultValue: "Buchung" })}
+                    </p>
+                  </div>
                 </div>
               )}
               {viewSettings.showBookingStatus && (
@@ -94,64 +93,93 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
             </div>
           )}
 
-          {/* Guest information */}
+          {/* Address */}
+          {viewSettings.showAccommodationAddress && booking.houses?.address && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <MapPin className="w-4 h-4 shrink-0" />
+              <span className="text-sm truncate">{booking.houses.address}</span>
+            </div>
+          )}
+
+          {/* Guest + count row */}
           {(viewSettings.showGuestName || viewSettings.showGuestCount) && (
-            <div className="space-y-2 ml-3 sm:ml-7">
+            <div className="flex items-center gap-3 flex-wrap">
               {viewSettings.showGuestName && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-base">👤</span>
-                  <span className="text-foreground font-medium">{t('common:guests.guest')}: {booking.guest_name}</span>
+                <div className="flex items-center gap-2">
+                  <User className="w-5 h-5 text-foreground" />
+                  <span className="font-semibold text-foreground">
+                    {booking.guest_name}
+                  </span>
                 </div>
               )}
+              {viewSettings.showGuestName && viewSettings.showGuestCount && (
+                <span className="text-muted-foreground">·</span>
+              )}
               {viewSettings.showGuestCount && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-base">👥</span>
-                  <span className="text-foreground">{t('common:guests.guests')}: {booking.number_of_guests} {t('common:guests.persons')}</span>
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-foreground" />
+                  <span className="font-semibold text-foreground">
+                    {booking.number_of_guests}
+                  </span>
                 </div>
               )}
             </div>
           )}
 
-          {/* Check-in and Check-out dates */}
+          {/* Check-in / Check-out subcards */}
           {(viewSettings.showCheckInDate || viewSettings.showCheckOutDate) && (
-            <div className="flex flex-col space-y-2 ml-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-6 sm:ml-7">
+            <div className="grid grid-cols-2 gap-3">
               {viewSettings.showCheckInDate && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-base">📅</span>
-                  <span className="text-foreground">{t('common:dates.checkIn')}: {formatDate(booking.check_in)}</span>
+                <div className="rounded-xl border border-border bg-background p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Calendar className="w-4 h-4 text-emerald-600" />
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {t("common:dates.checkIn")}
+                    </span>
+                  </div>
+                  <div className="text-lg font-semibold text-foreground">
+                    {formatDate(booking.check_in)}
+                  </div>
                 </div>
               )}
               {viewSettings.showCheckOutDate && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-base">📅</span>
-                  <span className="text-foreground">{t('common:dates.checkOut')}: {formatDate(booking.check_out)}</span>
+                <div className="rounded-xl border border-border bg-background p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Calendar className="w-4 h-4 text-rose-500" />
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {t("common:dates.checkOut")}
+                    </span>
+                  </div>
+                  <div className="text-lg font-semibold text-foreground">
+                    {formatDate(booking.check_out)}
+                  </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* Reinigungsdatum - passend zur aktuellen Wäschebestellung */}
+          {/* Cleaning date */}
           {matchingCleaning && (
-            <div className="flex items-center space-x-2 ml-3 sm:ml-7">
-              <span className="text-base">🧹</span>
-              <span className="text-foreground">
-                {t('common:dates.cleaningDate')}: {formatDate(matchingCleaning.scheduled_date)}
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-foreground">
+                {t("common:dates.cleaningDate")}: {formatDate(matchingCleaning.scheduled_date)}
               </span>
             </div>
           )}
 
           {/* Linen Orders Section */}
           {viewSettings.showLinenOrders && (
-            <LinenOrderSection 
-              linenOrders={(booking.linen_orders || []).map(order => ({
+            <LinenOrderSection
+              linenOrders={(booking.linen_orders || []).map((order) => ({
                 ...order,
                 bookings: {
                   guest_name: booking.guest_name,
                   check_in: booking.check_in,
                   check_out: booking.check_out,
-                  number_of_guests: booking.number_of_guests
-                }
-              }))} 
+                  number_of_guests: booking.number_of_guests,
+                },
+              }))}
               onUpdate={onUpdate}
               viewSettings={viewSettings}
             />

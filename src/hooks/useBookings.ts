@@ -60,7 +60,6 @@ export interface LinenOrder {
 
 export const useBookings = (onNewOrder?: () => void) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [standaloneOrders, setStandaloneOrders] = useState<LinenOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);

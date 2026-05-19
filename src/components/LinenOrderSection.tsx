@@ -237,7 +237,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
       <div className={hideHeader ? "" : "border-t border-border pt-3"}>
         {!hideHeader && (
           <div className="flex items-center space-x-2 mb-2">
-            <span className="text-lg">🧺</span>
+            <Shirt className="w-5 h-5 text-foreground" strokeWidth={2} />
             <h4 className="font-medium text-foreground">{t('labels.linenOrder')}</h4>
           </div>
         )}

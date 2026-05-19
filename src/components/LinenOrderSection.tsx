@@ -261,7 +261,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                       {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
                         <button
                           onClick={() => handleEditDelivery(order)}
-                          className="w-full text-left p-2 sm:p-3 rounded-lg border border-border bg-accent hover:brightness-95 transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
+                          className="w-full text-left p-2 sm:p-3 rounded-lg border-border bg-accent hover:brightness-95 transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px] border-2"
                         >
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-foreground text-xs sm:text-sm font-bold">
@@ -283,7 +283,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                       <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
                       <span className="text-xs sm:text-sm text-foreground font-bold">Status</span>
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 border-2">
                       <Select 
                         value={order.status || 'ausstehend'} 
                         onValueChange={(value) => handleStatusChange(order.id, value)}
@@ -360,10 +360,10 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                       <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
                       <span className="text-xs sm:text-sm text-foreground font-bold">{t('labels.notes')}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 border-2">
                       <button
                         onClick={() => handleEditNotes(order)}
-                        className="w-full text-left p-2 sm:p-3 rounded-lg border border-border bg-accent hover:brightness-95 transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
+                        className="w-full text-left p-2 sm:p-3 rounded-lg border-border bg-accent hover:brightness-95 transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px] border-2"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-foreground text-xs sm:text-sm font-bold truncate">

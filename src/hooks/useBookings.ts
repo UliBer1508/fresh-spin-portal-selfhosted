@@ -197,7 +197,7 @@ export const useBookings = (onNewOrder?: (order?: any) => void) => {
           console.log('Neue Bestellung eingegangen!', payload);
           // Use ref to get current callback without stale closure
           if (onNewOrderRef.current) {
-            onNewOrderRef.current();
+            onNewOrderRef.current(payload.new);
           }
         }
       )

@@ -73,7 +73,22 @@ const Index = () => {
   }, []);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [filteredStandaloneOrders, setFilteredStandaloneOrders] = useState<LinenOrder[]>([]);
-  
+
+  // Group filtered (one-per-order) bookings back by booking id for grouped rendering
+  const groupedBookings = useMemo(() => {
+    const map = new Map<string, { booking: Booking; orders: LinenOrder[] }>();
+    for (const b of filteredBookings) {
+      const order = b.linen_orders?.[0];
+      const existing = map.get(b.id);
+      if (existing) {
+        if (order) existing.orders.push(order);
+      } else {
+        map.set(b.id, { booking: b, orders: order ? [order] : [] });
+      }
+    }
+    return Array.from(map.values());
+  }, [filteredBookings]);
+
   // Mobile Detection (simple check for button visibility logic)
   const isMobile = useIsMobile();
 

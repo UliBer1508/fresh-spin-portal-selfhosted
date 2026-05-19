@@ -60,8 +60,8 @@ const QuickFilterCards = ({
             onClick={() => handleClick(filter)}
             className={cn(cardBase, a ? active : inactive)}
           >
-            <Home className="w-5 h-5 shrink-0 text-foreground" />
-            <span className="font-semibold text-foreground truncate">
+            <Home className="w-6 h-6 shrink-0 text-foreground" />
+            <span className="font-bold text-base text-foreground truncate">
               {name}
             </span>
           </button>
@@ -76,8 +76,8 @@ const QuickFilterCards = ({
           isActive({ type: "thisWeek" }) ? active : inactive,
         )}
       >
-        <Calendar className="w-5 h-5 shrink-0 text-foreground" />
-        <span className="font-semibold text-foreground truncate">
+        <Calendar className="w-6 h-6 shrink-0 text-foreground" />
+        <span className="font-bold text-base text-foreground truncate">
           {t("quickFilter.thisWeek", { defaultValue: "Diese Woche" })}
         </span>
       </button>
@@ -90,8 +90,8 @@ const QuickFilterCards = ({
           isActive({ type: "nextWeek" }) ? active : inactive,
         )}
       >
-        <Calendar className="w-5 h-5 shrink-0 text-foreground" />
-        <span className="font-semibold text-foreground truncate">
+        <Calendar className="w-6 h-6 shrink-0 text-foreground" />
+        <span className="font-bold text-base text-foreground truncate">
           {t("quickFilter.nextWeek", { defaultValue: "Nächste Woche" })}
         </span>
       </button>

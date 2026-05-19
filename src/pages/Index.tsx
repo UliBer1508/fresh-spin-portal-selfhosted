@@ -21,11 +21,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { Package } from "lucide-react";
+import QuickFilterCards, { QuickFilter } from "@/components/QuickFilterCards";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("waesche");
   const [hasNewOrders, setHasNewOrders] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>(null);
   
   const { bookings, standaloneOrders, loading, error, refetch } = useBookings(() => {
     setHasNewOrders(true);

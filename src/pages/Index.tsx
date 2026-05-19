@@ -13,12 +13,15 @@ import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";
 import PWAStatusBar from "@/components/PWAStatusBar";
 import PortalChat from "@/components/PortalChat";
 import Footer from "@/components/Footer";
+import NotificationSettingsDialog from "@/components/NotificationSettingsDialog";
+import OrderNotificationDialog from "@/components/OrderNotificationDialog";
 import { useBookings, Booking, LinenOrder } from "@/hooks/useBookings";
 import { useViewSettings } from "@/hooks/useViewSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import QuickFilterCards, { QuickFilter } from "@/components/QuickFilterCards";
 
 const Index = () => {
@@ -26,11 +29,51 @@ const Index = () => {
   const [hasNewOrders, setHasNewOrders] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState<QuickFilter>(null);
-  
-  const { bookings, loading, error, refetch } = useBookings(() => {
+  const [notifSettingsOpen, setNotifSettingsOpen] = useState(false);
+  const [orderAlertOpen, setOrderAlertOpen] = useState(false);
+  const [alertBooking, setAlertBooking] = useState<Booking | null>(null);
+
+  const handleNewOrder = async (newOrder?: any) => {
     setHasNewOrders(true);
+    // Check if notifications are enabled
+    const { data: prefs } = await supabase
+      .from("notification_preferences")
+      .select("notifications_enabled")
+      .limit(1)
+      .maybeSingle();
+    if (prefs && (prefs as any).notifications_enabled === false) {
+      return;
+    }
     toast.info("Neue Bestellung eingegangen!");
-  });
+    // Try to fetch booking with this order to show in popup
+    if (newOrder?.booking_id) {
+      const { data: bk } = await supabase
+        .from("bookings")
+        .select(`
+          *,
+          houses!bookings_house_id_fkey ( name, address ),
+          linen_orders!linen_orders_booking_id_fkey (
+            id, status, delivery_date, delivery_time, delivery_type, notes,
+            items, item_variants, provider_id, assigned_staff_id, linen_color, house_id,
+            houses!linen_orders_house_id_fkey ( name, address ),
+            service_providers!linen_orders_provider_id_fkey ( name ),
+            laundry_staff!linen_orders_assigned_staff_id_fkey ( name )
+          )
+        `)
+        .eq("id", newOrder.booking_id)
+        .maybeSingle();
+      if (bk) {
+        const matched = (bk as any).linen_orders?.find((o: any) => o.id === newOrder.id);
+        setAlertBooking({
+          ...(bk as any),
+          linen_orders: matched ? [matched] : (bk as any).linen_orders,
+        });
+        setOrderAlertOpen(true);
+      }
+    }
+  };
+
+  const { bookings, loading, error, refetch } = useBookings(handleNewOrder);
 
   const { 
     settings: viewSettings, 

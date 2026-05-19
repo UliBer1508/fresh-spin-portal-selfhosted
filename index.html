@@ -7,38 +7,54 @@
     
     <!-- Service Worker Registration with Auto-Update -->
     <script>
-      if ('serviceWorker' in navigator) {
-        // Auto-reload when new service worker takes control
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          console.log('[PWA] New SW active, reloading for updates...');
+      (function () {
+        if (!('serviceWorker' in navigator)) return;
+
+        // Detect Lovable preview / dev environments where SW caching breaks HMR
+        var host = window.location.hostname;
+        var isPreview =
+          host === 'localhost' ||
+          host === '127.0.0.1' ||
+          host.endsWith('.lovableproject.com') ||
+          host.endsWith('.lovable.app') && host.indexOf('preview') !== -1 ||
+          host.indexOf('id-preview--') !== -1 ||
+          host.indexOf('--') !== -1;
+
+        if (isPreview) {
+          // Unregister any existing SW + purge all caches so preview always shows latest build
+          navigator.serviceWorker.getRegistrations().then(function (regs) {
+            regs.forEach(function (r) { r.unregister(); });
+          });
+          if (window.caches && caches.keys) {
+            caches.keys().then(function (keys) {
+              keys.forEach(function (k) { caches.delete(k); });
+            });
+          }
+          console.log('[PWA] Preview environment — SW disabled, caches cleared');
+          return;
+        }
+
+        // Production: register SW with auto-update
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+          console.log('[PWA] New SW active, reloading...');
           window.location.reload();
         });
-        
-        navigator.serviceWorker.register('/sw.js?v=12.20')
-          .then(reg => {
-            console.log('[PWA] SW registered v12.20');
-            
-            // Check for updates immediately
-            reg.update();
-            
-            // Check for updates every 5 minutes
-            setInterval(() => reg.update(), 5 * 60 * 1000);
-            
-            // Auto-apply waiting SW
-            reg.addEventListener('updatefound', () => {
-              const newWorker = reg.installing;
-              if (newWorker) {
-                newWorker.addEventListener('statechange', () => {
-                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    console.log('[PWA] Update found, auto-applying...');
-                    newWorker.postMessage({ type: 'SKIP_WAITING' });
-                  }
-                });
+
+        navigator.serviceWorker.register('/sw.js?v=12.20').then(function (reg) {
+          console.log('[PWA] SW registered v12.20');
+          reg.update();
+          setInterval(function () { reg.update(); }, 5 * 60 * 1000);
+          reg.addEventListener('updatefound', function () {
+            var nw = reg.installing;
+            if (!nw) return;
+            nw.addEventListener('statechange', function () {
+              if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                nw.postMessage({ type: 'SKIP_WAITING' });
               }
             });
-          })
-          .catch(err => console.error('[PWA] SW registration failed:', err));
-      }
+          });
+        }).catch(function (err) { console.error('[PWA] SW registration failed:', err); });
+      })();
     </script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0" />
     <meta http-equiv="Pragma" content="no-cache" />

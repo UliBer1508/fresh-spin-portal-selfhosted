@@ -16,7 +16,7 @@ const LinenOrderCard = ({ order, bookingId, viewSettings, onUpdate }: LinenOrder
   const borderColor = getColorByHash(BOOKING_COLORS, bookingId);
   return (
     <Card className={`w-full border-border bg-accent border-l-8 ${borderColor}`}>
-      <CardContent className="p-3 sm:p-4">
+      <CardContent className="p-2.5 sm:p-3">
         <LinenOrderSection
           linenOrders={[order]}
           onUpdate={onUpdate}

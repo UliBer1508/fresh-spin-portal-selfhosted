@@ -874,6 +874,69 @@ const CalendarView = () => {
           </div>
         </div>
       </div>
+
+      {/* Day details popup */}
+      <Dialog open={dayDialogOpen} onOpenChange={setDayDialogOpen}>
+        <DialogContent className="max-w-md rounded-2xl p-5">
+          <DialogHeader className="space-y-1 text-left">
+            <DialogTitle className="text-xl font-bold">
+              {selectedDate ? format(selectedDate, 'EEEE', { locale: dateLocale }) : ''}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              {selectedDate ? format(selectedDate, 'd. MMMM yyyy', { locale: dateLocale }) : ''}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-3 space-y-2">
+            {selectedDate && getSelectedDateEvents().length === 0 && (
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                {t('sidebar.noEvents')}
+              </p>
+            )}
+            {selectedDate && getSelectedDateEvents().map((event) => {
+              const IconCmp =
+                event.type === 'cleaning' ? Sparkles :
+                event.type === 'linen' ? Shirt :
+                event.type === 'check-in' ? LogIn :
+                event.type === 'check-out' ? LogOut :
+                BedDouble;
+              const statusLower = (event.status || '').toLowerCase();
+              const statusDotColor =
+                statusLower.includes('geliefert') || statusLower.includes('delivered') || statusLower.includes('abgeschlossen') || statusLower.includes('completed') || statusLower.includes('done')
+                  ? 'bg-emerald-500'
+                  : statusLower.includes('offen') || statusLower.includes('open') || statusLower.includes('pending')
+                  ? 'bg-amber-500'
+                  : 'bg-blue-500';
+              return (
+                <div
+                  key={event.id}
+                  className="flex items-center gap-3 bg-card border rounded-xl p-3"
+                >
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <IconCmp className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm truncate">
+                      {event.house || event.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap mt-0.5">
+                      <span>{event.title}</span>
+                      {event.time && <><span>·</span><span>{event.time}</span></>}
+                      {event.status && (
+                        <>
+                          <span className={cn('inline-block w-1.5 h-1.5 rounded-full ml-1', statusDotColor)} />
+                          <span>{event.status}</span>
+                        </>
+                      )}
+                      {event.guest && <><span>·</span><span className="truncate">{event.guest}</span></>}
+                    </div>
+                  </div>
+                  <ChevronRightIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                </div>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

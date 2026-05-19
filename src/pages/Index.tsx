@@ -71,8 +71,62 @@ const Index = () => {
       console.log('[Cleanup] Removed old localStorage settings keys');
     }
   }, []);
-  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
-  const [filteredStandaloneOrders, setFilteredStandaloneOrders] = useState<LinenOrder[]>([]);
+
+  // Quick filter helpers
+  const getWeekRange = (offsetWeeks: number) => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const dayOfWeek = today.getDay();
+    const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const weekStart = new Date(today.getTime() + (offsetWeeks * 7 - mondayOffset) * 86400000);
+    const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
+    return { weekStart, weekEnd };
+  };
+
+  // Transform bookings: one entry per linen_order
+  const bookingsWithIndividualOrders = useMemo(() => {
+    return bookings.flatMap(booking => {
+      const orders = booking.linen_orders || [];
+      if (orders.length === 0) return [];
+      return orders.map((order) => ({ ...booking, linen_orders: [order] }));
+    });
+  }, [bookings]);
+
+  // Apply quick filter to bookings
+  const filteredBookings = useMemo(() => {
+    let filtered = bookingsWithIndividualOrders;
+    if (quickFilter) {
+      if (quickFilter.type === "house") {
+        filtered = filtered.filter((b) => b.houses?.name === quickFilter.value);
+      } else if (quickFilter.type === "thisWeek" || quickFilter.type === "nextWeek") {
+        const { weekStart, weekEnd } = getWeekRange(quickFilter.type === "thisWeek" ? 0 : 1);
+        filtered = filtered.filter((b) => {
+          const o = b.linen_orders?.[0];
+          const d = o?.delivery_date ? new Date(o.delivery_date) : new Date(b.check_in);
+          return d >= weekStart && d < weekEnd;
+        });
+      }
+    }
+    return filtered;
+  }, [bookingsWithIndividualOrders, quickFilter]);
+
+  // Apply quick filter to standalone orders
+  const filteredStandaloneOrders = useMemo(() => {
+    let filtered = standaloneOrders;
+    if (quickFilter) {
+      if (quickFilter.type === "house") {
+        filtered = filtered.filter((o) => o.houses?.name === quickFilter.value);
+      } else if (quickFilter.type === "thisWeek" || quickFilter.type === "nextWeek") {
+        const { weekStart, weekEnd } = getWeekRange(quickFilter.type === "thisWeek" ? 0 : 1);
+        filtered = filtered.filter((o) => {
+          if (!o.delivery_date) return false;
+          const d = new Date(o.delivery_date);
+          return d >= weekStart && d < weekEnd;
+        });
+      }
+    }
+    return filtered;
+  }, [standaloneOrders, quickFilter]);
 
   // Group filtered (one-per-order) bookings back by booking id for grouped rendering
   const groupedBookings = useMemo(() => {

@@ -1,44 +1,74 @@
-# Kalender-Toolbar nach Vorbild des Mockups umbauen
+# Tag-Klick öffnet Popup mit Tagesinfo
 
 Betroffene Datei: `src/components/CalendarView.tsx`
 
-## Änderungen
+## Ziel
+Beim Klick auf einen Tag in der Kalender-Karte (Monat/Woche) öffnet sich ein zentriertes Modal-Popup wie im Mockup mit:
+- **Header:** Wochentag fett (z. B. "Freitag") + darunter Datum gemuted (z. B. "29. Mai 2026"), rechts oben Schließen-X.
+- **Event-Liste:** pro Event eine abgerundete Karte mit
+  - links rundem mint-farbenem Icon-Badge (Sparkles für Reinigung, Shirt für Wäsche, LogIn/LogOut für Check-in/-out, BedDouble für occupied)
+  - rechts Titel fett (Hausname), darunter Subtitel gemuted: `Typ • Uhrzeit • ● Status`
+  - Chevron-Right rechts (außer für reine Info-Events)
+- Wenn keine Events: leerer Hinweistext.
 
-### 1. Obere Toolbar (oberhalb der Kalenderkarte)
-- **Entfernen:** "Heute"-Button + Pfeile (◁ ▷) aus der oberen Leiste.
-- **Behalten:** Titel (z. B. "Mai 2026") links.
-- **Monat / Woche / Gantt:** als 3 große, gleich breite Buttons direkt unter dem Titel anordnen (full-width, in einer Reihe, größere Höhe, gerundet — wie im Mockup). Aktive Auswahl in dunkelblau/primary, inaktive als Outline.
+## Umsetzung
 
-### 2. In die Kalenderkarte (Month/Week-View) integrieren — neue Kopfzeile in der Karte
-Direkt über dem Wochentage-Header eine neue Zeile einfügen mit zwei Bereichen:
+### 1. Dialog-Komponente
+- shadcn `Dialog` (`@/components/ui/dialog`) verwenden.
+- Neuer State: `dayDialogOpen: boolean` (selectedDate existiert schon und steuert Inhalt).
+- `handleDayClick(date)`: setzt `selectedDate(date)` UND `setDayDialogOpen(true)`.
 
-- **Links:** kompakte Haus-Legende als horizontale Punkte mit Abkürzung
-  ```
-  ● VC   ● WC
-  ```
-  (farbiger Dot in Haus-Farbe + Kurzkürzel via vorhandener Abkürzungs-Funktion). Nur Häuser, keine Check-in/-out/Reinigung/Wäsche-Einträge hier.
-- **Rechts:** Navigation mit ◁ + "Heute" + ▷ als gerundete Pill-Buttons (wie im Mockup).
-
-### 3. Sidebar-Legende
-- Die ausführliche Legende (Check-in/Check-out/Häuser/Reinigung/Wäsche) bleibt unverändert in der Sidebar — nur die kompakte Haus-Übersicht wird zusätzlich oben in die Kalenderkarte aufgenommen.
-
-### 4. Gantt-View
-- Da die Kopfzeile innerhalb der Kalenderkarte sitzt, bleibt die Gantt-Ansicht ohne diese neue Zeile (Gantt rendert separat).
-- Für Gantt bleibt damit aktuell keine Heute/Pfeile-Navigation sichtbar → in Gantt rendern wir die Heute/Pfeile-Pills oberhalb des Gantt-Containers (kleine separate Zeile), damit Navigation weiter möglich ist.
-
-## Layout (Month/Week-Karte)
-
+### 2. Dialog-Layout (mobile-first)
 ```text
-┌─ Kalenderkarte ─────────────────────────────┐
-│  ● VC  ● WC                  ◁  Heute  ▷   │
-│ ─────────────────────────────────────────── │
-│  Mo  Di  Mi  Do  Fr  Sa  So                │
-│  ...Kalender-Grid...                        │
-└─────────────────────────────────────────────┘
+┌──────────────────────────────────┐
+│ Freitag                      [×] │
+│ 29. Mai 2026                     │
+│                                  │
+│ ┌──────────────────────────────┐ │
+│ │ (✨)  Wald Chalet         ›  │ │
+│ │      Reinigung · 10:00 ●Gepl.│ │
+│ └──────────────────────────────┘ │
+│ ┌──────────────────────────────┐ │
+│ │ (👕)  Wald Chalet            │ │
+│ │      Wäsche Lieferung ●Geli. │ │
+│ └──────────────────────────────┘ │
+└──────────────────────────────────┘
 ```
+- Container: weiße Karte, `rounded-2xl`, max-width ~480px, auf Mobile mit Rand `mx-4`.
+- Event-Cards: `bg-card border rounded-xl p-3 flex items-center gap-3`.
+- Icon-Badge: `w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center`.
+- Status-Dot: kleiner farbiger Punkt (geplant=blau, geliefert=grün, abgeschlossen=grün, offen=amber).
+
+### 3. Event-Daten anreichern
+`CalendarEvent` um optionale Felder erweitern (rein UI, optional):
+- `time?: string` (z. B. `10:00`)
+- `status?: string` (z. B. `Geplant`, `Geliefert`)
+- `statusColor?: string` (semantic class)
+
+Beim Aufbau der Events (`loadCalendarData`) Felder mitschreiben:
+- cleaning: status aus `service_tasks.status`, Zeit `10:00` (oder vorhandenes Feld falls da)
+- linen: Status aus `linen_orders.status`
+- check-in/out: optional Uhrzeit aus booking, Status weglassen
+- occupied: nur Hausname, keine Statuszeile
+
+Falls Felder nicht in DB existieren, im UI einfach ausblenden (`event.status && …`).
+
+### 4. Icon-Mapping
+```ts
+const iconFor = {
+  cleaning: Sparkles,
+  linen: Shirt,
+  'check-in': LogIn,
+  'check-out': LogOut,
+  occupied: BedDouble,
+}
+```
+Imports aus `lucide-react` ergänzen (Sparkles, Shirt, LogIn, LogOut, BedDouble bereits teilweise vorhanden – nur fehlende ergänzen).
+
+### 5. Cleanup
+- Die bestehende Sidebar-Sektion "Selected Date Events" (Zeilen 789-821) bleibt für Desktop optional erhalten oder wird entfernt — **wird entfernt**, weil das Popup beide Plattformen abdeckt und die Sidebar dadurch entlastet wird.
 
 ## Technische Hinweise
-- Bestehende `goToPrevious`, `goToToday`, `goToNext` wiederverwenden.
-- Haus-Farbe via `getHouseColor(house.id).bg`, Abkürzung via vorhandener Abkürzungs-Helper (siehe Zeile 83).
-- Neue Buttons mit `rounded-full` für Heute/Pfeile-Pills; Monat/Woche/Gantt mit `flex-1` für gleiche Breite und größerer Höhe (`h-11`).
-- Keine Logikänderungen, rein Layout/Styling im Frontend.
+- Reine Frontend-Änderung; keine Datenmodell-/RLS-Änderungen.
+- i18n-Keys für neue Status-/Typ-Labels wiederverwenden falls vorhanden, sonst über vorhandene Event-Title fallen lassen.
+- Light-Theme respektieren; Farben über semantische Tokens bzw. dezente `emerald-100/700` für das Icon-Badge.

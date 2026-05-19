@@ -23,9 +23,10 @@ interface LinenOrderSectionProps {
   linenOrders: LinenOrder[];
   onUpdate?: () => void;
   viewSettings: ViewSettings;
+  hideHeader?: boolean;
 }
 
-const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSectionProps) => {
+const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: LinenOrderSectionProps) => {
   const { t, i18n } = useTranslation(['orders', 'common']);
   const [selectedOrder, setSelectedOrder] = useState<LinenOrder | null>(null);
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);

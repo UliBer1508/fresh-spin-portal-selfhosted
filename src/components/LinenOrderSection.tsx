@@ -258,7 +258,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     </div>
                     {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
                       <div className="flex items-center gap-2">
-                        <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
+                        <div className="flex items-center space-x-2 flex-shrink-0 w-[92px] sm:w-[104px]">
                           <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
                           <span className="sm:text-sm text-foreground font-bold text-sm">Lieferung</span>
                         </div>
@@ -284,7 +284,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
 
                 {viewSettings.showOrderStatus && (
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
+                    <div className="flex items-center space-x-2 flex-shrink-0 w-[92px] sm:w-[104px]">
                       <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
                       <span className="sm:text-sm text-foreground font-bold text-sm">Status   </span>
                     </div>
@@ -361,7 +361,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
 
                 {viewSettings.showOrderNotes && (
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
+                    <div className="flex items-center space-x-2 flex-shrink-0 w-[92px] sm:w-[104px]">
                       <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
                       <span className="sm:text-sm text-foreground font-bold text-sm">{t('labels.notes')}</span>
                     </div>
@@ -388,7 +388,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
 
                 {/* LS-Drucken Button */}
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
+                  <div className="flex items-center space-x-2 flex-shrink-0 w-[92px] sm:w-[104px]">
                     <Printer className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
                     <span className="sm:text-sm text-foreground font-bold text-sm">LSchein</span>
                   </div>
@@ -411,7 +411,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 <div className="space-y-3">
                   {/* Artikel-Header mit Anzeigen-Button */}
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
+                    <div className="flex items-center space-x-2 flex-shrink-0 w-[92px] sm:w-[104px]">
                       <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
                       <span className="sm:text-sm text-foreground font-bold text-sm">
                         {t('labels.items')}

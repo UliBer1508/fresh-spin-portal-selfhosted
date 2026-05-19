@@ -390,7 +390,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 <div className="flex items-center gap-2">
                   <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                     <Printer className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                    <span className="text-xs sm:text-sm text-foreground font-bold">LSchein</span>
+                    <span className="sm:text-sm text-foreground font-bold text-base">LSchein</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <Button

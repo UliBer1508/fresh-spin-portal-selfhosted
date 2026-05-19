@@ -88,10 +88,10 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
                 <span className="text-sm font-medium text-foreground">Aktueller Liefertermin:</span>
               </div>
               <div className="ml-6 space-y-1">
-                <p className="text-sm text-foreground">
+                <p className="text-foreground text-sm font-bold">
                   <span className="font-medium">Datum:</span> {new Date(order.delivery_date).toLocaleDateString('de-DE')}
                 </p>
-                <p className="text-sm text-foreground">
+                <p className="text-foreground text-sm font-bold">
                   <span className="font-medium">Zeit:</span> {order.delivery_time || '09:00'} Uhr
                 </p>
               </div>

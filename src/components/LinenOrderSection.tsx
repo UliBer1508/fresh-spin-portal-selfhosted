@@ -388,7 +388,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 )}
 
                 {/* LS-Drucken Button */}
-                <div className="pt-2">
+                <div className="pt-1">
                   <Button
                     variant="outline"
                     size="sm"

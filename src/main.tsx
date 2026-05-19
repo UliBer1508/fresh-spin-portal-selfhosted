@@ -5,35 +5,28 @@ import App from "./App.tsx";
 import "./index.css";
 import { APP_VERSION } from "./lib/version";
 
-// Preemptive cache check and clear on startup
+// Lightweight version tracking — let the Service Worker handle its own
+// cache invalidation (its activate handler deletes old version caches).
+// We MUST NOT unregister the SW here, or we'd kill the freshly-installed
+// updated SW immediately after an auto-update.
 const performPreemptiveCacheCheck = async () => {
   const lastVersion = localStorage.getItem('app-version');
   const currentVersion = APP_VERSION;
-  
+
   if (lastVersion !== currentVersion) {
-    console.log('[Startup] Version changed from', lastVersion, 'to', currentVersion, '- clearing all caches');
-    
+    console.log('[Startup] Version changed from', lastVersion, 'to', currentVersion);
     try {
-      // Clear all browser caches
+      // Clear non-SW browser caches (e.g. legacy CacheStorage entries
+      // left over from older deploys). The active SW manages its own.
       if ('caches' in window) {
         const cacheNames = await caches.keys();
-        await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
-        console.log('[Startup] Cleared', cacheNames.length, 'cache(s)');
+        const stale = cacheNames.filter(n => !n.includes(currentVersion));
+        await Promise.all(stale.map(n => caches.delete(n)));
+        if (stale.length) console.log('[Startup] Cleared', stale.length, 'stale cache(s)');
       }
-      
-      // Unregister service workers
-      if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(registrations.map(reg => reg.unregister()));
-        console.log('[Startup] Unregistered', registrations.length, 'service worker(s)');
-      }
-      
-      // Clear session storage error counters
+
       sessionStorage.removeItem('errorBoundaryReloadCount');
-      
-      // Update version
       localStorage.setItem('app-version', currentVersion);
-      console.log('[Startup] Cache cleanup complete');
     } catch (err) {
       console.error('[Startup] Cache cleanup failed:', err);
     }

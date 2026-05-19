@@ -527,8 +527,9 @@ const CalendarView = () => {
                            return (
                              <div
                                key={day.toISOString()}
+                               onClick={() => handleDayClick(day)}
                                className={cn(
-                                 "border-r last:border-r-0 h-full",
+                                 "border-r last:border-r-0 h-full cursor-pointer hover:bg-primary/5",
                                  isToday && "bg-primary/10",
                                  isWeekend && "bg-muted/20"
                                )}
@@ -547,21 +548,25 @@ const CalendarView = () => {
                                <Tooltip>
                                  <TooltipTrigger asChild>
                                    <div
-                                     className={cn(
-                                       "h-6 md:h-8 rounded-md flex items-center px-1 md:px-2 cursor-pointer hover:opacity-90 transition-opacity mx-0.5",
-                                       "border border-white/40 shadow-md",
-                                       houseColor.bg, houseColor.text,
-                                       gridPos.startsBeforeRange && "rounded-l-none",
-                                       gridPos.endsAfterRange && "rounded-r-none"
-                                     )}
-                                     style={{ 
-                                       gridColumn: gridPos.gridColumn, 
-                                       gridRow: 1,
-                                       marginLeft: gridPos.startsBeforeRange ? 0 : `calc(50% / ${gridPos.spanCols})`,
-                                       marginRight: gridPos.endsAfterRange ? 0 : `calc(50% / ${gridPos.spanCols})`,
-                                       width: `calc(100% - ${gridPos.startsBeforeRange ? 0 : 50/gridPos.spanCols}% - ${gridPos.endsAfterRange ? 0 : 50/gridPos.spanCols}%)`
-                                     }}
-                                   >
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (booking.check_in) handleDayClick(booking.check_in);
+                                      }}
+                                      className={cn(
+                                        "h-6 md:h-8 rounded-md flex items-center px-1 md:px-2 cursor-pointer hover:opacity-90 transition-opacity mx-0.5",
+                                        "border border-white/40 shadow-md",
+                                        houseColor.bg, houseColor.text,
+                                        gridPos.startsBeforeRange && "rounded-l-none",
+                                        gridPos.endsAfterRange && "rounded-r-none"
+                                      )}
+                                      style={{ 
+                                        gridColumn: gridPos.gridColumn, 
+                                        gridRow: 1,
+                                        marginLeft: gridPos.startsBeforeRange ? 0 : `calc(50% / ${gridPos.spanCols})`,
+                                        marginRight: gridPos.endsAfterRange ? 0 : `calc(50% / ${gridPos.spanCols})`,
+                                        width: `calc(100% - ${gridPos.startsBeforeRange ? 0 : 50/gridPos.spanCols}% - ${gridPos.endsAfterRange ? 0 : 50/gridPos.spanCols}%)`
+                                      }}
+                                    >
                                      <span className="truncate text-[9px] md:text-xs font-medium leading-tight">
                                        {booking.guest_name}
                                      </span>

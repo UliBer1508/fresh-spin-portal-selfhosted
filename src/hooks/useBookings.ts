@@ -58,7 +58,7 @@ export interface LinenOrder {
   };
 }
 
-export const useBookings = (onNewOrder?: () => void) => {
+export const useBookings = (onNewOrder?: (order?: any) => void) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface Props {
   open: boolean;
@@ -97,6 +98,11 @@ const NotificationSettingsDialog = ({ open, onOpenChange }: Props) => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="flex items-center justify-between border-t pt-4">
+            <Label className="text-base">Sprache</Label>
+            <LanguageSwitcher />
           </div>
         </div>
 

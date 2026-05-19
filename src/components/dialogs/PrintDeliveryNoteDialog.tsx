@@ -22,13 +22,11 @@ interface PrintDeliveryNoteDialogProps {
 const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintDeliveryNoteDialogProps) => {
   const [isPrinting, setIsPrinting] = useState(false);
 
-  // Cleanup print container when dialog closes
+  // Cleanup print iframe when dialog closes
   useEffect(() => {
     if (!open) {
-      const existingContainer = document.getElementById('print-container');
-      if (existingContainer) {
-        existingContainer.remove();
-      }
+      const existing = document.getElementById('print-iframe');
+      if (existing) existing.remove();
     }
   }, [open]);
 
@@ -185,49 +183,77 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     `;
   };
 
-  // Einfacher Druck-Ansatz: opacity-basiert, CSS @media print erledigt den Rest
+  // Druck in isoliertem iframe — kein Konflikt mit globalen @media print Regeln
   const handlePrint = (): Promise<void> => {
     return new Promise((resolve) => {
-      // 1. Existierenden Container entfernen
-      const existingContainer = document.getElementById('print-container');
-      if (existingContainer) existingContainer.remove();
+      // 1. Existierendes iframe entfernen
+      const existing = document.getElementById('print-iframe');
+      if (existing) existing.remove();
 
-      // 2. Neuen Container erstellen
-      const printContainer = document.createElement('div');
-      printContainer.id = 'print-container';
-      printContainer.innerHTML = generatePrintContent();
-      
-      // 3. Mit opacity: 0 einfügen (CSS @media print macht den Rest)
-      printContainer.style.cssText = `
+      // 2. iframe erstellen (off-screen, aber im DOM)
+      const iframe = document.createElement('iframe');
+      iframe.id = 'print-iframe';
+      iframe.setAttribute('aria-hidden', 'true');
+      iframe.style.cssText = `
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        opacity: 0;
-        pointer-events: none;
-        background: white;
+        right: 0;
+        bottom: 0;
+        width: 0;
+        height: 0;
+        border: 0;
+        visibility: hidden;
       `;
-      
-      document.body.appendChild(printContainer);
-      
-      // 4. Kurze Verzögerung, dann drucken
-      setTimeout(() => {
-        // Fokus entfernen (Tastatur-Fix)
-        if (document.activeElement instanceof HTMLElement) {
-          document.activeElement.blur();
+      document.body.appendChild(iframe);
+
+      const doc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!doc) {
+        iframe.remove();
+        resolve();
+        return;
+      }
+
+      // 3. HTML in iframe schreiben — komplett isoliert von App-CSS
+      doc.open();
+      doc.write(`<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Lieferschein</title>
+    <style>
+      @page { size: A4; margin: 10mm; }
+      html, body { margin: 0; padding: 0; background: #fff; color: #000; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    </style>
+  </head>
+  <body>${generatePrintContent()}</body>
+</html>`);
+      doc.close();
+
+      // 4. Warten bis iframe gerendert, dann drucken
+      const triggerPrint = () => {
+        try {
+          // Fokus entfernen (iOS keyboard fix)
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+          iframe.contentWindow?.focus();
+          iframe.contentWindow?.print();
+        } catch (err) {
+          console.error('Print failed:', err);
         }
-        
-        // Sichtbar machen für Print
-        printContainer.style.opacity = '1';
-        
-        window.print();
-        
-        // Aufräumen
+        // Aufräumen nach 1s (genug Zeit für Print-Dialog)
         setTimeout(() => {
-          printContainer.remove();
+          iframe.remove();
           resolve();
-        }, 300);
-      }, 100);
+        }, 1000);
+      };
+
+      // Falls bereits geladen (sync write), sofort. Sonst onload abwarten.
+      if (iframe.contentDocument?.readyState === 'complete') {
+        setTimeout(triggerPrint, 100);
+      } else {
+        iframe.onload = () => setTimeout(triggerPrint, 100);
+      }
     });
   };
 

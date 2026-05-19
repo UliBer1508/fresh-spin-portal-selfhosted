@@ -399,7 +399,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     variant="outline"
                     size="sm"
                     onClick={() => handleOpenPrintDialog(order)}
-                    className="w-full sm:w-auto no-print"
+                    className="w-full bg-accent border-border hover:brightness-95 no-print min-h-[44px]"
                   >
                     🖨️ {t('labels.printDeliveryNote')}
                   </Button>

@@ -409,30 +409,25 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 const isCollapsed = collapsedItems.has(order.id);
                 return (
                 <div className="space-y-3">
-                  {/* Toggle Header */}
-                  <button
-                    type="button"
-                    onClick={() => toggleItems(order.id)}
-                    className="flex w-full items-center justify-between py-2 touch-manipulation min-h-[44px]"
-                    aria-expanded={!isCollapsed}
-                  >
-                    <div className="flex items-center space-x-2">
+                  {/* Artikel-Header mit Anzeigen-Button */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                       <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
                       <span className="text-xs sm:text-sm text-foreground font-bold">
                         {t('labels.items')}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">
-                        {getTotalItems(order.items as Record<string, number>)} {t('labels.total')}
-                      </Badge>
-                      <ChevronDown
-                        className={`w-5 h-5 text-muted-foreground transition-transform ${
-                          isCollapsed ? '' : 'rotate-180'
-                        }`}
-                      />
+                    <div className="flex-1 min-w-0">
+                      <button
+                        type="button"
+                        onClick={() => toggleItems(order.id)}
+                        aria-expanded={!isCollapsed}
+                        className="w-full p-2 sm:p-3 rounded-lg bg-accent-strong hover:brightness-95 shadow-sm transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px] text-accent-strong-foreground text-xs sm:text-sm font-bold text-center"
+                      >
+                        Anzeigen ({getTotalItems(order.items as Record<string, number>)})
+                      </button>
                     </div>
-                  </button>
+                  </div>
 
                   {/* Artikel-Tabelle – einklappbar, transparenter Hintergrund */}
                   {!isCollapsed && (

@@ -118,9 +118,15 @@ export const useBookings = (onNewOrder?: () => void) => {
 
       if (bookingsError) throw bookingsError;
 
-      const bookingsWithLinenOrders = bookingsData?.filter(booking => 
-        booking.linen_orders && booking.linen_orders.length > 0
-      ) || [];
+      const ACTIVE_STATUSES = ['offen', 'ausstehend', 'pending'];
+      const bookingsWithLinenOrders = (bookingsData || [])
+        .map((booking: any) => ({
+          ...booking,
+          linen_orders: (booking.linen_orders || []).filter((o: any) =>
+            ACTIVE_STATUSES.includes((o.status || '').toLowerCase())
+          ),
+        }))
+        .filter((booking: any) => booking.linen_orders.length > 0);
 
       setBookings(bookingsWithLinenOrders as unknown as Booking[]);
 

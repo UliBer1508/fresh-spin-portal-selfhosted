@@ -1,17 +1,17 @@
-# Buttons linksbündig wie der Lieferungs-Button
+# "Wäschebestellung" Style & Icon ändern
 
-Betroffene Datei: `src/components/LinenOrderSection.tsx`
+Datei: `src/components/LinenOrderSection.tsx` (Zeile 255-258)
 
-Der Lieferungs-Button verwendet `text-left` und richtet seinen Inhalt links aus. Die anderen Aktions-Buttons (Notiz, Drucken, Anzeigen) sowie die Status-/Wäschekraft-Selects sollen identisch links ausgerichtet werden.
+## Aktuell
+```tsx
+<Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
+<span className="sm:text-sm text-foreground font-bold text-sm">{t('labels.deliveryBy')}:</span>
+```
+
+Der Text "Wäschebestellung:" kommt aus i18n (`labels.deliveryBy`) — bleibt unverändert.
 
 ## Änderungen
+1. Icon `Calendar` → `WashingMachine` (Lucide). Import in der Datei ergänzen.
+2. Klassen des Spans: `text-sm font-bold` (klein + fett, ohne `sm:text-sm`-Override).
 
-1. **Notiz-Button** (Zeile ~369-384): innere `justify-between`-Klasse entfernen — Text bleibt damit garantiert links (statt mittig wirkend bei kurzen Texten).
-
-2. **Drucken-Button** (shadcn `<Button>`, Zeile ~396-402): zusätzliche Klassen `justify-start text-left` hinzufügen, damit der Text "Drucken" linksbündig statt zentriert dargestellt wird.
-
-3. **Anzeigen-Button** (Zeile ~421-428): `text-center` → `text-left` ändern, damit "Anzeigen (n)" links beginnt.
-
-4. **Status-Select & Wäschekraft-Select**: shadcn `SelectTrigger` zeigt den Wert standardmäßig links — keine Änderung nötig (Status/Ausstehend im Screenshot ist bereits links).
-
-Reine UI-/Klassen-Änderung. Keine Logikänderung.
+Reine UI-Änderung, keine Logik betroffen.

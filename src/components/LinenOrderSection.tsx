@@ -1,6 +1,6 @@
 // v9 - Mehrsprachig + einklappbare Artikelliste
 import { useState, useEffect } from "react";
-import { ChevronDown, Calendar, BarChart3, User, FileText, Printer, ClipboardList, Shirt } from "lucide-react";
+import { ChevronDown, Calendar, BarChart3, User, FileText, Printer, ClipboardList, Shirt, WashingMachine } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -253,8 +253,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="sm:text-sm text-foreground font-bold text-sm">{t('labels.deliveryBy')}:</span>
+                      <WashingMachine className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
+                      <span className="text-sm font-bold text-foreground">{t('labels.deliveryBy')}:</span>
                     </div>
                     {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
                       <div className="flex items-center gap-2">

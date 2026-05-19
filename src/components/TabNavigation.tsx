@@ -2,6 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
 import { usePortalMessages } from "@/hooks/usePortalMessages";
+import { usePendingOrderCount } from "@/hooks/usePendingOrderCount";
 import { Home, Calendar, Receipt, Bell, MessageCircle, type LucideIcon } from "lucide-react";
 
 interface TabNavigationProps {
@@ -21,6 +22,7 @@ interface TabDef {
 const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNotificationSettingsOpen }: TabNavigationProps) => {
   const { t } = useTranslation('navigation');
   const { unreadCount } = usePortalMessages();
+  const pendingOrders = usePendingOrderCount();
 
   const tabs: TabDef[] = [
     { id: "waesche", labelKey: "tabs.bookings", icon: Home },
@@ -69,6 +71,11 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNot
                     {tab.id === "benachrichtigungen" && hasNewOrders && (
                       <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                     )}
+                    {tab.id === "waesche" && pendingOrders > 0 && (
+                      <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                        {pendingOrders}
+                      </span>
+                    )}
                   </span>
                   <span>{label}</span>
                 </button>
@@ -112,6 +119,11 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNot
                   />
                   {tab.id === "benachrichtigungen" && hasNewOrders && (
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  )}
+                  {tab.id === "waesche" && pendingOrders > 0 && (
+                    <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {pendingOrders}
+                    </span>
                   )}
                 </span>
                 <span className={cn("text-[11px] font-medium truncate max-w-full", isActive && "font-semibold")}>

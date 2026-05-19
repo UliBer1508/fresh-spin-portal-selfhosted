@@ -372,8 +372,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     <div>
                       <button
                         onClick={() => handleEditNotes(order)}
-                        className="w-full text-left p-3 rounded-lg border border-border bg-background 
-                                   hover:bg-accent hover:border-accent-foreground transition-colors 
+                        className="w-full text-left p-3 rounded-lg border border-border bg-accent 
+                                   hover:brightness-95 transition-all 
                                    cursor-pointer touch-manipulation min-h-[44px]"
                       >
                         <div className="flex items-center justify-between gap-2">

@@ -8,9 +8,10 @@ interface TabNavigationProps {
   onTabChange: (tab: string) => void;
   hasNewOrders?: boolean;
   onChatOpen?: () => void;
+  onNotificationSettingsOpen?: () => void;
 }
 
-const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen }: TabNavigationProps) => {
+const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNotificationSettingsOpen }: TabNavigationProps) => {
   const { t } = useTranslation('navigation');
   const { unreadCount } = usePortalMessages();
 
@@ -21,6 +22,14 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen }: Tab
     { id: "waeschekraefte", labelKey: "tabs.staff", emoji: "👥" },
     { id: "benachrichtigungen", labelKey: "tabs.notifications", emoji: "🔔" },
   ];
+
+  const handleTabClick = (tabId: string) => {
+    if (tabId === "benachrichtigungen" && onNotificationSettingsOpen) {
+      onNotificationSettingsOpen();
+      return;
+    }
+    onTabChange(tabId);
+  };
 
   return (
     <div className="md:border-b md:border-border md:bg-accent">

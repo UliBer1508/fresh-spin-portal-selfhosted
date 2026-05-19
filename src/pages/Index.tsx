@@ -286,6 +286,7 @@ const Index = () => {
           onTabChange={handleTabChange}
           hasNewOrders={hasNewOrders}
           onChatOpen={() => setIsChatOpen(true)}
+          onNotificationSettingsOpen={() => setNotifSettingsOpen(true)}
         />
         
         <main className="max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-8 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-[env(safe-area-inset-bottom)]">

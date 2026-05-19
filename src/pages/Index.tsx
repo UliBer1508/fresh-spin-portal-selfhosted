@@ -129,7 +129,16 @@ const Index = () => {
               onViewSettingsChange={handleSettingsChange}
               showButtonOnMobile={showButtonOnMobile}
               onShowButtonOnMobileChange={handleShowButtonOnMobileChange}
+              quickFilter={quickFilter}
             />
+
+            <QuickFilterCards
+              bookings={bookings}
+              standaloneOrders={standaloneOrders}
+              value={quickFilter}
+              onChange={setQuickFilter}
+            />
+
 
             {loading ? (
               <div className="text-center py-8">

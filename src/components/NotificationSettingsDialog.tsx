@@ -99,6 +99,11 @@ const NotificationSettingsDialog = ({ open, onOpenChange }: Props) => {
               </SelectContent>
             </Select>
           </div>
+
+          <div className="flex items-center justify-between border-t pt-4">
+            <Label className="text-base">Sprache</Label>
+            <LanguageSwitcher />
+          </div>
         </div>
 
         <DialogFooter>

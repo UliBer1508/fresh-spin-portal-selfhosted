@@ -77,6 +77,9 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNot
         className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-accent backdrop-blur border-t border-border shadow-[0_-2px_8px_rgba(0,0,0,0.04)]"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
+        <div className="text-center text-[11px] text-muted-foreground py-1 border-b border-border/50">
+          © {new Date().getFullYear()} Copy Right Steinbock Chalets
+        </div>
         <div className="flex justify-around w-full px-1 pt-1.5 pb-1">
           {tabs.map((tab) => {
             const label = t(tab.labelKey);

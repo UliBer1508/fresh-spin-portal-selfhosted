@@ -359,7 +359,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {viewSettings.showOrderNotes && (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0">
-                      <span className="text-lg">📝</span>
+                      <FileText className="w-5 h-5 text-foreground" strokeWidth={2} />
                       <span className="text-sm font-semibold text-foreground">{t('labels.notes')}</span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -379,7 +379,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                               : t('labels.noNotes')
                             }
                           </span>
-                          <span className="text-base flex-shrink-0">✏️</span>
                         </div>
                       </button>
                     </div>

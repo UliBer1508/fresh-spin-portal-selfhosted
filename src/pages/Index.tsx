@@ -135,17 +135,6 @@ const Index = () => {
       case "waesche":
         return (
           <div className="space-y-6">
-            <SearchAndFilter
-              bookings={bookings}
-              standaloneOrders={standaloneOrders}
-              onFilteredBookingsChange={setFilteredBookings}
-              onFilteredStandaloneOrdersChange={setFilteredStandaloneOrders}
-              viewSettings={viewSettings}
-              onViewSettingsChange={handleSettingsChange}
-              showButtonOnMobile={showButtonOnMobile}
-              onShowButtonOnMobileChange={handleShowButtonOnMobileChange}
-              quickFilter={quickFilter}
-            />
 
             <QuickFilterCards
               bookings={bookings}

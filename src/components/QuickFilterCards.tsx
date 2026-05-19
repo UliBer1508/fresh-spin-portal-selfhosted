@@ -44,9 +44,9 @@ const QuickFilterCards = ({
   };
 
   const cardBase =
-    "flex items-center gap-2 rounded-2xl border-2 bg-accent px-3 py-2 min-h-[44px] text-left transition-all active:scale-[0.98] hover:bg-accent/80";
-  const inactive = "border-accent";
-  const active = "border-primary ring-2 ring-primary/30 bg-accent/90";
+    "flex items-center gap-3 rounded-2xl border-2 bg-card px-5 py-4 min-h-[64px] text-left transition-all active:scale-[0.98] hover:bg-accent/40";
+  const inactive = "border-primary/40";
+  const active = "border-primary ring-2 ring-primary/30 bg-accent/40";
 
   return (
     <div className="grid grid-cols-2 gap-2">

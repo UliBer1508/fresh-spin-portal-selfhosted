@@ -1,13 +1,21 @@
-## Ziel
-Auf Mobile den ungenutzten Platz oberhalb der Quick-Filter-Buttons entfernen, damit der Inhalt direkt unter der oberen Bildschirmkante beginnt.
+## Quick-Filter-Buttons im Stil des Bildes
 
-## Änderungen
+Datei: `src/components/QuickFilterCards.tsx` (nur `cardBase`-Klassen anpassen)
 
-### `src/pages/Index.tsx`
-1. Zeile 275: `<div className="pt-12 md:pt-0 flex-1">` → `<div className="flex-1">` — die 48px Reserve für die PWA-Statusleiste entfällt (Bar erscheint nur noch bei Offline/Update).
-2. Zeile 292: `<main className="... py-4 sm:py-8 ...">` → `<main className="... pt-2 pb-4 sm:pt-4 sm:pb-8 ...">` — oberes Padding auf Mobile von 16 px auf 8 px reduzieren.
+**Sichtbare Änderungen im Bild vs. aktuell:**
+- Heller, weißer Hintergrund statt `bg-accent`
+- Hellblauer Rand (Border in Primary-Ton), deutlicher abgesetzt
+- Größere Buttons: mehr vertikales/horizontales Padding (~ `px-5 py-4`, `min-h-[64px]`)
+- Größerer Abstand zwischen Icon und Text (`gap-3`)
+- Größere Schrift (`text-base` bzw. `text-lg`), weiterhin bold
+- Etwas größeres Icon (`w-6 h-6`)
+- Eckenradius bleibt `rounded-2xl`
 
-## Nicht-Ziele
-- PWAStatusBar-Logik bleibt unverändert.
-- Bottom-Padding (für die fixe Menüleiste) bleibt unverändert.
-- Header bleibt mobil ausgeblendet.
+**Konkret:**
+- `cardBase`: `flex items-center gap-3 rounded-2xl border-2 bg-card px-5 py-4 min-h-[64px] text-left transition-all active:scale-[0.98] hover:bg-accent/40`
+- `inactive`: `border-primary/40`
+- `active`: `border-primary ring-2 ring-primary/30 bg-accent/40`
+- Icon: `w-6 h-6`
+- Text: `text-base font-bold`
+
+Keine Logik-Änderungen, nur Styling. Grid-Layout (2 Spalten, gap-2) bleibt.

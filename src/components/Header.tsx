@@ -4,7 +4,7 @@ import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialo
 import { APP_VERSION } from "@/lib/version";
 import { ChatButton } from "@/components/PortalChat";
 import { usePortalMessages } from "@/hooks/usePortalMessages";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
+
 
 interface HeaderProps {
   viewSettings?: ViewSettings;

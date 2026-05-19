@@ -254,13 +254,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="text-xs sm:text-sm text-foreground font-bold">{t('labels.deliveryBy')}:</span>
+                      <span className="sm:text-sm text-foreground font-bold text-base">{t('labels.deliveryBy')}:</span>
                     </div>
                     {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
                       <div className="flex items-center gap-2">
                         <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                           <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                          <span className="text-xs sm:text-sm text-foreground font-bold">Datum</span>
+                          <span className="sm:text-sm text-foreground font-bold text-base">Lieferung</span>
                         </div>
                         <div className="flex-1 min-w-0">
                           <button
@@ -286,7 +286,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                       <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="text-xs sm:text-sm text-foreground font-bold">Status</span>
+                      <span className="sm:text-sm text-foreground font-bold text-base">Status   </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <Select 
@@ -312,7 +312,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <User className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="text-xs sm:text-sm text-foreground font-bold">{t('labels.assigned')}</span>
+                      <span className="sm:text-sm text-foreground font-bold text-base">{t('labels.assigned')}</span>
                     </div>
                     
                     <div>
@@ -363,7 +363,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                       <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="text-xs sm:text-sm text-foreground font-bold">{t('labels.notes')}</span>
+                      <span className="sm:text-sm text-foreground font-bold text-base">{t('labels.notes')}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <button
@@ -390,7 +390,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 <div className="flex items-center gap-2">
                   <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                     <Printer className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                    <span className="text-xs sm:text-sm text-foreground font-bold">LSchein</span>
+                    <span className="sm:text-sm text-foreground font-bold text-base">LSchein</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <Button
@@ -413,7 +413,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                       <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="text-xs sm:text-sm text-foreground font-bold">
+                      <span className="sm:text-sm text-foreground font-bold text-base">
                         {t('labels.items')}
                       </span>
                     </div>
@@ -436,13 +436,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left text-xs sm:text-sm text-foreground font-bold">
+                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left sm:text-sm text-foreground font-bold text-base">
                                 {t('labels.items')}
                               </TableHead>
-                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left text-xs sm:text-sm text-foreground font-bold">
+                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left sm:text-sm text-foreground font-bold text-base">
                                 {t('labels.color')}
                               </TableHead>
-                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-right text-xs sm:text-sm text-foreground font-bold">
+                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-right sm:text-sm text-foreground font-bold text-base">
                                 {t('labels.quantity')}
                               </TableHead>
                             </TableRow>

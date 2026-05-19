@@ -62,7 +62,7 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationPr
 
       {/* Mobile Layout - Fixed Bottom Navigation */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-t border-border shadow-[0_-2px_8px_rgba(0,0,0,0.04)]"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-accent backdrop-blur border-t border-border shadow-[0_-2px_8px_rgba(0,0,0,0.04)]"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="flex justify-around w-full px-1 pt-1.5 pb-1">

@@ -221,15 +221,15 @@ const Index = () => {
 
             {loading ? (
               <div className="text-center py-8">
-                <p className="text-muted-foreground">Lade Buchungen...</p>
+                <p className="text-muted-foreground">Lade Bestellungen...</p>
               </div>
             ) : error ? (
               <div className="text-center py-8 text-destructive">
-                <p>Fehler beim Laden der Buchungen: {error}</p>
+                <p>Fehler beim Laden der Bestellungen: {error}</p>
               </div>
             ) : filteredBookings.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-muted-foreground">Keine Buchungen gefunden.</p>
+                <p className="text-muted-foreground">Keine Bestellungen gefunden.</p>
               </div>
             ) : (
               <div className="space-y-6">

@@ -48,9 +48,9 @@
     "quantity": "Anzahl",
     "notPlanned": "Nicht geplant",
     "noItems": "Keine Artikel",
-    "linenOrdersForBooking": "{{count}} Wäschebestellungen zu dieser Buchung",
-    "linenOrdersForBooking_one": "{{count}} Wäschebestellung zu dieser Buchung",
-    "linenOrdersForBooking_other": "{{count}} Wäschebestellungen zu dieser Buchung"
+    "linenOrdersForBooking": "{{count}} Wäschebestellungen zu dieser Bestellung",
+    "linenOrdersForBooking_one": "{{count}} Wäschebestellung zu dieser Bestellung",
+    "linenOrdersForBooking_other": "{{count}} Wäschebestellungen zu dieser Bestellung"
   },
   "deliveryType": {
     "pickup": "Abholung",

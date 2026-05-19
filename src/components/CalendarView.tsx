@@ -321,6 +321,7 @@ const CalendarView = () => {
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
+    setDayDialogOpen(true);
   };
 
   // Get event color - for occupied events use house color

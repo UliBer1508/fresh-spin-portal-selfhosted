@@ -47,7 +47,10 @@
     "color": "Color",
     "quantity": "Quantity",
     "notPlanned": "Not planned",
-    "noItems": "No items"
+    "noItems": "No items",
+    "linenOrdersForBooking": "{{count}} linen orders for this booking",
+    "linenOrdersForBooking_one": "{{count}} linen order for this booking",
+    "linenOrdersForBooking_other": "{{count}} linen orders for this booking"
   },
   "deliveryType": {
     "pickup": "Pickup",

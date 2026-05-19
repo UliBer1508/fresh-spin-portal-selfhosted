@@ -47,7 +47,10 @@
     "color": "Kleur",
     "quantity": "Aantal",
     "notPlanned": "Niet gepland",
-    "noItems": "Geen artikelen"
+    "noItems": "Geen artikelen",
+    "linenOrdersForBooking": "{{count}} wasbestellingen voor deze boeking",
+    "linenOrdersForBooking_one": "{{count}} wasbestelling voor deze boeking",
+    "linenOrdersForBooking_other": "{{count}} wasbestellingen voor deze boeking"
   },
   "deliveryType": {
     "pickup": "Ophalen",

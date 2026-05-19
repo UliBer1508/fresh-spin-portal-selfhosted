@@ -209,7 +209,7 @@ const Index = () => {
     switch (activeTab) {
       case "waesche":
         return (
-          <div className="space-y-6">
+          <div className="space-y-2 sm:space-y-3">
             <QuickFilterCards
               bookings={bookings}
               value={quickFilter}

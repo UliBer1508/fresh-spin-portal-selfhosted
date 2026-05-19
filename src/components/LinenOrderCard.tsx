@@ -15,7 +15,7 @@ interface LinenOrderCardProps {
 const LinenOrderCard = ({ order, bookingId, viewSettings, onUpdate }: LinenOrderCardProps) => {
   const borderColor = getColorByHash(BOOKING_COLORS, bookingId);
   return (
-    <Card className={`w-full border-border bg-card border-l-8 ${borderColor}`}>
+    <Card className={`w-full border-border bg-accent border-l-8 ${borderColor}`}>
       <CardContent className="p-3 sm:p-4">
         <LinenOrderSection
           linenOrders={[order]}

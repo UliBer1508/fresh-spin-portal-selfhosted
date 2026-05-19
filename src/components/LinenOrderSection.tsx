@@ -436,13 +436,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left text-xs sm:text-sm text-foreground font-bold">
+                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left sm:text-sm text-foreground font-bold text-base">
                                 {t('labels.items')}
                               </TableHead>
-                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left text-xs sm:text-sm text-foreground font-bold">
+                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left sm:text-sm text-foreground font-bold text-base">
                                 {t('labels.color')}
                               </TableHead>
-                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-right text-xs sm:text-sm text-foreground font-bold">
+                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-right sm:text-sm text-foreground font-bold text-base">
                                 {t('labels.quantity')}
                               </TableHead>
                             </TableRow>

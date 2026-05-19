@@ -20,83 +20,87 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationPr
   ];
 
   return (
-    <div className="border-b border-border bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Desktop Layout - Single Row */}
-        <div className="hidden md:flex items-center justify-between h-12">
-          <div className="flex space-x-8">
-            {tabs.map((tab) => {
-              const label = t(tab.labelKey);
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => onTabChange(tab.id)}
-                  className={cn(
-                    "flex items-center gap-2 h-12 px-4 font-medium border-b-2 transition-colors",
-                    activeTab === tab.id
-                      ? "text-primary border-primary"
-                      : "text-muted-foreground border-transparent hover:text-foreground"
-                  )}
-                >
-                  <span 
+    <>
+      {/* Desktop Layout - Top Bar */}
+      <div className="hidden md:block border-b border-border bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between h-12">
+            <div className="flex space-x-8">
+              {tabs.map((tab) => {
+                const label = t(tab.labelKey);
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => onTabChange(tab.id)}
                     className={cn(
-                      "text-xl relative",
-                      tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
-                    )} 
-                    role="img" 
-                    aria-label={label}
-                  >
-                    {tab.emoji}
-                    {tab.id === "benachrichtigungen" && hasNewOrders && (
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                      "flex items-center gap-2 h-12 px-4 font-medium border-b-2 transition-colors",
+                      activeTab === tab.id
+                        ? "text-primary border-primary"
+                        : "text-muted-foreground border-transparent hover:text-foreground"
                     )}
-                  </span>
-                  <span>{label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Mobile Layout - Icon-Only Horizontal */}
-        <div className="md:hidden py-2">
-          <div className="flex justify-around w-full">
-            {tabs.map((tab) => {
-              const label = t(tab.labelKey);
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => onTabChange(tab.id)}
-                  className={cn(
-                    "flex flex-col items-center justify-center w-14 h-14 rounded-full transition-colors relative",
-                    activeTab === tab.id
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <span 
-                    className={cn(
-                      "text-2xl relative",
-                      tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
-                    )} 
-                    role="img" 
-                    aria-label={label}
                   >
-                    {tab.emoji}
-                    {tab.id === "benachrichtigungen" && hasNewOrders && (
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                    )}
-                  </span>
-                  {activeTab === tab.id && (
-                    <span className="absolute bottom-2 w-6 h-0.5 bg-primary rounded-full" />
-                  )}
-                </button>
-              );
-            })}
+                    <span
+                      className={cn(
+                        "text-xl relative",
+                        tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
+                      )}
+                      role="img"
+                      aria-label={label}
+                    >
+                      {tab.emoji}
+                      {tab.id === "benachrichtigungen" && hasNewOrders && (
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                      )}
+                    </span>
+                    <span>{label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Mobile Layout - Fixed Bottom Bar */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 pb-[env(safe-area-inset-bottom)]"
+        aria-label="Hauptnavigation"
+      >
+        <div className="flex justify-around items-stretch w-full px-1 pt-1.5 pb-1">
+          {tabs.map((tab) => {
+            const label = t(tab.labelKey);
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={cn(
+                  "flex flex-col items-center justify-center flex-1 min-w-0 gap-0.5 py-1 rounded-lg transition-colors relative",
+                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <span
+                  className={cn(
+                    "text-2xl relative leading-none",
+                    tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
+                  )}
+                  role="img"
+                  aria-label={label}
+                >
+                  {tab.emoji}
+                  {tab.id === "benachrichtigungen" && hasNewOrders && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  )}
+                </span>
+                <span className={cn("text-[10px] truncate max-w-full", isActive && "font-semibold")}>
+                  {label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+    </>
   );
 };
 

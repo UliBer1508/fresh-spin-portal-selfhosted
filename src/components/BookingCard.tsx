@@ -130,7 +130,7 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
           {(viewSettings.showCheckInDate || viewSettings.showCheckOutDate) && (
             <div className="grid grid-cols-2 gap-3">
               {viewSettings.showCheckInDate && (
-                <div className="rounded-xl border border-border bg-background p-3">
+                <div className="rounded-xl border border-border bg-transparent p-3">
                   <div className="flex items-center gap-2 mb-1">
                     <Calendar className="w-4 h-4 text-emerald-600" />
                     <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -143,7 +143,7 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
                 </div>
               )}
               {viewSettings.showCheckOutDate && (
-                <div className="rounded-xl border border-border bg-background p-3">
+                <div className="rounded-xl border border-border bg-transparent p-3">
                   <div className="flex items-center gap-2 mb-1">
                     <Calendar className="w-4 h-4 text-rose-500" />
                     <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

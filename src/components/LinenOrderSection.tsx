@@ -262,15 +262,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   </div>
                 )}
 
-                {/* Status - Mobile-optimiertes Dropdown */}
                 {viewSettings.showOrderStatus && (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center space-x-2 flex-shrink-0">
                       <span className="text-lg">📊</span>
-                      <span className="text-sm font-semibold text-foreground">{t('common:actions.confirm').split(' ')[0] === 'Confirm' ? 'Status' : 'Status'}</span>
+                      <span className="text-sm font-semibold text-foreground">Status</span>
                     </div>
-                    
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <Select 
                         value={order.status || 'ausstehend'} 
                         onValueChange={(value) => handleStatusChange(order.id, value)}
@@ -279,30 +277,10 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50">
-                          <SelectItem 
-                            value="offen" 
-                            className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
-                          >
-                            🟠 {t('status.offen')}
-                          </SelectItem>
-                          <SelectItem 
-                            value="ausstehend" 
-                            className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
-                          >
-                            🟡 {t('status.ausstehend')}
-                          </SelectItem>
-                          <SelectItem 
-                            value="delivered" 
-                            className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
-                          >
-                            🟢 {t('status.delivered')}
-                          </SelectItem>
-                          <SelectItem 
-                            value="cancelled" 
-                            className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
-                          >
-                            🔴 {t('status.cancelled')}
-                          </SelectItem>
+                          <SelectItem value="offen" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🟠 {t('status.offen')}</SelectItem>
+                          <SelectItem value="ausstehend" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🟡 {t('status.ausstehend')}</SelectItem>
+                          <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🟢 {t('status.delivered')}</SelectItem>
+                          <SelectItem value="cancelled" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🔴 {t('status.cancelled')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

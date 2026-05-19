@@ -6,7 +6,7 @@ import TabNavigation from "@/components/TabNavigation";
 import BookingWithOrdersGroup from "@/components/BookingWithOrdersGroup";
 import CalendarView from "@/components/CalendarView";
 import LaundryStaffManagement from "@/components/LaundryStaffManagement";
-import NotificationSettings from "@/components/NotificationSettings";
+
 import InvoiceList from "@/components/InvoiceList";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import PWAUpdatePrompt from "@/components/PWAUpdatePrompt";

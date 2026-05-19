@@ -1,74 +1,17 @@
-# Tag-Klick öffnet Popup mit Tagesinfo
+# Buttons linksbündig wie der Lieferungs-Button
 
-Betroffene Datei: `src/components/CalendarView.tsx`
+Betroffene Datei: `src/components/LinenOrderSection.tsx`
 
-## Ziel
-Beim Klick auf einen Tag in der Kalender-Karte (Monat/Woche) öffnet sich ein zentriertes Modal-Popup wie im Mockup mit:
-- **Header:** Wochentag fett (z. B. "Freitag") + darunter Datum gemuted (z. B. "29. Mai 2026"), rechts oben Schließen-X.
-- **Event-Liste:** pro Event eine abgerundete Karte mit
-  - links rundem mint-farbenem Icon-Badge (Sparkles für Reinigung, Shirt für Wäsche, LogIn/LogOut für Check-in/-out, BedDouble für occupied)
-  - rechts Titel fett (Hausname), darunter Subtitel gemuted: `Typ • Uhrzeit • ● Status`
-  - Chevron-Right rechts (außer für reine Info-Events)
-- Wenn keine Events: leerer Hinweistext.
+Der Lieferungs-Button verwendet `text-left` und richtet seinen Inhalt links aus. Die anderen Aktions-Buttons (Notiz, Drucken, Anzeigen) sowie die Status-/Wäschekraft-Selects sollen identisch links ausgerichtet werden.
 
-## Umsetzung
+## Änderungen
 
-### 1. Dialog-Komponente
-- shadcn `Dialog` (`@/components/ui/dialog`) verwenden.
-- Neuer State: `dayDialogOpen: boolean` (selectedDate existiert schon und steuert Inhalt).
-- `handleDayClick(date)`: setzt `selectedDate(date)` UND `setDayDialogOpen(true)`.
+1. **Notiz-Button** (Zeile ~369-384): innere `justify-between`-Klasse entfernen — Text bleibt damit garantiert links (statt mittig wirkend bei kurzen Texten).
 
-### 2. Dialog-Layout (mobile-first)
-```text
-┌──────────────────────────────────┐
-│ Freitag                      [×] │
-│ 29. Mai 2026                     │
-│                                  │
-│ ┌──────────────────────────────┐ │
-│ │ (✨)  Wald Chalet         ›  │ │
-│ │      Reinigung · 10:00 ●Gepl.│ │
-│ └──────────────────────────────┘ │
-│ ┌──────────────────────────────┐ │
-│ │ (👕)  Wald Chalet            │ │
-│ │      Wäsche Lieferung ●Geli. │ │
-│ └──────────────────────────────┘ │
-└──────────────────────────────────┘
-```
-- Container: weiße Karte, `rounded-2xl`, max-width ~480px, auf Mobile mit Rand `mx-4`.
-- Event-Cards: `bg-card border rounded-xl p-3 flex items-center gap-3`.
-- Icon-Badge: `w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center`.
-- Status-Dot: kleiner farbiger Punkt (geplant=blau, geliefert=grün, abgeschlossen=grün, offen=amber).
+2. **Drucken-Button** (shadcn `<Button>`, Zeile ~396-402): zusätzliche Klassen `justify-start text-left` hinzufügen, damit der Text "Drucken" linksbündig statt zentriert dargestellt wird.
 
-### 3. Event-Daten anreichern
-`CalendarEvent` um optionale Felder erweitern (rein UI, optional):
-- `time?: string` (z. B. `10:00`)
-- `status?: string` (z. B. `Geplant`, `Geliefert`)
-- `statusColor?: string` (semantic class)
+3. **Anzeigen-Button** (Zeile ~421-428): `text-center` → `text-left` ändern, damit "Anzeigen (n)" links beginnt.
 
-Beim Aufbau der Events (`loadCalendarData`) Felder mitschreiben:
-- cleaning: status aus `service_tasks.status`, Zeit `10:00` (oder vorhandenes Feld falls da)
-- linen: Status aus `linen_orders.status`
-- check-in/out: optional Uhrzeit aus booking, Status weglassen
-- occupied: nur Hausname, keine Statuszeile
+4. **Status-Select & Wäschekraft-Select**: shadcn `SelectTrigger` zeigt den Wert standardmäßig links — keine Änderung nötig (Status/Ausstehend im Screenshot ist bereits links).
 
-Falls Felder nicht in DB existieren, im UI einfach ausblenden (`event.status && …`).
-
-### 4. Icon-Mapping
-```ts
-const iconFor = {
-  cleaning: Sparkles,
-  linen: Shirt,
-  'check-in': LogIn,
-  'check-out': LogOut,
-  occupied: BedDouble,
-}
-```
-Imports aus `lucide-react` ergänzen (Sparkles, Shirt, LogIn, LogOut, BedDouble bereits teilweise vorhanden – nur fehlende ergänzen).
-
-### 5. Cleanup
-- Die bestehende Sidebar-Sektion "Selected Date Events" (Zeilen 789-821) bleibt für Desktop optional erhalten oder wird entfernt — **wird entfernt**, weil das Popup beide Plattformen abdeckt und die Sidebar dadurch entlastet wird.
-
-## Technische Hinweise
-- Reine Frontend-Änderung; keine Datenmodell-/RLS-Änderungen.
-- i18n-Keys für neue Status-/Typ-Labels wiederverwenden falls vorhanden, sonst über vorhandene Event-Title fallen lassen.
-- Light-Theme respektieren; Farben über semantische Tokens bzw. dezente `emerald-100/700` für das Icon-Badge.
+Reine UI-/Klassen-Änderung. Keine Logikänderung.

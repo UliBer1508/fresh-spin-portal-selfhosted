@@ -436,7 +436,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left sm:text-sm text-foreground font-bold text-base">
+                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left sm:text-sm text-foreground font-bold text-sm">
                                 {t('labels.items')}
                               </TableHead>
                               <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left sm:text-sm text-foreground font-bold text-base">

@@ -1,7 +1,8 @@
-// v9 - Chat in mobile nav
+// v10 - Lucide icons in mobile nav
 import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
 import { usePortalMessages } from "@/hooks/usePortalMessages";
+import { Home, Calendar, Receipt, Bell, MessageCircle, type LucideIcon } from "lucide-react";
 
 interface TabNavigationProps {
   activeTab: string;
@@ -11,16 +12,21 @@ interface TabNavigationProps {
   onNotificationSettingsOpen?: () => void;
 }
 
+interface TabDef {
+  id: string;
+  labelKey: string;
+  icon: LucideIcon;
+}
+
 const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNotificationSettingsOpen }: TabNavigationProps) => {
   const { t } = useTranslation('navigation');
   const { unreadCount } = usePortalMessages();
 
-  const tabs = [
-    { id: "waesche", labelKey: "tabs.bookings", emoji: "🧺" },
-    { id: "kalender", labelKey: "tabs.calendar", emoji: "📅" },
-    { id: "rechnungen", labelKey: "tabs.invoices", emoji: "🧾" },
-    
-    { id: "benachrichtigungen", labelKey: "tabs.notifications", emoji: "🔔" },
+  const tabs: TabDef[] = [
+    { id: "waesche", labelKey: "tabs.bookings", icon: Home },
+    { id: "kalender", labelKey: "tabs.calendar", icon: Calendar },
+    { id: "rechnungen", labelKey: "tabs.invoices", icon: Receipt },
+    { id: "benachrichtigungen", labelKey: "tabs.notifications", icon: Bell },
   ];
 
   const handleTabClick = (tabId: string) => {
@@ -39,6 +45,7 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNot
           <div className="flex space-x-8">
             {tabs.map((tab) => {
               const label = t(tab.labelKey);
+              const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
@@ -50,15 +57,15 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNot
                       : "text-muted-foreground border-transparent hover:text-foreground"
                   )}
                 >
-                  <span 
-                    className={cn(
-                      "text-xl relative",
-                      tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
-                    )} 
-                    role="img" 
-                    aria-label={label}
-                  >
-                    {tab.emoji}
+                  <span className="relative inline-flex">
+                    <Icon
+                      className={cn(
+                        "w-5 h-5",
+                        tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
+                      )}
+                      strokeWidth={2}
+                      aria-label={label}
+                    />
                     {tab.id === "benachrichtigungen" && hasNewOrders && (
                       <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                     )}
@@ -84,6 +91,7 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNot
           {tabs.map((tab) => {
             const label = t(tab.labelKey);
             const isActive = activeTab === tab.id;
+            const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
@@ -93,15 +101,15 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNot
                   isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <span
-                  className={cn(
-                    "text-2xl relative leading-none",
-                    tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
-                  )}
-                  role="img"
-                  aria-label={label}
-                >
-                  {tab.emoji}
+                <span className="relative inline-flex leading-none">
+                  <Icon
+                    className={cn(
+                      "w-6 h-6",
+                      tab.id === "benachrichtigungen" && hasNewOrders && "animate-bell-ring"
+                    )}
+                    strokeWidth={2}
+                    aria-label={label}
+                  />
                   {tab.id === "benachrichtigungen" && hasNewOrders && (
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                   )}
@@ -120,8 +128,8 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNot
               className="flex flex-col items-center justify-center flex-1 min-w-0 py-1 gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Chat"
             >
-              <span className="text-2xl relative leading-none" role="img" aria-label="Chat">
-                💬
+              <span className="relative inline-flex leading-none">
+                <MessageCircle className="w-6 h-6" strokeWidth={2} aria-label="Chat" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
                     {unreadCount}

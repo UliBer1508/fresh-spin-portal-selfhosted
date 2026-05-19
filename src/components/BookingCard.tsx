@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Home, MapPin, User, Users, Calendar, Sparkles } from "lucide-react";
-import LinenOrderSection from "./LinenOrderSection";
+
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking } from "@/hooks/useBookings";
 import { BOOKING_COLORS, getColorByHash } from "@/lib/constants";

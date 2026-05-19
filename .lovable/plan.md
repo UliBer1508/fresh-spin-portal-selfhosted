@@ -1,21 +1,18 @@
-## Quick-Filter-Buttons im Stil des Bildes
+## Einheitliche Lucide-Icons in der Bottom-Navigation
 
-Datei: `src/components/QuickFilterCards.tsx` (nur `cardBase`-Klassen anpassen)
+**Problem:** Die Bottom-Navigation (`TabNavigation.tsx`) verwendet aktuell Emojis (🧺 📅 🧾 🔔 💬), während die QuickFilter-Buttons oben bereits Lucide-Icons (`Home`, `Calendar`) nutzen. Im Referenzbild sind alle Icons im selben Lucide-Stil (Linien-Icons, einheitliche Strichstärke).
 
-**Sichtbare Änderungen im Bild vs. aktuell:**
-- Heller, weißer Hintergrund statt `bg-accent`
-- Hellblauer Rand (Border in Primary-Ton), deutlicher abgesetzt
-- Größere Buttons: mehr vertikales/horizontales Padding (~ `px-5 py-4`, `min-h-[64px]`)
-- Größerer Abstand zwischen Icon und Text (`gap-3`)
-- Größere Schrift (`text-base` bzw. `text-lg`), weiterhin bold
-- Etwas größeres Icon (`w-6 h-6`)
-- Eckenradius bleibt `rounded-2xl`
+**Änderung:** `src/components/TabNavigation.tsx`
 
-**Konkret:**
-- `cardBase`: `flex items-center gap-3 rounded-2xl border-2 bg-card px-5 py-4 min-h-[64px] text-left transition-all active:scale-[0.98] hover:bg-accent/40`
-- `inactive`: `border-primary/40`
-- `active`: `border-primary ring-2 ring-primary/30 bg-accent/40`
-- Icon: `w-6 h-6`
-- Text: `text-base font-bold`
+- Lucide-Icons importieren: `Home`, `Calendar`, `Receipt`, `Bell`, `MessageCircle`
+- `tabs`-Array: `emoji` durch `icon` (Komponente) ersetzen
+  - `waesche` → `Home`
+  - `kalender` → `Calendar`
+  - `rechnungen` → `Receipt`
+  - `benachrichtigungen` → `Bell`
+- Chat-Button: `💬` → `MessageCircle`
+- Rendering: `<span>{emoji}</span>` → `<Icon className="w-6 h-6" strokeWidth={2} />` (Desktop `w-5 h-5`)
+- Bestehende Badges bleiben (roter Punkt bei `hasNewOrders`, Unread-Count beim Chat) — werden absolut um den Icon-Wrapper positioniert
+- Animation `animate-bell-ring` bleibt auf dem Bell-Icon erhalten
 
-Keine Logik-Änderungen, nur Styling. Grid-Layout (2 Spalten, gap-2) bleibt.
+Keine Logik-/Routing-Änderungen, nur Icon-Austausch.

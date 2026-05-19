@@ -94,7 +94,6 @@ const CalendarView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [mobileDayOpen, setMobileDayOpen] = useState(false);
-  const isMobileView = useIsMobile();
   const [view, setView] = useState<'month' | 'week' | 'gantt'>(() => {
     const saved = localStorage.getItem('calendar-view');
     return (saved === 'month' || saved === 'week' || saved === 'gantt') ? saved : 'gantt';
@@ -312,6 +311,7 @@ const CalendarView = () => {
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
+    if (isMobile) setMobileDayOpen(true);
   };
 
   // Get event color - for occupied events use house color

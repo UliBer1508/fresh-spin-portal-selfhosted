@@ -605,71 +605,69 @@ const CalendarView = () => {
         {/* Main Calendar */}
         <div className="flex-1">
           {/* Calendar Header */}
-          <div className="mb-6">
-            <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
-              <div className="flex flex-col space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-4">
-                <h1 className="text-xl md:text-2xl font-bold">
-                  {view === 'week' 
-                    ? `${format(weekStart, 'd. MMM', { locale: dateLocale })} - ${format(weekEnd, 'd. MMM yyyy', { locale: dateLocale })}`
-                    : format(currentDate, 'MMMM yyyy', { locale: dateLocale })
-                  }
-                </h1>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={goToPrevious}
-                    className="h-8 px-2 md:h-9 md:px-3"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={goToToday}
-                    className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
-                  >
-                    {t('navigation.today')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={goToNext}
-                    className="h-8 px-2 md:h-9 md:px-3"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
+          <div className="mb-4 space-y-3">
+            <h1 className="text-xl md:text-2xl font-bold">
+              {view === 'week'
+                ? `${format(weekStart, 'd. MMM', { locale: dateLocale })} - ${format(weekEnd, 'd. MMM yyyy', { locale: dateLocale })}`
+                : format(currentDate, 'MMMM yyyy', { locale: dateLocale })
+              }
+            </h1>
 
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant={view === 'month' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setView('month')}
-                  className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
-                >
-                  {t('views.month')}
-                </Button>
-                <Button
-                  variant={view === 'week' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setView('week')}
-                  className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
-                >
-                  {t('views.week')}
-                </Button>
-                <Button
-                  variant={view === 'gantt' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setView('gantt')}
-                  className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
-                >
-                  {t('views.gantt')}
-                </Button>
-              </div>
+            {/* View switcher: Monat / Woche / Gantt — full-width segmented */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant={view === 'month' ? 'default' : 'outline'}
+                onClick={() => setView('month')}
+                className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
+              >
+                {t('views.month')}
+              </Button>
+              <Button
+                variant={view === 'week' ? 'default' : 'outline'}
+                onClick={() => setView('week')}
+                className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
+              >
+                {t('views.week')}
+              </Button>
+              <Button
+                variant={view === 'gantt' ? 'default' : 'outline'}
+                onClick={() => setView('gantt')}
+                className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
+              >
+                {t('views.gantt')}
+              </Button>
             </div>
           </div>
+
+          {/* Gantt-only nav row (since the in-card nav lives in month/week view) */}
+          {view === 'gantt' && (
+            <div className="flex items-center justify-end gap-2 mb-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToPrevious}
+                className="h-9 w-9 p-0 rounded-full"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToToday}
+                className="h-9 px-4 rounded-full text-sm"
+              >
+                {t('navigation.today')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToNext}
+                className="h-9 w-9 p-0 rounded-full"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
 
           {/* Gantt View */}
           {view === 'gantt' && renderGanttView()}

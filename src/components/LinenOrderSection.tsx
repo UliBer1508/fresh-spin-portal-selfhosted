@@ -339,15 +339,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   </div>
                 )}
 
-                {/* Notizen - Kompakte anklickbare Anzeige */}
                 {viewSettings.showOrderNotes && (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center space-x-2 flex-shrink-0">
                       <span className="text-lg">📝</span>
                       <span className="text-sm font-semibold text-foreground">{t('labels.notes')}</span>
                     </div>
-                    
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <button
                         onClick={() => handleEditNotes(order)}
                         className="w-full text-left p-3 rounded-lg border border-border bg-accent 

@@ -34,6 +34,16 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
   const [printDialogOpen, setPrintDialogOpen] = useState(false);
   const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
+  const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set());
+
+  const toggleItems = (orderId: string) => {
+    setCollapsedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(orderId)) next.delete(orderId);
+      else next.add(orderId);
+      return next;
+    });
+  };
 
   // Fetch laundry staff for assignment dropdown
   useEffect(() => {

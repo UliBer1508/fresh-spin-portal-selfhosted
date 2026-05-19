@@ -272,7 +272,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <PWAStatusBar />
-      <div className="pt-12 md:pt-0 flex-1">
+      <div className="flex-1">
       <Header 
         viewSettings={viewSettings}
         onSettingsChange={handleSettingsChange}
@@ -289,7 +289,7 @@ const Index = () => {
           onNotificationSettingsOpen={() => setNotifSettingsOpen(true)}
         />
         
-        <main className="max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-8 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-[env(safe-area-inset-bottom)]">
+        <main className="max-w-7xl mx-auto px-3 pt-2 pb-4 sm:px-6 sm:pt-4 sm:pb-8 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-[env(safe-area-inset-bottom)]">
           {renderTabContent()}
         </main>
       </div>

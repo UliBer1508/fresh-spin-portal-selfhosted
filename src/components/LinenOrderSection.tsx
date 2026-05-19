@@ -413,7 +413,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                       <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="sm:text-sm text-foreground font-bold text-base">
+                      <span className="sm:text-sm text-foreground font-bold text-sm">
                         {t('labels.items')}
                       </span>
                     </div>

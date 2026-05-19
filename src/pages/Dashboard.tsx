@@ -10,7 +10,7 @@ import { AlertTriangle, Package, ArrowRight, Clock, Truck, Users } from "lucide-
 import { useBookingsContext } from "@/context/BookingsContext";
 import type { LinenOrder } from "@/hooks/useBookings";
 
-const localeMap: Record<string, Locale> = { de, en: enUS, nl };
+const localeMap: Record<string, typeof de> = { de, en: enUS, nl };
 
 const Dashboard = () => {
   const { t, i18n } = useTranslation();

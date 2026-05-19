@@ -1,10 +1,13 @@
 {
   "tabs": {
+    "dashboard": "Overzicht",
     "bookings": "Boekingen",
     "orders": "Bestellingen",
     "calendar": "Kalender",
     "invoices": "Facturen",
     "staff": "Personeel",
-    "notifications": "Meldingen"
+    "notifications": "Meldingen",
+    "messages": "Berichten",
+    "settings": "Instellingen"
   }
 }

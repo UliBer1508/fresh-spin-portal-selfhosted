@@ -387,16 +387,22 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 )}
 
                 {/* LS-Drucken Button */}
-                <div className="pt-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOpenPrintDialog(order)}
-                    className="w-full bg-accent border-border hover:brightness-95 no-print min-h-[40px] sm:min-h-[44px] gap-2"
-                  >
-                    <Printer className="w-4 h-4" strokeWidth={2} />
-                    {t('labels.printDeliveryNote')}
-                  </Button>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
+                    <Printer className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
+                    <span className="text-xs sm:text-sm text-foreground font-bold">LSchein</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenPrintDialog(order)}
+                      className="w-full bg-accent border-border hover:brightness-95 no-print min-h-[40px] sm:min-h-[44px] gap-2"
+                    >
+                      <Printer className="w-4 h-4" strokeWidth={2} />
+                      {t('labels.printDeliveryNote')}
+                    </Button>
+                  </div>
                 </div>
               </div>
 

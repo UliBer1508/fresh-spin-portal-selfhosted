@@ -1,15 +1,18 @@
-// v8 - Multi-language support
+// v9 - Chat in mobile nav
 import { useTranslation } from 'react-i18next';
 import { cn } from "@/lib/utils";
+import { usePortalMessages } from "@/hooks/usePortalMessages";
 
 interface TabNavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   hasNewOrders?: boolean;
+  onChatOpen?: () => void;
 }
 
-const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationProps) => {
+const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen }: TabNavigationProps) => {
   const { t } = useTranslation('navigation');
+  const { unreadCount } = usePortalMessages();
 
   const tabs = [
     { id: "waesche", labelKey: "tabs.bookings", emoji: "🧺" },
@@ -97,6 +100,25 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationPr
               </button>
             );
           })}
+
+          {/* Chat Button */}
+          {onChatOpen && (
+            <button
+              onClick={onChatOpen}
+              className="flex flex-col items-center justify-center flex-1 min-w-0 py-1 gap-0.5 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Chat"
+            >
+              <span className="text-2xl relative leading-none" role="img" aria-label="Chat">
+                💬
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+              </span>
+              <span className="text-[11px] font-medium truncate max-w-full">Chat</span>
+            </button>
+          )}
         </div>
       </nav>
     </div>

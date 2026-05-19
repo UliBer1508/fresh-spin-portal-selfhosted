@@ -51,8 +51,10 @@ const Header = ({
           {/* Language Switcher */}
           <LanguageSwitcher />
           
-          {/* Chat Button */}
-          <ChatButton onClick={() => onChatOpen?.()} unreadCount={unreadCount} />
+          {/* Chat Button (Desktop only - mobile has it in bottom tab nav) */}
+          <div className="hidden md:block">
+            <ChatButton onClick={() => onChatOpen?.()} unreadCount={unreadCount} />
+          </div>
           
           {shouldShowButton && (
             <ViewSettingsDialog

@@ -1,44 +1,72 @@
+## Plan: Klickbare Quick-Filter-Karten + neues BookingCard-Layout
 
+### Ziel
+1. Über der Buchungsliste (Tab "Wäsche") eine 2×2-Grid von klickbaren Karten anzeigen: pro Haus eine Karte + "Diese Woche" / "Nächste Woche". Klick = Filter setzen, erneutes Klicken = Filter aus.
+2. Die `BookingCard` optisch an den hochgeladenen Screenshot angleichen — gleiche Inhalte wie heute, nur neues Layout.
 
-## Diagnose: Welche Rechnungen fehlen?
+---
 
-### Datenbank-Stand (laundry_invoices)
-- **48 Datensätze gesamt**
-- **35 Entwürfe** (`ENTWURF-...`) — werden korrekt ausgeblendet
-- **13 echte Rechnungen** sollten angezeigt werden:
+### 1. Quick-Filter-Karten (neu)
 
-| Nr | Datum | Status | Brutto |
-|---|---|---|---|
-| 47 | 28.02.2026 | bezahlt | 386,24 |
-| 1 | 23.01.2026 | bezahlt | 474,69 |
-| 12 | 31.12.2025 | bezahlt | 153,77 |
-| 109 | 31.12.2025 | bezahlt | 272,23 |
-| R2025-0001 | 07.12.2025 | bezahlt | 101,30 |
-| 81 | 18.08.2025 | bezahlt | 293,16 |
-| 73 | 17.07.2025 | bezahlt | 123,60 |
-| 52 | 30.04.2025 | bezahlt | 60,82 |
-| 41 | 12.04.2025 | bezahlt | 37,96 |
-| 34 | 27.03.2025 | bezahlt | 241,93 |
-| 25 | 28.02.2025 | bezahlt | 206,63 |
-| 19 | 31.01.2025 | bezahlt | 197,34 |
-| 1 | 15.01.2025 | bezahlt | 170,17 |
+Neue Komponente `src/components/QuickFilterCards.tsx`, eingebunden in `src/pages/Index.tsx` direkt unter `SearchAndFilter` (Tab "waesche").
 
-### Beobachtung
-- RLS ist **deaktiviert** auf der Tabelle — alle Zeilen sind erreichbar.
-- Die Query und der Filter sind korrekt.
-- Der Code sollte exakt diese **13 Rechnungen** liefern.
+Layout: `grid grid-cols-2 gap-3` (mobile-first), Karten mit:
+- helles Hellblau (`bg-sky-50`), abgerundet (`rounded-2xl`), dünner Border, `min-h-[64px]`, ≥44px Touch.
+- Icon links (Home für Häuser, Calendar für Zeit), bold Label rechts.
+- Aktiver Zustand: kräftigerer Border + Ring in primary.
 
-### Mögliche Ursachen, wenn der User weniger sieht
-1. **PWA-Cache**: Der Service Worker (v12.20) liefert noch eine alte Version aus.
-2. **Erwartung vs. Realität**: Der User erwartet mehr als 13 Rechnungen, aber in der DB sind tatsächlich nur 13 echte vorhanden (Rest sind Entwürfe).
-3. **Doppelte Rechnungsnummer "1"**: Es gibt zwei verschiedene Rechnungen mit `rechnungsnummer = "1"` (verschiedene `id`s/Daten). React rendert beide korrekt (Key ist `inv.id`), aber visuell könnte das verwirrend wirken.
+Karten:
+- **Pro Haus** (dynamisch aus `bookings`/`standaloneOrders` ableiten, alphabetisch, deduped) → setzt House-Filter.
+- **Diese Woche** → check_in/delivery_date in [Mo..So aktuelle Woche].
+- **Nächste Woche** → analog folgende Woche.
 
-### Klärungsfrage notwendig
+State: `quickFilter: { type: 'house'|'thisWeek'|'nextWeek'|null, value?: string }` in `Index.tsx`. Wird in `SearchAndFilter` mitgegeben (neue Prop) und dort in die bestehende Filterlogik kombiniert (AND mit Suchtext). Toggle: erneutes Klicken auf aktive Karte → reset.
 
-Ich brauche vom User folgende Information, bevor ich blind Änderungen vornehme:
-- Wie viele Rechnungen werden aktuell angezeigt?
-- Welche bestimmte Rechnung fehlt (Nummer/Datum)?
-- Oder: Sollten die **Entwürfe** doch angezeigt werden (ggf. als separate Sektion)?
+Mehrsprachig via i18n-Keys (`common.json`: `quickFilter.thisWeek`, `quickFilter.nextWeek`).
 
-→ Ich werde dem User per `ask_questions` diese Frage stellen, statt zu raten.
+---
 
+### 2. Neues BookingCard-Layout
+
+Datei: `src/components/BookingCard.tsx` (komplettes Re-Layout, Logik bleibt).
+
+Struktur entsprechend Screenshot:
+```
+┌─ farbiger Balken links (bestehende Hash-Farbe) ───────────────┐
+│ [🏠 dunkelblaues Icon-Tile]  Wald Chalet                       │
+│                              Buchung                           │
+│                                                                │
+│ 📍 Trattenbach 299/17, 5741 Neukirchen am GV                   │
+│ 👤 Helena Kunz  ·  👥 3                                         │
+│                                                                │
+│ ┌──────────────────┐  ┌──────────────────┐                     │
+│ │ 📅 CHECK-IN      │  │ 📅 CHECK-OUT     │                     │
+│ │ 30.05.2026       │  │ 06.06.2026       │                     │
+│ └──────────────────┘  └──────────────────┘                     │
+│                                                                │
+│ 🧹 Reinigungsauftrag: …  (falls vorhanden)                      │
+│ <LinenOrderSection …/>                                          │
+└────────────────────────────────────────────────────────────────┘
+```
+
+Details:
+- Card-Hintergrund bleibt `bg-yellow-50` mit `border-l-8 <hash-color>`.
+- Haus-Icon-Tile: `w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center` mit `Home`-Icon (lucide).
+- Untertitel "Buchung" als `text-sm text-muted-foreground` (übersetzt via `bookings:labels.booking`).
+- Adresse mit `MapPin`-Icon, Gast/Anzahl in einer Zeile mit Mitteldot.
+- Check-in/Check-out als zwei gleich breite Sub-Cards: `rounded-xl border bg-background p-3`, Label uppercase `text-xs tracking-wide text-muted-foreground`, Datum `text-lg font-semibold`. Icons farbig (`text-emerald-600` / `text-rose-500`).
+- Mobile: Check-in/out bleiben nebeneinander (`grid grid-cols-2 gap-3`), bei sehr schmal evtl. `gap-2`.
+- Memory-Regeln eingehalten: keine Labels "Unterkunft:"/"Provider:", Singular "Reinigungsauftrag", iOS-Inputs nicht betroffen.
+- `ViewSettings`-Flags (showAccommodationName/Address/GuestName/GuestCount/CheckIn/CheckOut/BookingStatus/LinenOrders) werden weiter respektiert — Felder nur rendern, wenn aktiv.
+- `Status`-Badge bleibt rechts oben im Header neben dem Haus-Block (wenn `showBookingStatus`).
+
+### Out of Scope
+- Keine Änderung an `StandaloneOrderCard`, `LinenOrderSection`, Datenmodell oder Filter-Backend.
+- Keine neuen Dependencies.
+
+### Geänderte/Neue Dateien
+- neu: `src/components/QuickFilterCards.tsx`
+- edit: `src/pages/Index.tsx` (State + Einbindung)
+- edit: `src/components/SearchAndFilter.tsx` (neue Prop `quickFilter`, in Filterlogik integrieren)
+- edit: `src/components/BookingCard.tsx` (Re-Layout)
+- edit: `public/locales/{de,en,nl}/common.json` und ggf. `bookings.json` (neue Keys)

@@ -35,6 +35,24 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
   const [printDialogOpen, setPrintDialogOpen] = useState(false);
   const [laundryStaff, setLaundryStaff] = useState<LaundryStaff[]>([]);
   const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set());
+  const [initializedOrders, setInitializedOrders] = useState<Set<string>>(new Set());
+
+  // Default: alle Artikel-Listen eingeklappt
+  useEffect(() => {
+    const newIds = linenOrders.filter(o => !initializedOrders.has(o.id)).map(o => o.id);
+    if (newIds.length > 0) {
+      setCollapsedItems(prev => {
+        const next = new Set(prev);
+        newIds.forEach(id => next.add(id));
+        return next;
+      });
+      setInitializedOrders(prev => {
+        const next = new Set(prev);
+        newIds.forEach(id => next.add(id));
+        return next;
+      });
+    }
+  }, [linenOrders, initializedOrders]);
 
   const toggleItems = (orderId: string) => {
     setCollapsedItems((prev) => {

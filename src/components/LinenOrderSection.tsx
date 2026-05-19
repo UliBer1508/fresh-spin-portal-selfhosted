@@ -253,7 +253,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg">📅</span>
+                      <Calendar className="w-5 h-5 text-foreground" strokeWidth={2} />
                       <span className="text-sm font-semibold text-foreground">{t('labels.deliveryBy')}:</span>
                     </div>
                     
@@ -272,7 +272,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                                 viewSettings.showDeliveryTime ? order.delivery_time : undefined
                               )}
                             </span>
-                            <span className="text-base">⏰</span>
                           </div>
                         </button>
                       )}

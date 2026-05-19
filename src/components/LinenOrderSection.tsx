@@ -254,7 +254,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="sm:text-sm text-foreground font-bold text-base">{t('labels.deliveryBy')}:</span>
+                      <span className="sm:text-sm text-foreground font-bold text-sm">{t('labels.deliveryBy')}:</span>
                     </div>
                     {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
                       <div className="flex items-center gap-2">

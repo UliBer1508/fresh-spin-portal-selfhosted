@@ -317,6 +317,7 @@ const CalendarView = () => {
 
   const handleEventClick = (event: CalendarEvent) => {
     setSelectedDate(event.date);
+    setDayDialogOpen(true);
   };
 
   const handleDayClick = (date: Date) => {

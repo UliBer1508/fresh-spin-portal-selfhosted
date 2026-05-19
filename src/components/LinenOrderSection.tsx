@@ -254,13 +254,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="sm:text-sm text-foreground font-bold text-sm">{t('labels.deliveryBy')}:</span>
+                      <span className="sm:text-sm text-foreground font-bold text-xs">{t('labels.deliveryBy')}:</span>
                     </div>
                     {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
                       <div className="flex items-center gap-2">
                         <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                           <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                          <span className="sm:text-sm text-foreground font-bold text-sm">Lieferung</span>
+                          <span className="sm:text-sm text-foreground font-bold text-xs">Lieferung</span>
                         </div>
                         <div className="flex-1 min-w-0">
                           <button
@@ -286,7 +286,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                       <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="sm:text-sm text-foreground font-bold text-sm">Status   </span>
+                      <span className="sm:text-sm text-foreground font-bold text-xs">Status   </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <Select 
@@ -312,7 +312,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <User className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="sm:text-sm text-foreground font-bold text-sm">{t('labels.assigned')}</span>
+                      <span className="sm:text-sm text-foreground font-bold text-xs">{t('labels.assigned')}</span>
                     </div>
                     
                     <div>
@@ -363,7 +363,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                       <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="sm:text-sm text-foreground font-bold text-sm">{t('labels.notes')}</span>
+                      <span className="sm:text-sm text-foreground font-bold text-xs">{t('labels.notes')}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <button
@@ -390,7 +390,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 <div className="flex items-center gap-2">
                   <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                     <Printer className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                    <span className="sm:text-sm text-foreground font-bold text-sm">LSchein</span>
+                    <span className="sm:text-sm text-foreground font-bold text-xs">LSchein</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <Button
@@ -413,7 +413,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                       <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="sm:text-sm text-foreground font-bold text-sm">
+                      <span className="sm:text-sm text-foreground font-bold text-xs">
                         {t('labels.items')}
                       </span>
                     </div>

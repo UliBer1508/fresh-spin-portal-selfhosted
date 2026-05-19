@@ -1,10 +1,11 @@
 // v12 - Full i18n Translation Support
 import { useState, useEffect, useRef, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay } from "date-fns";
 
@@ -92,6 +93,7 @@ const CalendarView = () => {
   const { t, i18n } = useTranslation('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [mobileDayOpen, setMobileDayOpen] = useState(false);
   const [view, setView] = useState<'month' | 'week' | 'gantt'>(() => {
     const saved = localStorage.getItem('calendar-view');
     return (saved === 'month' || saved === 'week' || saved === 'gantt') ? saved : 'gantt';
@@ -309,6 +311,7 @@ const CalendarView = () => {
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
+    if (isMobile) setMobileDayOpen(true);
   };
 
   // Get event color - for occupied events use house color
@@ -617,27 +620,29 @@ const CalendarView = () => {
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="icon"
                     onClick={goToPrevious}
-                    className="h-8 px-2 md:h-9 md:px-3"
+                    aria-label="Vorheriger Zeitraum"
+                    className="h-11 w-11 rounded-full shadow-sm active:scale-95 transition-transform md:h-10 md:w-10"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-5 h-5" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={goToToday}
-                    className="h-8 px-2 text-xs md:h-9 md:px-3 md:text-sm"
+                    className="h-11 px-4 text-sm rounded-full shadow-sm active:scale-95 transition-transform md:h-10 md:px-4"
                   >
                     {t('navigation.today')}
                   </Button>
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="icon"
                     onClick={goToNext}
-                    className="h-8 px-2 md:h-9 md:px-3"
+                    aria-label="Nächster Zeitraum"
+                    className="h-11 w-11 rounded-full shadow-sm active:scale-95 transition-transform md:h-10 md:w-10"
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-5 h-5" />
                   </Button>
                 </div>
               </div>
@@ -851,6 +856,56 @@ const CalendarView = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Day-Detail Dialog */}
+      <Dialog open={mobileDayOpen} onOpenChange={setMobileDayOpen}>
+        <DialogContent className="md:hidden w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] max-h-[80vh] overflow-y-auto rounded-3xl p-5 border-0 shadow-2xl">
+          <DialogHeader className="text-left pr-10">
+            <DialogTitle className="text-base font-semibold">
+              {selectedDate ? format(selectedDate, 'EEEE, d. MMMM', { locale: dateLocale }) : ''}
+            </DialogTitle>
+            <DialogClose className="absolute right-3 top-3 w-11 h-11 rounded-full flex items-center justify-center hover:bg-muted active:scale-95 transition-transform">
+              <X className="w-5 h-5" />
+              <span className="sr-only">Schließen</span>
+            </DialogClose>
+          </DialogHeader>
+          <div className="mt-3 space-y-2">
+            {getSelectedDateEvents().length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">
+                {t('sidebar.noEvents')}
+              </p>
+            ) : (
+              getSelectedDateEvents().map((event) => (
+                <div
+                  key={event.id}
+                  className="flex items-start gap-3 rounded-xl border border-border bg-card p-3"
+                >
+                  <div className={cn("w-1 self-stretch rounded-full", getEventIconColor(event))} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <div className={cn("w-2.5 h-2.5 rounded-full flex-shrink-0", getEventIconColor(event))} />
+                      <span className="font-medium text-sm truncate text-foreground">{event.title}</span>
+                    </div>
+                    {event.guest && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {t('sidebar.guest')}: {event.guest}
+                      </p>
+                    )}
+                    {event.house && (
+                      <p className="text-xs text-muted-foreground">{event.house}</p>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <DialogClose asChild>
+            <Button variant="outline" className="w-full h-11 mt-4 rounded-full">
+              Schließen
+            </Button>
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -17,13 +17,7 @@ function useDirection(localDir) {
   return localDir || globalDir || "ltr";
 }
 
-// node_modules/@radix-ui/number/dist/index.mjs
-function clamp(value, [min, max]) {
-  return Math.min(max, Math.max(min, value));
-}
-
 export {
-  useDirection,
-  clamp
+  useDirection
 };
-//# sourceMappingURL=chunk-6RWJINVL.js.map
+//# sourceMappingURL=chunk-JWDMXHVH.js.map

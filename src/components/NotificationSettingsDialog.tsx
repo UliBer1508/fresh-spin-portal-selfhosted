@@ -64,7 +64,7 @@ const NotificationSettingsDialog = ({ open, onOpenChange }: Props) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[88vw] max-w-sm rounded-3xl">
         <DialogHeader>
           <DialogTitle>🔔 Benachrichtigungen</DialogTitle>
         </DialogHeader>

@@ -1,5 +1,6 @@
-// v8 - Mehrsprachig mit i18n
+// v9 - Mehrsprachig + einklappbare Artikelliste
 import { useState, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

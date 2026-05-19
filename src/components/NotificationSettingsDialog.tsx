@@ -75,7 +75,6 @@ const NotificationSettingsDialog = ({ open, onOpenChange }: Props) => {
               Benachrichtigungen aktiv
             </Label>
             <Switch
-              id="notif-enabled"
               checked={enabled}
               onCheckedChange={setEnabled}
             />

@@ -150,7 +150,7 @@ const PushNotificationSetup = () => {
           </Badge>
         </div>
         <CardDescription>
-          Erhalten Sie Benachrichtigungen über neue Buchungen und wichtige Updates
+          Erhalten Sie Benachrichtigungen über neue Bestellungen und wichtige Updates
         </CardDescription>
       </CardHeader>
       

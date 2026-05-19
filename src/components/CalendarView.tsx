@@ -675,8 +675,52 @@ const CalendarView = () => {
           {/* Calendar Grid (Month/Week) */}
           {view !== 'gantt' && (
             <div className="bg-background border rounded-lg">
+              {/* In-card header: house legend (left) + Today/arrows (right) */}
+              <div className="flex items-center justify-between gap-2 p-3 md:p-4 border-b">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
+                  {houses.map((house) => {
+                    const houseColor = getHouseColor(house.id);
+                    return (
+                      <div key={house.id} className="flex items-center gap-1.5">
+                        <span className={cn("w-2.5 h-2.5 rounded-full shrink-0", houseColor.bg)} />
+                        <span className="text-xs md:text-sm font-medium text-muted-foreground">
+                          {getHouseAbbreviation(house.name)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToPrevious}
+                    className="h-8 w-8 p-0 rounded-full"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToToday}
+                    className="h-8 px-3 rounded-full text-xs md:text-sm"
+                  >
+                    {t('navigation.today')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goToNext}
+                    className="h-8 w-8 p-0 rounded-full"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
               {/* Days of week header */}
               <div className="grid grid-cols-7 border-b">
+
                 {weekdaysShort.map((day) => (
                   <div key={day} className="p-2 md:p-4 text-center text-xs md:text-sm font-medium text-muted-foreground">
                     {day}

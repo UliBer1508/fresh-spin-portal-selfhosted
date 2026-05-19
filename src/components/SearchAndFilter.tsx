@@ -7,6 +7,19 @@ import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking, LinenOrder } from "@/hooks/useBookings";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrderStatusLabel } from "@/lib/constants";
+import type { QuickFilter } from "@/components/QuickFilterCards";
+
+const getWeekRange = (offsetWeeks: number) => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dayOfWeek = today.getDay();
+  const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const weekStart = new Date(
+    today.getTime() + (offsetWeeks * 7 - mondayOffset) * 86400000,
+  );
+  const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
+  return { weekStart, weekEnd };
+};
 
 interface LaundryStaff {
   id: string;

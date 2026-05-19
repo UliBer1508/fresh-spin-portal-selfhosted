@@ -9,7 +9,7 @@
   },
   "gantt": {
     "accommodation": "Unterkunft",
-    "noBookings": "Keine Buchungen",
+    "noBookings": "Keine Bestellungen",
     "noProperties": "Keine touristisch vermieteten Unterkünfte gefunden.",
     "night": "Nacht",
     "nights": "Nächte"

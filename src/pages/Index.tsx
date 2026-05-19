@@ -1,9 +1,9 @@
 // v12.4 - Copyright Footer + Cache Fix
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 import SearchAndFilter from "@/components/SearchAndFilter";
-import BookingCard from "@/components/BookingCard";
+import BookingWithOrdersGroup from "@/components/BookingWithOrdersGroup";
 import StandaloneOrderCard from "@/components/StandaloneOrderCard";
 import CalendarView from "@/components/CalendarView";
 import LaundryStaffManagement from "@/components/LaundryStaffManagement";
@@ -73,7 +73,22 @@ const Index = () => {
   }, []);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [filteredStandaloneOrders, setFilteredStandaloneOrders] = useState<LinenOrder[]>([]);
-  
+
+  // Group filtered (one-per-order) bookings back by booking id for grouped rendering
+  const groupedBookings = useMemo(() => {
+    const map = new Map<string, { booking: Booking; orders: LinenOrder[] }>();
+    for (const b of filteredBookings) {
+      const order = b.linen_orders?.[0];
+      const existing = map.get(b.id);
+      if (existing) {
+        if (order) existing.orders.push(order);
+      } else {
+        map.set(b.id, { booking: b, orders: order ? [order] : [] });
+      }
+    }
+    return Array.from(map.values());
+  }, [filteredBookings]);
+
   // Mobile Detection (simple check for button visibility logic)
   const isMobile = useIsMobile();
 
@@ -175,11 +190,12 @@ const Index = () => {
                     <p className="text-muted-foreground">Keine Buchungen gefunden.</p>
                   </div>
                 ) : filteredBookings.length > 0 && (
-                  <div className="space-y-4">
-                    {filteredBookings.map((booking) => (
-                      <BookingCard 
-                        key={booking.id} 
-                        booking={booking} 
+                  <div className="space-y-6">
+                    {groupedBookings.map((g) => (
+                      <BookingWithOrdersGroup
+                        key={g.booking.id}
+                        booking={g.booking}
+                        orders={g.orders}
                         viewSettings={viewSettings}
                         onUpdate={refetch}
                       />

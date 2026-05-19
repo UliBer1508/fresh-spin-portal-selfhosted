@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Home, MapPin, User, Users, Calendar, Sparkles } from "lucide-react";
-import LinenOrderSection from "./LinenOrderSection";
+
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking } from "@/hooks/useBookings";
 import { BOOKING_COLORS, getColorByHash } from "@/lib/constants";
@@ -168,22 +168,6 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
             </div>
           )}
 
-          {/* Linen Orders Section */}
-          {viewSettings.showLinenOrders && (
-            <LinenOrderSection
-              linenOrders={(booking.linen_orders || []).map((order) => ({
-                ...order,
-                bookings: {
-                  guest_name: booking.guest_name,
-                  check_in: booking.check_in,
-                  check_out: booking.check_out,
-                  number_of_guests: booking.number_of_guests,
-                },
-              }))}
-              onUpdate={onUpdate}
-              viewSettings={viewSettings}
-            />
-          )}
         </div>
       </CardContent>
     </Card>
@@ -191,3 +175,4 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
 };
 
 export default BookingCard;
+

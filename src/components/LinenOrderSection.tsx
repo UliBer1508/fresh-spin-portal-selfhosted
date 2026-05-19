@@ -23,9 +23,10 @@ interface LinenOrderSectionProps {
   linenOrders: LinenOrder[];
   onUpdate?: () => void;
   viewSettings: ViewSettings;
+  hideHeader?: boolean;
 }
 
-const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSectionProps) => {
+const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: LinenOrderSectionProps) => {
   const { t, i18n } = useTranslation(['orders', 'common']);
   const [selectedOrder, setSelectedOrder] = useState<LinenOrder | null>(null);
   const [deliveryDialogOpen, setDeliveryDialogOpen] = useState(false);
@@ -203,12 +204,14 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings }: LinenOrderSe
   }
 
   return (
-    <div className="mt-4 space-y-2">
-      <div className="border-t border-border pt-3">
-        <div className="flex items-center space-x-2 mb-2">
-          <span className="text-lg">🧺</span>
-          <h4 className="font-medium text-foreground">{t('labels.linenOrder')}</h4>
-        </div>
+    <div className={hideHeader ? "space-y-2" : "mt-4 space-y-2"}>
+      <div className={hideHeader ? "" : "border-t border-border pt-3"}>
+        {!hideHeader && (
+          <div className="flex items-center space-x-2 mb-2">
+            <span className="text-lg">🧺</span>
+            <h4 className="font-medium text-foreground">{t('labels.linenOrder')}</h4>
+          </div>
+        )}
         
         {linenOrders.map((order) => (
           <div key={order.id} className="bg-accent rounded-lg p-3 sm:p-4 mb-3">

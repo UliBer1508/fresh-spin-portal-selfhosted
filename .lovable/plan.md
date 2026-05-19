@@ -1,13 +1,6 @@
-## Plan: Klickbare Felder primary-gefüllt
+## Plan
+In `src/pages/Index.tsx` Zeile 212: Container der „Wäsche"-Tab-Sektion `space-y-6` → `space-y-2 sm:space-y-3`.
 
-### `src/components/LinenOrderSection.tsx`
+Damit verringert sich der vertikale Abstand zwischen den QuickFilter-Karten (Diese Woche/Nächste Woche/Häuser) und der ersten Buchungskarte deutlich (von 24px auf 8/12px).
 
-1. **Datum-Button** (Z. 268): `border border-border bg-accent hover:brightness-95` → `bg-primary hover:bg-primary/90 shadow-sm`. Wert-Text: `text-foreground` → `text-primary-foreground`.
-
-2. **Notizen-Button** (Z. 371): gleiche Klassen wie Datum. Wert-Text → `text-primary-foreground`.
-
-3. **Drucken-Button** (Z. 396–403): `variant="outline"` → `variant="default"`, Klassen-Override `bg-accent border-border hover:brightness-95` entfernen.
-
-4. **Status-Select** (Z. 296): Behält `getStatusColor`-Farbe (semantisch), bekommt zusätzlich `ring-2 ring-primary/40 ring-offset-1`.
-
-Kein Edit-Icon — Buttons sind durch Primary-Farbe selbsterklärend klickbar.
+Die innere `space-y-6` der Buchungsliste (Z. 233) bleibt unverändert — Abstand zwischen Buchungskarten untereinander.

@@ -36,6 +36,8 @@ interface CalendarEvent {
   house?: string;
   house_id?: string;
   guest?: string;
+  time?: string;
+  status?: string;
 }
 
 interface Booking {

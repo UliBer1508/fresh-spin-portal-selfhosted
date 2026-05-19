@@ -244,29 +244,29 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
         
         {linenOrders.map((order) => (
           <div key={order.id} className="mb-3">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               
               {/* ========== LINKE SPALTE - Metadaten & Aktionen ========== */}
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 
                 {/* Lieferung mit Bearbeiten-Button */}
                 {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <Calendar className="w-4 h-4 text-foreground" strokeWidth={2} />
-                      <span className="text-xs font-semibold text-foreground">{t('labels.deliveryBy')}:</span>
+                      <Calendar className="w-5 h-5 text-foreground" strokeWidth={2} />
+                      <span className="text-sm font-semibold text-foreground">{t('labels.deliveryBy')}:</span>
                     </div>
                     
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
                         <button
                           onClick={() => handleEditDelivery(order)}
-                          className="w-full text-left p-2 rounded-lg border border-border bg-accent 
+                          className="w-full text-left p-3 rounded-lg border border-border bg-accent 
                                    hover:brightness-95 transition-all 
-                                   cursor-pointer touch-manipulation min-h-[36px]"
+                                   cursor-pointer touch-manipulation min-h-[44px]"
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-foreground text-xs font-bold">
+                            <span className="text-foreground text-sm font-bold">
                               {formatDateTime(
                                 viewSettings.showDeliveryDate ? order.delivery_date : undefined,
                                 viewSettings.showDeliveryTime ? order.delivery_time : undefined
@@ -282,22 +282,22 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {viewSettings.showOrderStatus && (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0">
-                      <BarChart3 className="w-4 h-4 text-foreground" strokeWidth={2} />
-                      <span className="text-xs font-semibold text-foreground">Status</span>
+                      <BarChart3 className="w-5 h-5 text-foreground" strokeWidth={2} />
+                      <span className="text-sm font-semibold text-foreground">Status</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <Select 
                         value={order.status || 'ausstehend'} 
                         onValueChange={(value) => handleStatusChange(order.id, value)}
                       >
-                        <SelectTrigger className={`w-full min-h-[36px] h-9 text-xs touch-manipulation ${getStatusColor(order.status)}`}>
+                        <SelectTrigger className={`w-full min-h-[44px] touch-manipulation ${getStatusColor(order.status)}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50">
-                          <SelectItem value="offen" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[36px] text-xs">🟠 {t('status.offen')}</SelectItem>
-                          <SelectItem value="ausstehend" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[36px] text-xs">🟡 {t('status.ausstehend')}</SelectItem>
-                          <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[36px] text-xs">🟢 {t('status.delivered')}</SelectItem>
-                          <SelectItem value="cancelled" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[36px] text-xs">🔴 {t('status.cancelled')}</SelectItem>
+                          <SelectItem value="offen" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🟠 {t('status.offen')}</SelectItem>
+                          <SelectItem value="ausstehend" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🟡 {t('status.ausstehend')}</SelectItem>
+                          <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🟢 {t('status.delivered')}</SelectItem>
+                          <SelectItem value="cancelled" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🔴 {t('status.cancelled')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -306,10 +306,10 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
 
                 {/* Zugewiesene Wäschekraft */}
                 {viewSettings.showAssignedStaff && (
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4 text-foreground" strokeWidth={2} />
-                      <span className="text-xs font-semibold text-foreground">{t('labels.assigned')}</span>
+                      <User className="w-5 h-5 text-foreground" strokeWidth={2} />
+                      <span className="text-sm font-semibold text-foreground">{t('labels.assigned')}</span>
                     </div>
                     
                     <div>
@@ -323,13 +323,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                           }
                         }}
                       >
-                        <SelectTrigger className="w-full min-h-[36px] h-9 text-xs touch-manipulation bg-accent border-border">
+                        <SelectTrigger className="w-full min-h-[44px] touch-manipulation bg-accent border-border">
                           <SelectValue placeholder={t('labels.assignStaff')} />
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
                           <SelectItem 
                             value="none" 
-                            className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[36px] text-xs"
+                            className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
                           >
                             {t('labels.noAssignment')}
                           </SelectItem>
@@ -337,7 +337,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                             <SelectItem 
                               key={staff.id} 
                               value={staff.id}
-                              className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[36px] text-xs"
+                              className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
                             >
                               {staff.name}
                             </SelectItem>
@@ -345,7 +345,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                           {order.assigned_staff_id && (
                             <SelectItem 
                               value="unassign" 
-                              className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground min-h-[36px] text-xs"
+                              className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground min-h-[44px]"
                             >
                               {t('labels.removeAssignment')}
                             </SelectItem>
@@ -359,18 +359,18 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {viewSettings.showOrderNotes && (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0">
-                      <FileText className="w-4 h-4 text-foreground" strokeWidth={2} />
-                      <span className="text-xs font-semibold text-foreground">{t('labels.notes')}</span>
+                      <FileText className="w-5 h-5 text-foreground" strokeWidth={2} />
+                      <span className="text-sm font-semibold text-foreground">{t('labels.notes')}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <button
                         onClick={() => handleEditNotes(order)}
-                        className="w-full text-left p-2 rounded-lg border border-border bg-accent 
+                        className="w-full text-left p-3 rounded-lg border border-border bg-accent 
                                    hover:brightness-95 transition-all 
-                                   cursor-pointer touch-manipulation min-h-[36px]"
+                                   cursor-pointer touch-manipulation min-h-[44px]"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-foreground text-xs font-bold truncate">
+                          <span className="text-foreground text-sm font-bold truncate">
                             {order.notes 
 
                               ? (order.notes.length > 50 
@@ -391,7 +391,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     variant="outline"
                     size="sm"
                     onClick={() => handleOpenPrintDialog(order)}
-                    className="w-full bg-accent border-border hover:brightness-95 no-print min-h-[36px] h-9 text-xs gap-2"
+                    className="w-full bg-accent border-border hover:brightness-95 no-print min-h-[44px] gap-2"
                   >
                     <Printer className="w-4 h-4" strokeWidth={2} />
                     {t('labels.printDeliveryNote')}
@@ -403,23 +403,22 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
               {viewSettings.showOrderItems && (() => {
                 const isCollapsed = collapsedItems.has(order.id);
                 return (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {/* Toggle Header */}
                   <button
                     type="button"
                     onClick={() => toggleItems(order.id)}
-                    className="flex w-full items-center justify-between py-1.5 touch-manipulation min-h-[36px]"
+                    className="flex w-full items-center justify-between py-2 touch-manipulation min-h-[44px]"
                     aria-expanded={!isCollapsed}
                   >
                     <div className="flex items-center space-x-2">
-                      <ClipboardList className="w-4 h-4 text-foreground" strokeWidth={2} />
-                      <span className="text-xs font-semibold text-foreground">
+                      <ClipboardList className="w-5 h-5 text-foreground" strokeWidth={2} />
+                      <span className="text-sm font-semibold text-foreground">
                         {t('labels.items')}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary">
-
                         {getTotalItems(order.items as Record<string, number>)} {t('labels.total')}
                       </Badge>
                       <ChevronDown

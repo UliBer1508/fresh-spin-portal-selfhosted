@@ -1,28 +1,26 @@
 ## Ziel
 
-Wäschebestellungs-Karte (`LinenOrderSection`) kompakter darstellen — gleiches Layout, weniger Höhe/Padding.
+Buchungskarte kompakter machen — Layout bleibt identisch zur Referenz, nur kleinere Maße/Abstände.
 
-## Änderungen in `src/components/LinenOrderSection.tsx`
+## Änderungen in `src/components/BookingCard.tsx`
 
-Reine Tailwind-Anpassungen, keine Logik:
+Reine Tailwind-Größenanpassungen, keine Logik-Änderungen:
 
 | Element | Vorher | Nachher |
 |---|---|---|
-| Icons (Calendar, BarChart3, User, FileText, ClipboardList) | `w-5 h-5` | `w-4 h-4` |
-| Label-Text (Lieferung, Status, Notizen, Artikel, Zugewiesen) | `text-sm font-semibold` | `text-xs font-semibold` |
-| Lieferung/Notizen Buttons Padding | `p-3 min-h-[44px]` | `p-2 min-h-[36px]` |
-| Lieferung/Notizen Text | `text-sm font-bold` | `text-xs font-bold` |
-| SelectTrigger (Status, Wäschekraft) | `min-h-[44px]` | `min-h-[36px] h-9 text-xs` |
-| SelectItem | `min-h-[44px]` | `min-h-[36px] text-xs` |
-| LS-Drucken Button | `min-h-[44px]` | `min-h-[36px] h-9 text-xs` |
-| Printer Icon | `w-4 h-4` (bleibt) | bleibt |
-| Vertikaler Abstand linke Spalte | `space-y-2` | `space-y-1.5` |
-| Lieferung Sub-Spacing | `space-y-2` (×2) | `space-y-1` |
-| Wäschekraft Spacing | `space-y-2` | `space-y-1` |
-| Artikel Toggle Button | `py-2 min-h-[44px]` | `py-1.5 min-h-[36px]` |
-| Grid gap (linke/rechte Spalte) | `gap-4 sm:gap-6` | `gap-3 sm:gap-4` |
-| Artikel-Spalte `space-y-3` | `space-y-3` | `space-y-2` |
+| `CardContent` Padding | `p-4 sm:p-6` | `p-3 sm:p-4` |
+| Vertikaler Abstand | `space-y-4` | `space-y-2.5` |
+| Icon-Tile (Haus) | `w-12 h-12 rounded-xl` + `w-6 h-6` icon | `w-10 h-10 rounded-lg` + `w-5 h-5` icon |
+| Haus-Titel | `text-lg` | `text-base` |
+| Buchung-Untertitel | `text-sm` | `text-xs` |
+| Adresse Icon | `w-4 h-4` | `w-3.5 h-3.5` |
+| Guest/Users Icons | `w-5 h-5` | `w-4 h-4` |
+| Guest-Text | (default) | `text-sm` |
+| Check-in/out Karten Padding | `p-3` + `rounded-xl` | `p-2.5` + `rounded-lg` |
+| Check-in/out Datum | `text-lg` | `text-base` |
+| Check-in/out Grid Gap | `gap-3` | `gap-2` |
+| Border-left | `border-l-8` | `border-l-4` |
 
-Touch-Targets bleiben mit `min-h-[36px]` (≈ 36 px) noch gut tippbar, ohne wuchtig zu wirken.
+Resultat: gleiche Optik wie das hochgeladene Referenzbild, ~25 % weniger Höhe.
 
 Keine weiteren Dateien betroffen.

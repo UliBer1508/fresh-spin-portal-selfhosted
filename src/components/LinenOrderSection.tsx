@@ -282,7 +282,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {viewSettings.showOrderStatus && (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0">
-                      <span className="text-lg">📊</span>
+                      <BarChart3 className="w-5 h-5 text-foreground" strokeWidth={2} />
                       <span className="text-sm font-semibold text-foreground">Status</span>
                     </div>
                     <div className="flex-1 min-w-0">

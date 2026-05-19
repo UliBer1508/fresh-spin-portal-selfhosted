@@ -95,6 +95,7 @@ const CalendarView = () => {
   const { t, i18n } = useTranslation('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [dayDialogOpen, setDayDialogOpen] = useState(false);
   const [view, setView] = useState<'month' | 'week' | 'gantt'>(() => {
     const saved = localStorage.getItem('calendar-view');
     return (saved === 'month' || saved === 'week' || saved === 'gantt') ? saved : 'gantt';

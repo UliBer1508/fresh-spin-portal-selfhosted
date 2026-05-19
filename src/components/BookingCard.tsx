@@ -61,25 +61,25 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
 
   return (
     <Card
-      className={`w-full hover:shadow-md transition-shadow border-border bg-yellow-50 border-l-8 ${getBookingColor(
+      className={`w-full hover:shadow-md transition-shadow border-border bg-yellow-50 border-l-4 ${getBookingColor(
         booking.id,
       )}`}
     >
-      <CardContent className="p-4 sm:p-6">
-        <div className="space-y-4">
+      <CardContent className="p-3 sm:p-4">
+        <div className="space-y-2.5">
           {/* Header: icon tile + house name + booking subtitle + status */}
           {(viewSettings.showAccommodationName || viewSettings.showBookingStatus) && (
             <div className="flex items-start justify-between gap-3">
               {viewSettings.showAccommodationName && (
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0">
-                    <Home className="w-6 h-6" />
+                  <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                    <Home className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-bold text-lg text-foreground truncate leading-tight">
+                    <h3 className="font-bold text-base text-foreground truncate leading-tight">
                       {booking.houses?.name || t("common:unknown")}
                     </h3>
-                    <p className="text-sm text-muted-foreground leading-tight">
+                    <p className="text-xs text-muted-foreground leading-tight">
                       {t("bookings:labels.booking", { defaultValue: "Buchung" })}
                     </p>
                   </div>
@@ -96,7 +96,7 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
           {/* Address */}
           {viewSettings.showAccommodationAddress && booking.houses?.address && (
             <div className="flex items-center gap-2 text-muted-foreground">
-              <MapPin className="w-4 h-4 shrink-0" />
+              <MapPin className="w-3.5 h-3.5 shrink-0" />
               <span className="text-sm truncate">{booking.houses.address}</span>
             </div>
           )}
@@ -106,8 +106,8 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
             <div className="flex items-center gap-3 flex-wrap">
               {viewSettings.showGuestName && (
                 <div className="flex items-center gap-2">
-                  <User className="w-5 h-5 text-foreground" />
-                  <span className="font-semibold text-foreground">
+                  <User className="w-4 h-4 text-foreground" />
+                  <span className="font-semibold text-foreground text-sm">
                     {booking.guest_name}
                   </span>
                 </div>
@@ -117,8 +117,8 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
               )}
               {viewSettings.showGuestCount && (
                 <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-foreground" />
-                  <span className="font-semibold text-foreground">
+                  <Users className="w-4 h-4 text-foreground" />
+                  <span className="font-semibold text-foreground text-sm">
                     {booking.number_of_guests}
                   </span>
                 </div>
@@ -128,35 +128,36 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
 
           {/* Check-in / Check-out subcards */}
           {(viewSettings.showCheckInDate || viewSettings.showCheckOutDate) && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               {viewSettings.showCheckInDate && (
-                <div className="rounded-xl border border-border bg-transparent p-3">
+                <div className="rounded-lg border border-border bg-transparent p-2.5">
                   <div className="flex items-center gap-2 mb-1">
                     <Calendar className="w-4 h-4 text-emerald-600" />
                     <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       {t("common:dates.checkIn")}
                     </span>
                   </div>
-                  <div className="text-lg font-semibold text-foreground">
+                  <div className="text-base font-semibold text-foreground">
                     {formatDate(booking.check_in)}
                   </div>
                 </div>
               )}
               {viewSettings.showCheckOutDate && (
-                <div className="rounded-xl border border-border bg-transparent p-3">
+                <div className="rounded-lg border border-border bg-transparent p-2.5">
                   <div className="flex items-center gap-2 mb-1">
                     <Calendar className="w-4 h-4 text-rose-500" />
                     <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       {t("common:dates.checkOut")}
                     </span>
                   </div>
-                  <div className="text-lg font-semibold text-foreground">
+                  <div className="text-base font-semibold text-foreground">
                     {formatDate(booking.check_out)}
                   </div>
                 </div>
               )}
             </div>
           )}
+
 
           {/* Cleaning date */}
           {matchingCleaning && (

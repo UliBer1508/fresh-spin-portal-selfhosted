@@ -257,7 +257,8 @@ const Index = () => {
         return <LaundryStaffManagement />;
       
       case "benachrichtigungen":
-        return <NotificationSettings />;
+        // Handled via popup dialog, never rendered as a tab page
+        return null;
       
       default:
         // Falls jemand auf einen nicht-existierenden Tab zugreift, zu "waesche" zurückkehren

@@ -44,9 +44,9 @@ const QuickFilterCards = ({
   };
 
   const cardBase =
-    "flex items-center gap-2 rounded-2xl border-2 bg-accent px-3 py-2 min-h-[44px] text-left transition-all active:scale-[0.98] hover:bg-accent/80";
-  const inactive = "border-accent";
-  const active = "border-primary ring-2 ring-primary/30 bg-accent/90";
+    "flex items-center gap-3 rounded-2xl border-2 bg-card px-5 py-4 min-h-[64px] text-left transition-all active:scale-[0.98] hover:bg-accent/40";
+  const inactive = "border-primary/40";
+  const active = "border-primary ring-2 ring-primary/30 bg-accent/40";
 
   return (
     <div className="grid grid-cols-2 gap-2">
@@ -60,8 +60,8 @@ const QuickFilterCards = ({
             onClick={() => handleClick(filter)}
             className={cn(cardBase, a ? active : inactive)}
           >
-            <Home className="w-5 h-5 shrink-0 text-foreground" />
-            <span className="font-semibold text-foreground truncate">
+            <Home className="w-6 h-6 shrink-0 text-foreground" />
+            <span className="font-bold text-base text-foreground truncate">
               {name}
             </span>
           </button>
@@ -76,8 +76,8 @@ const QuickFilterCards = ({
           isActive({ type: "thisWeek" }) ? active : inactive,
         )}
       >
-        <Calendar className="w-5 h-5 shrink-0 text-foreground" />
-        <span className="font-semibold text-foreground truncate">
+        <Calendar className="w-6 h-6 shrink-0 text-foreground" />
+        <span className="font-bold text-base text-foreground truncate">
           {t("quickFilter.thisWeek", { defaultValue: "Diese Woche" })}
         </span>
       </button>
@@ -90,8 +90,8 @@ const QuickFilterCards = ({
           isActive({ type: "nextWeek" }) ? active : inactive,
         )}
       >
-        <Calendar className="w-5 h-5 shrink-0 text-foreground" />
-        <span className="font-semibold text-foreground truncate">
+        <Calendar className="w-6 h-6 shrink-0 text-foreground" />
+        <span className="font-bold text-base text-foreground truncate">
           {t("quickFilter.nextWeek", { defaultValue: "Nächste Woche" })}
         </span>
       </button>

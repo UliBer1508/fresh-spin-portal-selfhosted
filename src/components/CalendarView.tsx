@@ -176,6 +176,8 @@ const CalendarView = () => {
         .select(`
           id,
           scheduled_date,
+          scheduled_time,
+          status,
           service_type,
           house_id,
           houses!service_tasks_house_id_fkey!inner (name, rental_type)
@@ -191,6 +193,8 @@ const CalendarView = () => {
         .select(`
           id,
           delivery_date,
+          delivery_time,
+          status,
           house_id,
           houses!linen_orders_house_id_fkey!inner (name, rental_type)
         `)

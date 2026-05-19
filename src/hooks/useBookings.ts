@@ -123,46 +123,6 @@ export const useBookings = (onNewOrder?: () => void) => {
 
       setBookings(bookingsWithLinenOrders as unknown as Booking[]);
 
-      // Fetch standalone linen orders (without booking_id but with house_id)
-      const { data: standaloneData, error: standaloneError } = await supabase
-        .from('linen_orders')
-        .select(`
-          id,
-          status,
-          delivery_date,
-          delivery_time,
-          delivery_type,
-          notes,
-          items,
-          item_variants,
-          provider_id,
-          assigned_staff_id,
-          linen_color,
-          house_id,
-          booking_id,
-          houses!linen_orders_house_id_fkey (
-            name,
-            address
-          ),
-          service_providers!linen_orders_provider_id_fkey (
-            name
-          ),
-          laundry_staff!linen_orders_assigned_staff_id_fkey (
-            name
-          ),
-          bookings!linen_orders_booking_id_fkey (
-            guest_name,
-            check_in,
-            check_out,
-            number_of_guests
-          )
-        `)
-        .is('booking_id', null)
-        .order('delivery_date', { ascending: true });
-
-      if (standaloneError) throw standaloneError;
-
-      setStandaloneOrders(standaloneData as unknown as LinenOrder[]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);

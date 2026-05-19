@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
-import SearchAndFilter from "@/components/SearchAndFilter";
+
 import BookingWithOrdersGroup from "@/components/BookingWithOrdersGroup";
 import StandaloneOrderCard from "@/components/StandaloneOrderCard";
 import CalendarView from "@/components/CalendarView";

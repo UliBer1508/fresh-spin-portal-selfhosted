@@ -237,36 +237,34 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
       <div className={hideHeader ? "" : "border-t border-border pt-3"}>
         {!hideHeader && (
           <div className="flex items-center space-x-2 mb-2">
-            <Shirt className="w-5 h-5 text-foreground" strokeWidth={2} />
+            <Shirt className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
             <h4 className="font-medium text-foreground">{t('labels.linenOrder')}</h4>
           </div>
         )}
         
         {linenOrders.map((order) => (
           <div key={order.id} className="mb-3">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
               
               {/* ========== LINKE SPALTE - Metadaten & Aktionen ========== */}
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 
                 {/* Lieferung mit Bearbeiten-Button */}
                 {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <Calendar className="w-5 h-5 text-foreground" strokeWidth={2} />
-                      <span className="text-sm text-foreground font-bold">{t('labels.deliveryBy')}:</span>
+                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
+                      <span className="text-xs sm:text-sm text-foreground font-bold">{t('labels.deliveryBy')}:</span>
                     </div>
                     
                     <div className="space-y-2">
                       {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
                         <button
                           onClick={() => handleEditDelivery(order)}
-                          className="w-full text-left p-3 rounded-lg border border-border bg-accent 
-                                   hover:brightness-95 transition-all 
-                                   cursor-pointer touch-manipulation min-h-[44px]"
+                          className="w-full text-left p-2 sm:p-3 rounded-lg border border-border bg-accent hover:brightness-95 transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-foreground text-sm font-bold">
+                            <span className="text-foreground text-xs sm:text-sm font-bold">
                               {formatDateTime(
                                 viewSettings.showDeliveryDate ? order.delivery_date : undefined,
                                 viewSettings.showDeliveryTime ? order.delivery_time : undefined
@@ -282,15 +280,15 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {viewSettings.showOrderStatus && (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0">
-                      <BarChart3 className="w-5 h-5 text-foreground" strokeWidth={2} />
-                      <span className="text-sm text-foreground font-bold">Status</span>
+                      <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
+                      <span className="text-xs sm:text-sm text-foreground font-bold">Status</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <Select 
                         value={order.status || 'ausstehend'} 
                         onValueChange={(value) => handleStatusChange(order.id, value)}
                       >
-                        <SelectTrigger className={`w-full min-h-[44px] touch-manipulation ${getStatusColor(order.status)}`}>
+                        <SelectTrigger className={`w-full min-h-[40px] sm:min-h-[44px] touch-manipulation ${getStatusColor(order.status)}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50">
@@ -308,8 +306,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {viewSettings.showAssignedStaff && (
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <User className="w-5 h-5 text-foreground" strokeWidth={2} />
-                      <span className="text-sm text-foreground font-bold">{t('labels.assigned')}</span>
+                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
+                      <span className="text-xs sm:text-sm text-foreground font-bold">{t('labels.assigned')}</span>
                     </div>
                     
                     <div>
@@ -323,7 +321,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                           }
                         }}
                       >
-                        <SelectTrigger className="w-full min-h-[44px] touch-manipulation bg-accent border-border">
+                        <SelectTrigger className="w-full min-h-[40px] sm:min-h-[44px] touch-manipulation bg-accent border-border">
                           <SelectValue placeholder={t('labels.assignStaff')} />
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
@@ -359,18 +357,16 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {viewSettings.showOrderNotes && (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0">
-                      <FileText className="w-5 h-5 text-foreground" strokeWidth={2} />
-                      <span className="text-sm text-foreground font-bold">{t('labels.notes')}</span>
+                      <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
+                      <span className="text-xs sm:text-sm text-foreground font-bold">{t('labels.notes')}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <button
                         onClick={() => handleEditNotes(order)}
-                        className="w-full text-left p-3 rounded-lg border border-border bg-accent 
-                                   hover:brightness-95 transition-all 
-                                   cursor-pointer touch-manipulation min-h-[44px]"
+                        className="w-full text-left p-2 sm:p-3 rounded-lg border border-border bg-accent hover:brightness-95 transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-foreground text-sm font-bold truncate">
+                          <span className="text-foreground text-xs sm:text-sm font-bold truncate">
                             {order.notes 
 
                               ? (order.notes.length > 50 
@@ -391,7 +387,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     variant="outline"
                     size="sm"
                     onClick={() => handleOpenPrintDialog(order)}
-                    className="w-full bg-accent border-border hover:brightness-95 no-print min-h-[44px] gap-2"
+                    className="w-full bg-accent border-border hover:brightness-95 no-print min-h-[40px] sm:min-h-[44px] gap-2"
                   >
                     <Printer className="w-4 h-4" strokeWidth={2} />
                     {t('labels.printDeliveryNote')}
@@ -412,8 +408,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     aria-expanded={!isCollapsed}
                   >
                     <div className="flex items-center space-x-2">
-                      <ClipboardList className="w-5 h-5 text-foreground" strokeWidth={2} />
-                      <span className="text-sm text-foreground font-bold">
+                      <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
+                      <span className="text-xs sm:text-sm text-foreground font-bold">
                         {t('labels.items')}
                       </span>
                     </div>
@@ -436,13 +432,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="py-2 px-3 sm:px-4 text-left text-sm text-foreground font-bold">
+                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left text-xs sm:text-sm text-foreground font-bold">
                                 {t('labels.items')}
                               </TableHead>
-                              <TableHead className="py-2 px-3 sm:px-4 text-left text-sm text-foreground font-bold">
+                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-left text-xs sm:text-sm text-foreground font-bold">
                                 {t('labels.color')}
                               </TableHead>
-                              <TableHead className="py-2 px-3 sm:px-4 text-right text-sm text-foreground font-bold">
+                              <TableHead className="py-1.5 sm:py-2 px-2 sm:px-4 text-right text-xs sm:text-sm text-foreground font-bold">
                                 {t('labels.quantity')}
                               </TableHead>
                             </TableRow>
@@ -461,13 +457,13 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                                     key={key}
                                     className="border-b border-border last:border-0 hover:bg-black/5 transition-colors"
                                   >
-                                    <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
+                                    <TableCell className="py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-foreground">
                                       {t(`linenItems.${key}`, { defaultValue: getLinenLabel(key) })}
                                     </TableCell>
-                                    <TableCell className="py-3 px-3 sm:px-4 text-sm font-medium text-foreground">
+                                    <TableCell className="py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-foreground">
                                       {getItemColor(order, key)}
                                     </TableCell>
-                                    <TableCell className="py-3 px-3 sm:px-4 text-right">
+                                    <TableCell className="py-2 sm:py-3 px-2 sm:px-4 text-right">
                                       <Badge variant="outline" className="font-semibold tabular-nums bg-background">
                                         {quantity}×
                                       </Badge>

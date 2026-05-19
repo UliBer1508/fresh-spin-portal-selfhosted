@@ -1,26 +1,32 @@
 ## Ziel
 
-Buchungskarte kompakter machen — Layout bleibt identisch zur Referenz, nur kleinere Maße/Abstände.
+Die Wäschebestellungs-Karte (`LinenOrderCard`) erhält denselben dünnen linken Farbstreifen wie die Buchungskarte (`border-l-4` statt `border-l-8`) und wird für die Mobil-Ansicht (<640px) kompakter dargestellt.
 
-## Änderungen in `src/components/BookingCard.tsx`
+## Änderungen
 
-Reine Tailwind-Größenanpassungen, keine Logik-Änderungen:
+### 1. `src/components/LinenOrderCard.tsx`
+- `border-l-8` → `border-l-4` (gleiche Strichbreite wie BookingCard)
+- `CardContent` Padding: `p-2.5 sm:p-3` → `p-3 sm:p-4` (innen mehr Luft, da Border schmaler)
 
-| Element | Vorher | Nachher |
+### 2. `src/components/LinenOrderSection.tsx`
+Mobile-Optimierung — alle Größen via Tailwind-Breakpoints (`sm:`):
+
+| Element | Mobile | Desktop (sm+) |
 |---|---|---|
-| `CardContent` Padding | `p-4 sm:p-6` | `p-3 sm:p-4` |
-| Vertikaler Abstand | `space-y-4` | `space-y-2.5` |
-| Icon-Tile (Haus) | `w-12 h-12 rounded-xl` + `w-6 h-6` icon | `w-10 h-10 rounded-lg` + `w-5 h-5` icon |
-| Haus-Titel | `text-lg` | `text-base` |
-| Buchung-Untertitel | `text-sm` | `text-xs` |
-| Adresse Icon | `w-4 h-4` | `w-3.5 h-3.5` |
-| Guest/Users Icons | `w-5 h-5` | `w-4 h-4` |
-| Guest-Text | (default) | `text-sm` |
-| Check-in/out Karten Padding | `p-3` + `rounded-xl` | `p-2.5` + `rounded-lg` |
-| Check-in/out Datum | `text-lg` | `text-base` |
-| Check-in/out Grid Gap | `gap-3` | `gap-2` |
-| Border-left | `border-l-8` | `border-l-4` |
+| Vertikaler Abstand zwischen Zeilen | `space-y-1.5` | `sm:space-y-2` |
+| Label-Icons (Calendar, BarChart3, User, FileText, ClipboardList, Shirt) | `w-4 h-4` | `sm:w-5 sm:h-5` |
+| Label-Texte ("Lieferung bis", "Status", "Notizen", "Artikel") | `text-xs` | `sm:text-sm` |
+| Wert-Buttons (Datum, Notizen) Padding | `p-2` | `sm:p-3` |
+| Wert-Buttons min-height | `min-h-[40px]` | `sm:min-h-[44px]` |
+| Wert-Text in Buttons | `text-xs` | `sm:text-sm` |
+| Select-Trigger min-height | `min-h-[40px]` | `sm:min-h-[44px]` |
+| LS-Drucken Button | `min-h-[40px]` | `sm:min-h-[44px]` |
+| Grid-Gap zwischen Spalten | `gap-3` | `sm:gap-6` |
+| Artikel-Tabelle Zellen-Padding | `py-1.5 px-2` | `sm:py-2 sm:px-4` |
 
-Resultat: gleiche Optik wie das hochgeladene Referenzbild, ~25 % weniger Höhe.
+Layout bleibt identisch — nur Maße/Abstände werden auf Mobile reduziert. Resultat: ~25 % weniger vertikale Höhe auf 390px-Breite.
 
-Keine weiteren Dateien betroffen.
+## Nicht betroffen
+
+- BookingCard (bereits kompakt)
+- Logik, Datenfluss, Dialoge

@@ -527,8 +527,9 @@ const CalendarView = () => {
                            return (
                              <div
                                key={day.toISOString()}
+                               onClick={() => handleDayClick(day)}
                                className={cn(
-                                 "border-r last:border-r-0 h-full",
+                                 "border-r last:border-r-0 h-full cursor-pointer hover:bg-primary/5",
                                  isToday && "bg-primary/10",
                                  isWeekend && "bg-muted/20"
                                )}

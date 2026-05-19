@@ -278,8 +278,26 @@ const SearchAndFilter = ({
       });
     }
 
+    // Quick filter
+    if (quickFilter) {
+      if (quickFilter.type === "house") {
+        filtered = filtered.filter(
+          (order) => order.houses?.name === quickFilter.value,
+        );
+      } else if (quickFilter.type === "thisWeek" || quickFilter.type === "nextWeek") {
+        const { weekStart, weekEnd } = getWeekRange(
+          quickFilter.type === "thisWeek" ? 0 : 1,
+        );
+        filtered = filtered.filter((order) => {
+          if (!order.delivery_date) return false;
+          const d = new Date(order.delivery_date);
+          return d >= weekStart && d < weekEnd;
+        });
+      }
+    }
+
     return filtered;
-  }, [standaloneOrders, searchQuery, statusFilter, houseFilter, staffFilter, timeFilter]);
+  }, [standaloneOrders, searchQuery, statusFilter, houseFilter, staffFilter, timeFilter, quickFilter]);
 
   // Memoized callbacks um unnötige Re-renders zu vermeiden
   const stableBookingsCallback = useCallback(

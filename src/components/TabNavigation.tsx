@@ -20,7 +20,7 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders }: TabNavigationPr
   ];
 
   return (
-    <div className="md:border-b md:border-border md:bg-white">
+    <div className="md:border-b md:border-border md:bg-accent">
       <div className="max-w-7xl mx-auto px-6">
         {/* Desktop Layout - Single Row */}
         <div className="hidden md:flex items-center justify-between h-12">

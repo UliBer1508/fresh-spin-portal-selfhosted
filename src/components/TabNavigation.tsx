@@ -8,9 +8,10 @@ interface TabNavigationProps {
   onTabChange: (tab: string) => void;
   hasNewOrders?: boolean;
   onChatOpen?: () => void;
+  onNotificationSettingsOpen?: () => void;
 }
 
-const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen }: TabNavigationProps) => {
+const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen, onNotificationSettingsOpen }: TabNavigationProps) => {
   const { t } = useTranslation('navigation');
   const { unreadCount } = usePortalMessages();
 
@@ -21,6 +22,14 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen }: Tab
     { id: "waeschekraefte", labelKey: "tabs.staff", emoji: "👥" },
     { id: "benachrichtigungen", labelKey: "tabs.notifications", emoji: "🔔" },
   ];
+
+  const handleTabClick = (tabId: string) => {
+    if (tabId === "benachrichtigungen" && onNotificationSettingsOpen) {
+      onNotificationSettingsOpen();
+      return;
+    }
+    onTabChange(tabId);
+  };
 
   return (
     <div className="md:border-b md:border-border md:bg-accent">
@@ -33,7 +42,7 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen }: Tab
               return (
                 <button
                   key={tab.id}
-                  onClick={() => onTabChange(tab.id)}
+                  onClick={() => handleTabClick(tab.id)}
                   className={cn(
                     "flex items-center gap-2 h-12 px-4 font-medium border-b-2 transition-colors",
                     activeTab === tab.id
@@ -75,7 +84,7 @@ const TabNavigation = ({ activeTab, onTabChange, hasNewOrders, onChatOpen }: Tab
             return (
               <button
                 key={tab.id}
-                onClick={() => onTabChange(tab.id)}
+                onClick={() => handleTabClick(tab.id)}
                 className={cn(
                   "flex flex-col items-center justify-center flex-1 min-w-0 py-1 gap-0.5 transition-colors",
                   isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"

@@ -13,14 +13,12 @@ export type QuickFilter =
 
 interface QuickFilterCardsProps {
   bookings: Booking[];
-  standaloneOrders?: LinenOrder[];
   value: QuickFilter;
   onChange: (filter: QuickFilter) => void;
 }
 
 const QuickFilterCards = ({
   bookings,
-  standaloneOrders = [],
   value,
   onChange,
 }: QuickFilterCardsProps) => {
@@ -29,11 +27,8 @@ const QuickFilterCards = ({
   const houses = useMemo(() => {
     const names = new Set<string>();
     bookings.forEach((b) => b.houses?.name && names.add(b.houses.name));
-    standaloneOrders.forEach(
-      (o) => o.houses?.name && names.add(o.houses.name),
-    );
     return Array.from(names).sort((a, b) => a.localeCompare(b));
-  }, [bookings, standaloneOrders]);
+  }, [bookings]);
 
   const isActive = (f: QuickFilter): boolean => {
     if (!value || !f) return false;

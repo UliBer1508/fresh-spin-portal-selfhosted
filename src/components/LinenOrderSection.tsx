@@ -293,7 +293,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                         value={order.status || 'ausstehend'} 
                         onValueChange={(value) => handleStatusChange(order.id, value)}
                       >
-                        <SelectTrigger className={`w-full min-h-[40px] sm:min-h-[44px] touch-manipulation ring-2 ring-primary/40 ring-offset-1 ${getStatusColor(order.status)}`}>
+                        <SelectTrigger className={`w-full min-h-[40px] sm:min-h-[44px] touch-manipulation ring-2 ring-primary/40 ring-offset-1 px-2 sm:px-3 ${getStatusColor(order.status)}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50">
@@ -326,7 +326,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                           }
                         }}
                       >
-                        <SelectTrigger className="w-full min-h-[40px] sm:min-h-[44px] touch-manipulation bg-accent border-border">
+                        <SelectTrigger className="w-full min-h-[40px] sm:min-h-[44px] touch-manipulation bg-accent border-border px-2 sm:px-3">
                           <SelectValue placeholder={t('labels.assignStaff')} />
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
@@ -396,7 +396,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     <Button
                       size="sm"
                       onClick={() => handleOpenPrintDialog(order)}
-                      className="w-full no-print min-h-[40px] sm:min-h-[44px] bg-accent-strong text-accent-strong-foreground hover:brightness-95 shadow-sm justify-start text-left"
+                      className="w-full no-print min-h-[40px] sm:min-h-[44px] bg-accent-strong text-accent-strong-foreground hover:brightness-95 shadow-sm justify-start text-left px-2 sm:px-3"
                     >
                       Drucken
                     </Button>

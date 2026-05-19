@@ -1,6 +1,6 @@
 // v9 - Mehrsprachig + einklappbare Artikelliste
 import { useState, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Calendar, BarChart3, User, FileText, Printer, ClipboardList, Shirt } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -237,7 +237,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
       <div className={hideHeader ? "" : "border-t border-border pt-3"}>
         {!hideHeader && (
           <div className="flex items-center space-x-2 mb-2">
-            <span className="text-lg">🧺</span>
+            <Shirt className="w-5 h-5 text-foreground" strokeWidth={2} />
             <h4 className="font-medium text-foreground">{t('labels.linenOrder')}</h4>
           </div>
         )}
@@ -253,7 +253,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg">📅</span>
+                      <Calendar className="w-5 h-5 text-foreground" strokeWidth={2} />
                       <span className="text-sm font-semibold text-foreground">{t('labels.deliveryBy')}:</span>
                     </div>
                     
@@ -272,7 +272,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                                 viewSettings.showDeliveryTime ? order.delivery_time : undefined
                               )}
                             </span>
-                            <span className="text-base">⏰</span>
                           </div>
                         </button>
                       )}
@@ -283,7 +282,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {viewSettings.showOrderStatus && (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0">
-                      <span className="text-lg">📊</span>
+                      <BarChart3 className="w-5 h-5 text-foreground" strokeWidth={2} />
                       <span className="text-sm font-semibold text-foreground">Status</span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -309,7 +308,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {viewSettings.showAssignedStaff && (
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg">👤</span>
+                      <User className="w-5 h-5 text-foreground" strokeWidth={2} />
                       <span className="text-sm font-semibold text-foreground">{t('labels.assigned')}</span>
                     </div>
                     
@@ -360,7 +359,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 {viewSettings.showOrderNotes && (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center space-x-2 flex-shrink-0">
-                      <span className="text-lg">📝</span>
+                      <FileText className="w-5 h-5 text-foreground" strokeWidth={2} />
                       <span className="text-sm font-semibold text-foreground">{t('labels.notes')}</span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -380,7 +379,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                               : t('labels.noNotes')
                             }
                           </span>
-                          <span className="text-base flex-shrink-0">✏️</span>
                         </div>
                       </button>
                     </div>
@@ -393,9 +391,10 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     variant="outline"
                     size="sm"
                     onClick={() => handleOpenPrintDialog(order)}
-                    className="w-full bg-accent border-border hover:brightness-95 no-print min-h-[44px]"
+                    className="w-full bg-accent border-border hover:brightness-95 no-print min-h-[44px] gap-2"
                   >
-                    🖨️ {t('labels.printDeliveryNote')}
+                    <Printer className="w-4 h-4" strokeWidth={2} />
+                    {t('labels.printDeliveryNote')}
                   </Button>
                 </div>
               </div>
@@ -413,7 +412,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     aria-expanded={!isCollapsed}
                   >
                     <div className="flex items-center space-x-2">
-                      <span className="text-lg">📋</span>
+                      <ClipboardList className="w-5 h-5 text-foreground" strokeWidth={2} />
                       <span className="text-sm font-semibold text-foreground">
                         {t('labels.items')}
                       </span>

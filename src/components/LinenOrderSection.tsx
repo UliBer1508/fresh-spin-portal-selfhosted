@@ -251,17 +251,16 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                 
                 {/* Lieferung mit Bearbeiten-Button */}
                 {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                       <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="text-xs sm:text-sm text-foreground font-bold">{t('labels.deliveryBy')}:</span>
+                      <span className="text-xs sm:text-sm text-foreground font-bold">Datum</span>
                     </div>
-                    
-                    <div className="space-y-2">
-                      {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
+                    {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
+                      <div className="flex-1 min-w-0">
                         <button
                           onClick={() => handleEditDelivery(order)}
-                          className="w-full text-left p-2 sm:p-3 rounded-lg border-border bg-accent hover:brightness-95 transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px] border-2"
+                          className="w-full text-left p-2 sm:p-3 rounded-lg border border-border bg-accent hover:brightness-95 transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
                         >
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-foreground text-xs sm:text-sm font-bold">
@@ -272,18 +271,18 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                             </span>
                           </div>
                         </button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {viewSettings.showOrderStatus && (
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center space-x-2 flex-shrink-0">
+                    <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                       <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
                       <span className="text-xs sm:text-sm text-foreground font-bold">Status</span>
                     </div>
-                    <div className="flex-1 min-w-0 border-2">
+                    <div className="flex-1 min-w-0">
                       <Select 
                         value={order.status || 'ausstehend'} 
                         onValueChange={(value) => handleStatusChange(order.id, value)}
@@ -356,14 +355,14 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
 
                 {viewSettings.showOrderNotes && (
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center space-x-2 flex-shrink-0">
+                    <div className="flex items-center space-x-2 flex-shrink-0 min-w-[72px] sm:min-w-[88px]">
                       <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
                       <span className="text-xs sm:text-sm text-foreground font-bold">{t('labels.notes')}</span>
                     </div>
-                    <div className="flex-1 min-w-0 border-2">
+                    <div className="flex-1 min-w-0">
                       <button
                         onClick={() => handleEditNotes(order)}
-                        className="w-full text-left p-2 sm:p-3 rounded-lg border-border bg-accent hover:brightness-95 transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px] border-2"
+                        className="w-full text-left p-2 sm:p-3 rounded-lg border border-border bg-accent hover:brightness-95 transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-foreground text-xs sm:text-sm font-bold truncate">

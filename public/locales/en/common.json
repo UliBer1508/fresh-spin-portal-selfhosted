@@ -33,5 +33,9 @@
     "guest": "Guest",
     "guests": "Guests",
     "persons": "persons"
+  },
+  "quickFilter": {
+    "thisWeek": "This Week",
+    "nextWeek": "Next Week"
   }
 }

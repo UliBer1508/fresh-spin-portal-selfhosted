@@ -4,5 +4,8 @@
     "cancelled": "Cancelled",
     "pending": "Pending",
     "unknown": "Unknown"
+  },
+  "labels": {
+    "booking": "Booking"
   }
 }

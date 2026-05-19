@@ -4,5 +4,8 @@
     "cancelled": "Geannuleerd",
     "pending": "In afwachting",
     "unknown": "Onbekend"
+  },
+  "labels": {
+    "booking": "Boeking"
   }
 }

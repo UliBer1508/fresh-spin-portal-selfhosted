@@ -7,6 +7,19 @@ import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking, LinenOrder } from "@/hooks/useBookings";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrderStatusLabel } from "@/lib/constants";
+import type { QuickFilter } from "@/components/QuickFilterCards";
+
+const getWeekRange = (offsetWeeks: number) => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dayOfWeek = today.getDay();
+  const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const weekStart = new Date(
+    today.getTime() + (offsetWeeks * 7 - mondayOffset) * 86400000,
+  );
+  const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
+  return { weekStart, weekEnd };
+};
 
 interface LaundryStaff {
   id: string;
@@ -23,6 +36,7 @@ interface SearchAndFilterProps {
   onViewSettingsChange: (settings: ViewSettings) => void;
   showButtonOnMobile?: boolean;
   onShowButtonOnMobileChange?: (value: boolean) => void;
+  quickFilter?: QuickFilter;
 }
 
 const SearchAndFilter = ({ 
@@ -33,7 +47,8 @@ const SearchAndFilter = ({
   viewSettings, 
   onViewSettingsChange,
   showButtonOnMobile,
-  onShowButtonOnMobileChange
+  onShowButtonOnMobileChange,
+  quickFilter,
 }: SearchAndFilterProps) => {
   const { t } = useTranslation('orders');
   const [searchQuery, setSearchQuery] = useState("");
@@ -167,8 +182,28 @@ const SearchAndFilter = ({
       });
     }
 
+    // Quick filter
+    if (quickFilter) {
+      if (quickFilter.type === "house") {
+        filtered = filtered.filter(
+          (booking) => booking.houses?.name === quickFilter.value,
+        );
+      } else if (quickFilter.type === "thisWeek" || quickFilter.type === "nextWeek") {
+        const { weekStart, weekEnd } = getWeekRange(
+          quickFilter.type === "thisWeek" ? 0 : 1,
+        );
+        filtered = filtered.filter((booking) => {
+          const linenOrder = booking.linen_orders?.[0];
+          const d = linenOrder?.delivery_date
+            ? new Date(linenOrder.delivery_date)
+            : new Date(booking.check_in);
+          return d >= weekStart && d < weekEnd;
+        });
+      }
+    }
+
     return filtered;
-  }, [bookingsWithIndividualOrders, searchQuery, statusFilter, houseFilter, timeFilter, staffFilter]);
+  }, [bookingsWithIndividualOrders, searchQuery, statusFilter, houseFilter, timeFilter, staffFilter, quickFilter]);
 
   // Filter für Standalone-Bestellungen
   const filteredStandaloneOrders = useMemo(() => {
@@ -243,8 +278,26 @@ const SearchAndFilter = ({
       });
     }
 
+    // Quick filter
+    if (quickFilter) {
+      if (quickFilter.type === "house") {
+        filtered = filtered.filter(
+          (order) => order.houses?.name === quickFilter.value,
+        );
+      } else if (quickFilter.type === "thisWeek" || quickFilter.type === "nextWeek") {
+        const { weekStart, weekEnd } = getWeekRange(
+          quickFilter.type === "thisWeek" ? 0 : 1,
+        );
+        filtered = filtered.filter((order) => {
+          if (!order.delivery_date) return false;
+          const d = new Date(order.delivery_date);
+          return d >= weekStart && d < weekEnd;
+        });
+      }
+    }
+
     return filtered;
-  }, [standaloneOrders, searchQuery, statusFilter, houseFilter, staffFilter, timeFilter]);
+  }, [standaloneOrders, searchQuery, statusFilter, houseFilter, staffFilter, timeFilter, quickFilter]);
 
   // Memoized callbacks um unnötige Re-renders zu vermeiden
   const stableBookingsCallback = useCallback(

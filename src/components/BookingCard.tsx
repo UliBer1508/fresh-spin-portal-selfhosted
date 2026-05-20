@@ -79,7 +79,7 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
                     <h3 className="font-bold text-base text-foreground truncate leading-tight">
                       {booking.houses?.name || t("common:unknown")}
                     </h3>
-                    <p className="text-xs text-muted-foreground leading-tight">
+                    <p className="text-muted-foreground leading-tight text-sm font-bold">
                       {t("bookings:labels.booking", { defaultValue: "Buchung" })}
                     </p>
                   </div>

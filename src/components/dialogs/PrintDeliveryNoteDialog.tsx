@@ -76,203 +76,36 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
     }
   };
 
-  // Generiert reines HTML für den Print-Container - iOS-kompatibel
-  // KEINE Emojis, KEINE CSS-Klassen, NUR Inline-Styles
-  // KEINE flex/grid - nur einfache block-Elemente für maximale iOS-Kompatibilität
-  const generatePrintContent = () => {
-    const itemRows = LINEN_ORDER
-      .filter(key => items[key] && items[key] > 0)
-      .map(key => `
-        <tr>
-          <td style="padding: 8px; border: 1px solid #333; font-family: Arial, sans-serif;">${getLinenLabel(key)}</td>
-          <td style="padding: 8px; border: 1px solid #333; font-family: Arial, sans-serif;">${getItemColor(key)}</td>
-          <td style="padding: 8px; border: 1px solid #333; text-align: right; font-weight: 500; font-family: Arial, sans-serif;">${items[key]}</td>
-        </tr>
-      `).join('');
-
-    // iOS-optimiert: KEINE flex/grid, nur block und table-Layouts
-    return `
-      <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.5; color: #000; padding: 10mm; background: white; width: 100%; box-sizing: border-box;">
-        
-        <!-- Header -->
-        <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 16px; margin-bottom: 16px;">
-          <h1 style="font-size: 24px; font-weight: bold; letter-spacing: 2px; margin: 0;">LIEFERSCHEIN</h1>
-          <p style="font-size: 16px; color: #666; margin: 4px 0 0 0;">Wäsche Pinzgau</p>
-          <p style="margin-top: 8px; font-size: 14px; font-weight: 600;">
-            Bestell-Nr: #${order.id.substring(0, 8).toUpperCase()}
-          </p>
-        </div>
-
-        <!-- Lieferadresse -->
-        <div style="margin-bottom: 16px; padding: 12px; border: 1px solid #ddd; background: #f5f5f5;">
-          <p style="font-weight: 600; margin: 0 0 4px 0;">Lieferadresse:</p>
-          <p style="font-size: 18px; font-weight: 600; margin: 0;">${order.houses?.name || 'Unbekanntes Haus'}</p>
-          ${order.houses?.address ? `<p style="font-size: 14px; color: #666; margin: 4px 0 0 0;">${order.houses.address}</p>` : ''}
-        </div>
-
-        <!-- Buchungsdetails -->
-        ${order.bookings ? `
-          <div style="margin-bottom: 16px; padding: 12px; border: 1px solid #ddd;">
-            <p style="font-weight: 600; margin: 0 0 8px 0;">Buchungsdetails:</p>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="padding: 4px 0; width: 50%;"><strong>Gast:</strong> ${order.bookings.guest_name}</td>
-                <td style="padding: 4px 0; width: 50%;"><strong>Gäste:</strong> ${order.bookings.number_of_guests} Personen</td>
-              </tr>
-              <tr>
-                <td style="padding: 4px 0;"><strong>Check-in:</strong> ${formatDate(order.bookings.check_in)}</td>
-                <td style="padding: 4px 0;"><strong>Check-out:</strong> ${formatDate(order.bookings.check_out)}</td>
-              </tr>
-            </table>
-          </div>
-        ` : ''}
-
-        <!-- Lieferinfo - als Tabelle statt Flexbox -->
-        <table style="width: 100%; margin-bottom: 16px; border-collapse: separate; border-spacing: 8px 0;">
-          <tr>
-            <td style="width: 50%; padding: 12px; border: 1px solid #ddd; vertical-align: top;">
-              <p style="font-weight: 600; font-size: 13px; margin: 0 0 4px 0;">Lieferdatum:</p>
-              <p style="font-size: 13px; margin: 0;">
-                ${formatDate(order.delivery_date)}${formatTime(order.delivery_time)}
-              </p>
-            </td>
-            <td style="width: 50%; padding: 12px; border: 1px solid #ddd; vertical-align: top;">
-              <p style="font-weight: 600; font-size: 13px; margin: 0 0 4px 0;">Lieferart:</p>
-              <p style="font-size: 13px; margin: 0;">${getDeliveryTypeText(order.delivery_type)}</p>
-            </td>
-          </tr>
-        </table>
-
-        <!-- Artikel-Tabelle -->
-        <div style="margin-bottom: 16px;">
-          <table style="width: 100%; margin-bottom: 8px;">
-            <tr>
-              <td style="font-weight: 600;">Artikel:</td>
-              <td style="text-align: right;"><span style="font-size: 12px; background: #e0e7ff; color: #3730a3; padding: 4px 8px;">${totalItems} Stück gesamt</span></td>
-            </tr>
-          </table>
-          <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-              <tr>
-                <th style="padding: 8px; border: 1px solid #333; background: #f0f0f0; font-weight: bold; text-align: left;">Artikel</th>
-                <th style="padding: 8px; border: 1px solid #333; background: #f0f0f0; font-weight: bold; text-align: left;">Farbe</th>
-                <th style="padding: 8px; border: 1px solid #333; background: #f0f0f0; font-weight: bold; text-align: right;">Anzahl</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemRows}
-              <tr>
-                <td style="padding: 8px; border: 1px solid #333; border-top: 2px solid #000; font-weight: bold;" colspan="2">GESAMT</td>
-                <td style="padding: 8px; border: 1px solid #333; border-top: 2px solid #000; text-align: right; font-weight: bold;">${totalItems}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Notizen -->
-        <div style="margin-bottom: 16px;">
-          <p style="font-weight: 600; margin: 0 0 8px 0;">Notizen:</p>
-          <div style="padding: 12px; border: 1px solid #ddd; min-height: 60px; background: #fafafa;">
-            ${order.notes || 'Keine Notizen'}
-          </div>
-        </div>
-
-        <!-- Footer -->
-        <div style="border-top: 1px solid #ddd; padding-top: 12px; margin-top: 16px; font-size: 12px; color: #666;">
-          <span>Erstellt: ${new Date().toLocaleDateString('de-DE')}</span>
-        </div>
-      </div>
-    `;
-  };
-
-  // Druck in isoliertem iframe — kein Konflikt mit globalen @media print Regeln
-  const handlePrint = (): Promise<void> => {
-    return new Promise((resolve) => {
-      // 1. Existierendes iframe entfernen
-      const existing = document.getElementById('print-iframe');
-      if (existing) existing.remove();
-
-      // 2. iframe erstellen (off-screen, aber im DOM)
-      const iframe = document.createElement('iframe');
-      iframe.id = 'print-iframe';
-      iframe.setAttribute('aria-hidden', 'true');
-      iframe.style.cssText = `
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        width: 0;
-        height: 0;
-        border: 0;
-        visibility: hidden;
-      `;
-      document.body.appendChild(iframe);
-
-      const doc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!doc) {
-        iframe.remove();
-        resolve();
-        return;
-      }
-
-      // 3. HTML in iframe schreiben — komplett isoliert von App-CSS
-      doc.open();
-      doc.write(`<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Lieferschein</title>
-    <style>
-      @page { size: A4; margin: 10mm; }
-      html, body { margin: 0; padding: 0; background: #fff; color: #000; }
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    </style>
-  </head>
-  <body>${generatePrintContent()}</body>
-</html>`);
-      doc.close();
-
-      // 4. Warten bis iframe gerendert, dann drucken
-      const triggerPrint = () => {
-        try {
-          // Fokus entfernen (iOS keyboard fix)
-          if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
-          iframe.contentWindow?.focus();
-          iframe.contentWindow?.print();
-        } catch (err) {
-          console.error('Print failed:', err);
-        }
-        // Aufräumen nach 1s (genug Zeit für Print-Dialog)
-        setTimeout(() => {
-          iframe.remove();
-          resolve();
-        }, 1000);
-      };
-
-      // Falls bereits geladen (sync write), sofort. Sonst onload abwarten.
-      if (iframe.contentDocument?.readyState === 'complete') {
-        setTimeout(triggerPrint, 100);
-      } else {
-        iframe.onload = () => setTimeout(triggerPrint, 100);
-      }
-    });
-  };
-
-  const handlePrintClick = async () => {
-    // SOFORT: Fokus entfernen um Tastatur zu verhindern
+  const handlePrintClick = () => {
+    // Fokus entfernen (iOS Tastatur-Fix)
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
-    
+
     setIsPrinting(true);
-    try {
-      await handlePrint();
-      onOpenChange(false);
-    } finally {
+    // WICHTIG: synchron aufrufen – sonst blockiert iOS Safari window.open()
+    const result = printDeliveryNote(order);
+
+    if (!result.ok) {
+      if (result.reason === "popup-blocked") {
+        toast.error(
+          "Popup blockiert. Bitte Popups für diese Seite erlauben, dann erneut drucken."
+        );
+      } else {
+        toast.error("Druck fehlgeschlagen. Bitte erneut versuchen.");
+      }
       setIsPrinting(false);
+      return;
     }
+
+    // Etwas Zeit für Print-Dialog, dann Modal schließen
+    setTimeout(() => {
+      setIsPrinting(false);
+      onOpenChange(false);
+    }, 800);
   };
+
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

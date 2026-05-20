@@ -1,5 +1,6 @@
 // v12.4 - Copyright Footer + Cache Fix
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import Header from "@/components/Header";
 import TabNavigation from "@/components/TabNavigation";
 
@@ -31,7 +32,7 @@ const Index = () => {
   const [orderAlertOpen, setOrderAlertOpen] = useState(false);
   const [alertBooking, setAlertBooking] = useState<Booking | null>(null);
 
-  const handleNewOrder = async (newOrder?: any) => {
+  const handleNewOrder = useCallback(async (newOrder?: any) => {
     setHasNewOrders(true);
     // Check if notifications are enabled
     const { data: prefs } = await supabase
@@ -69,7 +70,7 @@ const Index = () => {
         setOrderAlertOpen(true);
       }
     }
-  };
+  }, []);
 
   const { bookings, loading, error, refetch } = useBookings(handleNewOrder);
 
@@ -217,8 +218,17 @@ const Index = () => {
 
 
             {loading ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">Lade Bestellungen...</p>
+              <div className="space-y-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="border rounded-lg p-4 space-y-3">
+                    <Skeleton className="h-5 w-1/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <div className="flex gap-2">
+                      <Skeleton className="h-8 w-24" />
+                      <Skeleton className="h-8 w-24" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : error ? (
               <div className="text-center py-8 text-destructive">
@@ -286,7 +296,7 @@ const Index = () => {
           onNotificationSettingsOpen={() => setNotifSettingsOpen(true)}
         />
         
-        <main className="max-w-7xl mx-auto px-3 pt-2 pb-4 sm:px-6 sm:pt-4 sm:pb-8 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-[env(safe-area-inset-bottom)]">
+        <main className="max-w-7xl mx-auto px-3 pt-2 sm:px-6 sm:pt-4 sm:pb-8 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-[env(safe-area-inset-bottom)]">
           {renderTabContent()}
         </main>
       </div>

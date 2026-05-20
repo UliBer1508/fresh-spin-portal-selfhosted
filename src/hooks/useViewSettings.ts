@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ViewSettings } from '@/components/ViewSettingsDialog';
 
@@ -65,7 +65,7 @@ export const useViewSettings = () => {
   const [settingsId, setSettingsId] = useState<string | null>(null);
 
   // Einstellungen aus DB laden (ohne Auth)
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('user_view_settings')
@@ -105,7 +105,7 @@ export const useViewSettings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Einstellungen in DB speichern
   const saveSettings = async (
@@ -159,7 +159,7 @@ export const useViewSettings = () => {
   // Initial laden
   useEffect(() => {
     loadSettings();
-  }, []);
+  }, [loadSettings]);
 
   // Realtime-Updates abonnieren
   useEffect(() => {
@@ -182,7 +182,7 @@ export const useViewSettings = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [loadSettings]);
 
   return {
     settings,

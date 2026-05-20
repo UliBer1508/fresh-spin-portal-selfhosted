@@ -1,54 +1,69 @@
-# Konzept: 2-Spalten Touch-Layout für die Wäschebestellungs-Karte
+# Plan: Stabiler Lieferschein-Druck (vereinfacht — iOS AirPrint)
 
-## Ziel
-Die Buttons in `LinenOrderSection.tsx` werden im Stil der hochgeladenen CHECK-IN / CHECK-OUT Karten dargestellt: **2 nebeneinander, weitere darunter**, große touch-freundliche Kacheln in der Hintergrundfarbe der Wäschekarte.
+## Kernidee
+`window.print()` löst auf iPhone/iPad **automatisch den nativen AirPrint-Dialog** aus, der alle erreichbaren Drucker auflistet. Wir müssen nur sicherstellen, dass `window.print()` zuverlässig aufgerufen wird — kein PDF, keine zusätzlichen Libraries.
 
-## Layout
+Das aktuelle Problem: Die **versteckte iframe-Lösung** funktioniert auf iOS Safari unzuverlässig (oft druckt iOS dann die leere Hauptseite statt des iframe-Inhalts, oder zeigt gar nichts).
+
+## Lösung: Pfad nach Umgebung
 
 ```text
-┌─────────────────┬─────────────────┐
-│ 📅 LIEFERUNG    │ 📊 STATUS       │
-│ 19.6.2026 09:00 │ 🟡 Ausstehend ▾ │
-├─────────────────┼─────────────────┤
-│ 📄 NOTIZEN      │ 🖨️ LSCHEIN      │
-│ Keine           │ Drucken         │
-├─────────────────┴─────────────────┤
-│ 📋 ARTIKEL                        │
-│ Anzeigen (18)                     │
-└───────────────────────────────────┘
+Klick auf "Drucken"
+  ├─ Desktop → bestehende iframe-Lösung (funktioniert dort einwandfrei)
+  └─ Mobile (iPhone/iPad/Android) → neues Browser-Fenster + window.print()
+                                     → iOS zeigt nativen AirPrint-Sheet
 ```
 
-- Container: `grid grid-cols-2 gap-2 sm:gap-3`
-- 5. Kachel (Artikel) spannt beide Spalten: `col-span-2`
-- Jede Kachel: ganze Fläche klickbar, `min-h-[72px]`, `rounded-xl`, `p-3 sm:p-4`
-- Inhalt pro Kachel: oben Icon + kleines uppercase Label (`text-xs uppercase tracking-wide text-muted-foreground`), darunter Wert groß/fett (`text-base sm:text-lg font-bold text-foreground`)
-- Hintergrundfarbe: leicht hellere Variante der Karten-/Booking-Farbe (vom übergeordneten BookingCard übernommen), Border `border border-border/40`, Hover/Active: `hover:bg-muted/40 active:scale-[0.98] transition`
+## Umsetzung
 
-## Die 5 Kacheln
+### Erkennung
+Eine Funktion `shouldUseNewWindow()`:
+- `true` wenn `/iPad|iPhone|iPod|Android/i.test(navigator.userAgent)`
+- `false` sonst (Desktop)
 
-| # | Icon | Label | Wert | Aktion beim Tap |
-|---|------|-------|------|------------------|
-| 1 | CalendarClock / Truck | LIEFERUNG | Datum + Uhrzeit | öffnet `EditDeliveryDialog` |
-| 2 | BarChart3 | STATUS | Aktueller Status mit Farbpunkt | öffnet Status-Select (Radix Select via Ref) |
-| 3 | FileText | NOTIZEN | Snippet oder „Keine" | öffnet `EditNotesDialog` |
-| 4 | Printer | LSCHEIN | „Drucken" | öffnet `PrintDeliveryNoteDialog` |
-| 5 | ClipboardList | ARTIKEL | „Anzeigen (n)" / „Ausblenden (n)" | toggelt Artikel-Tabelle |
+### Mobiler Pfad — neues Fenster
+- **Synchron im Click-Handler** (nicht in async/await davor!) `const w = window.open('', '_blank')` aufrufen, sonst blockiert iOS Safari den Popup.
+- HTML in das Fenster schreiben (gleicher `generatePrintContent()`-Output wie heute).
+- Im geschriebenen HTML ein `<script>`-Tag einbetten:
+  ```html
+  <script>
+    window.addEventListener('load', function() {
+      setTimeout(function() { window.print(); }, 300);
+    });
+  </script>
+  ```
+- iOS zeigt dann automatisch den AirPrint-Sheet → User wählt Drucker → druckt.
+- User schließt das Tab nach dem Druck manuell (iOS-Standard, kein `window.close()` möglich).
 
-Die Artikel-Tabelle bleibt unverändert direkt unter dem Grid und klappt wie bisher ein/aus.
+### PWA-Standalone-Sonderfall
+Im Standalone-Modus (vom Homescreen) blockiert iOS `window.open()`. Falls `w === null`:
+- Fallback: ein Hinweis-Toast „Bitte Lieferschein-App im Browser öffnen zum Drucken" + Button, der via `window.location.href` ein eigenes Druck-Route öffnet — oder einfacher: wir empfehlen Nutzern, zum Drucken die Browser-Version zu verwenden.
+- Praktischer Workaround: Im PWA-Modus die iframe-Methode versuchen (funktioniert auf manchen iOS-Versionen im Standalone besser als window.open).
 
-## Entfernt
-- Sektion „Zugewiesene Wäschekraft" inkl. Select wird aus dem UI entfernt (Logik/State bleibt im Code).
+### Desktop-Pfad — unverändert
+Bestehende iframe-Logik bleibt wie sie ist.
 
 ## Technische Umsetzung
-Eine Datei: `src/components/LinenOrderSection.tsx`
-1. Bisherige horizontale Label+Button-Zeilen (Lieferung / Status / Zugewiesen / LSchein) durch ein `grid grid-cols-2` ersetzen
-2. Artikel-Header in eine 5. Kachel `col-span-2` umbauen (statt rechte Spalte/Sektion)
-3. Wiederverwendbare lokale Komponente `LinenTile({ icon, label, value, onClick, valueClassName })` einführen
-4. Status-Tile: programmatisches Öffnen des bestehenden `<Select>` via Ref, damit die gesamte Kachel als Trigger fungiert
-5. Klassen mit semantischen Tokens (kein Hardcoded-Color); Touch-Klassen: `touch-manipulation`, `select-none`
+
+**Eine neue Datei:** `src/lib/printDeliveryNote.ts`
+- `generatePrintHtml(order)` → bestehender HTML-Generator (verschoben aus Dialog)
+- `printViaIframe(html)` → bestehende iframe-Logik (verschoben)
+- `printViaNewWindow(html)` → neue window.open()-Logik mit Auto-Print-Script
+- `printDeliveryNote(order)` → wählt Pfad nach Umgebung, mit PWA-Fallback
+
+**Geänderte Datei:** `src/components/dialogs/PrintDeliveryNoteDialog.tsx`
+- `handlePrintClick` ruft nur noch `printDeliveryNote(order)` auf.
+- Vorschau-UI im Modal unverändert.
+- `toast.error()` Feedback wenn Druck fehlschlägt (z.B. Popup blockiert).
 
 ## Was unverändert bleibt
-- Daten-Queries, Status-Logik, Dialoge, Artikel-Tabellen-Rendering, Übersetzungen, ViewSettings-Flags (außer `showAssignedStaff` Anzeige)
+- Dialog-Vorschau im Modal
+- HTML-Inhalt des Lieferscheins (Layout, Felder, Reihenfolge)
+- Helper (`getLinenLabel`, `getItemColor`, etc.)
+- Keine neuen npm-Pakete
 
-## Offene Frage
-Soll die Artikel-Kachel (Position 5) wirklich **volle Breite** (`col-span-2`) bekommen, oder lieber als normale halbe Kachel rechts neben LSchein (also LSchein + Artikel in einer Reihe)?
+## Verifikation
+1. Desktop Chrome/Safari → iframe-Druck ✓
+2. iPhone Safari (Browser) → AirPrint-Sheet erscheint ✓
+3. Android Chrome → Druckdialog erscheint ✓
+4. iPhone PWA (Homescreen) → Fallback funktioniert oder klare Fehlermeldung ✓

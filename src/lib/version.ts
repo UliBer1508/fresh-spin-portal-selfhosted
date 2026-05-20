@@ -1,2 +1,2 @@
-// v12.20
-export const APP_VERSION = '12.20.0';
+// v12.21
+export const APP_VERSION = '12.21.0';

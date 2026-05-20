@@ -97,6 +97,8 @@ const CalendarView = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [dayDialogOpen, setDayDialogOpen] = useState(false);
   const [view, setView] = useState<'month' | 'week' | 'gantt'>(() => {
+    const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 768;
+    if (isMobileDevice) return 'gantt';
     const saved = localStorage.getItem('calendar-view');
     return (saved === 'month' || saved === 'week' || saved === 'gantt') ? saved : 'gantt';
   });
@@ -136,7 +138,7 @@ const CalendarView = () => {
 
   useEffect(() => {
     fetchCalendarData();
-  }, [currentDate, i18n.language]);
+  }, [currentDate, i18n.language, view]);
 
   const fetchCalendarData = async () => {
     setLoading(true);
@@ -442,28 +444,16 @@ const CalendarView = () => {
     const referenceStart = ganttStart;
     
     if (!booking.check_in || !booking.check_out) {
-      return { gridColumn: '1 / 2', spanCols: 1, startsBeforeRange: false, endsAfterRange: false };
+      return { gridColumn: '1 / 2' };
     }
     
-    // Grid-Spalten sind 1-basiert
     const startDayRaw = differenceInDays(booking.check_in, referenceStart);
     const endDayRaw = differenceInDays(booking.check_out, referenceStart);
     
-    // startCol: Check-in Tag (1-basiert)
     const startCol = Math.max(1, startDayRaw + 1);
-    // endCol: Check-out Tag einschließen (+1 für 1-basiert, +1 weil grid-column end exklusiv)
     const endCol = Math.min(totalDays + 1, endDayRaw + 2);
     
-    // Anzahl der Spalten für Breiten-Berechnung
-    const spanCols = Math.max(1, endCol - startCol);
-    
-    return { 
-      gridColumn: `${startCol} / ${endCol}`,
-      spanCols,
-      // Info für Styling am Rand
-      startsBeforeRange: startDayRaw < 0,
-      endsAfterRange: endDayRaw >= totalDays
-    };
+    return { gridColumn: `${startCol} / ${endCol}` };
   };
 
   // Render Gantt Chart View
@@ -548,26 +538,21 @@ const CalendarView = () => {
                              <TooltipProvider key={booking.id}>
                                <Tooltip>
                                  <TooltipTrigger asChild>
-                                   <div
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (booking.check_in) handleDayClick(booking.check_in);
-                                      }}
-                                      className={cn(
-                                        "h-6 md:h-8 rounded-md flex items-center px-1 md:px-2 cursor-pointer hover:opacity-90 transition-opacity mx-0.5",
-                                        "border border-white/40 shadow-md",
-                                        houseColor.bg, houseColor.text,
-                                        gridPos.startsBeforeRange && "rounded-l-none",
-                                        gridPos.endsAfterRange && "rounded-r-none"
-                                      )}
-                                      style={{ 
-                                        gridColumn: gridPos.gridColumn, 
-                                        gridRow: 1,
-                                        marginLeft: gridPos.startsBeforeRange ? 0 : `calc(50% / ${gridPos.spanCols})`,
-                                        marginRight: gridPos.endsAfterRange ? 0 : `calc(50% / ${gridPos.spanCols})`,
-                                        width: `calc(100% - ${gridPos.startsBeforeRange ? 0 : 50/gridPos.spanCols}% - ${gridPos.endsAfterRange ? 0 : 50/gridPos.spanCols}%)`
-                                      }}
-                                    >
+                                    <div
+                                       onClick={(e) => {
+                                         e.stopPropagation();
+                                         if (booking.check_in) handleDayClick(booking.check_in);
+                                       }}
+                                       className={cn(
+                                         "h-6 md:h-8 rounded-md flex items-center px-1 md:px-2 cursor-pointer hover:opacity-90 transition-opacity mx-0.5",
+                                         "border border-white/40 shadow-md",
+                                         houseColor.bg, houseColor.text
+                                       )}
+                                       style={{ 
+                                         gridColumn: gridPos.gridColumn, 
+                                         gridRow: 1
+                                       }}
+                                     >
                                      <span className="truncate text-[9px] md:text-xs font-medium leading-tight">
                                        {booking.guest_name}
                                      </span>

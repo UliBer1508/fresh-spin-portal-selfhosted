@@ -62,7 +62,7 @@ export const useBookings = (onNewOrder?: (order?: any) => void) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(true);
   
   // Use ref to avoid stale closure in subscription callback
   const onNewOrderRef = useRef(onNewOrder);
@@ -140,11 +140,13 @@ export const useBookings = (onNewOrder?: (order?: any) => void) => {
   };
 
   useEffect(() => {
+    // Sync online state from browser (avoids SSR/hydration issues)
+    setIsOnline(navigator.onLine);
+
     // Handle online/offline events
     const handleOnline = () => {
       console.log('App is now online');
       setIsOnline(true);
-      // Refetch when coming back online
       fetchBookings(false);
     };
     
@@ -164,11 +166,7 @@ export const useBookings = (onNewOrder?: (order?: any) => void) => {
       .channel('bookings-changes')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'bookings'
-        },
+        { event: '*', schema: 'public', table: 'bookings' },
         () => {
           console.log('Booking change detected, refetching...');
           fetchBookings(false);
@@ -176,27 +174,11 @@ export const useBookings = (onNewOrder?: (order?: any) => void) => {
       )
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'linen_orders'
-        },
-        () => {
-          console.log('Linen order change detected, refetching...');
+        { event: '*', schema: 'public', table: 'linen_orders' },
+        (payload: { eventType: string; new: Record<string, unknown> }) => {
+          console.log('Linen order change detected, refetching...', payload.eventType);
           fetchBookings(false);
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'linen_orders'
-        },
-        (payload: { new: Record<string, unknown> }) => {
-          console.log('Neue Bestellung eingegangen!', payload);
-          // Use ref to get current callback without stale closure
-          if (onNewOrderRef.current) {
+          if (payload.eventType === 'INSERT' && onNewOrderRef.current) {
             onNewOrderRef.current(payload.new);
           }
         }

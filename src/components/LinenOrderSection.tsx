@@ -89,7 +89,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
         .from('linen_orders')
         .update({ 
           status: newStatus,
-          status_changed_by: 'Teuni',
+          status_changed_by: 'portal',
           status_changed_at: new Date().toISOString()
         })
         .eq('id', orderId);

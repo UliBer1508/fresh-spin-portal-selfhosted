@@ -244,57 +244,50 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
         
         {linenOrders.map((order) => (
           <div key={order.id} className="mb-3">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
-              
-              {/* ========== LINKE SPALTE - Metadaten & Aktionen ========== */}
-              <div className="space-y-1.5 sm:space-y-2">
-                
-                {/* Lieferung mit Bearbeiten-Button */}
-                {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <WashingMachine className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="text-sm font-bold text-foreground">{t('labels.deliveryBy')}:</span>
-                    </div>
-                    {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime) && (
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center space-x-2 flex-shrink-0 w-[92px] sm:w-[104px]">
-                          <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                          <span className="sm:text-sm text-foreground font-bold text-sm">Lieferung</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <button
-                            onClick={() => handleEditDelivery(order)}
-                            className="w-full text-left p-2 sm:p-3 rounded-lg bg-accent-strong hover:brightness-95 shadow-sm transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-accent-strong-foreground text-xs sm:text-sm font-bold">
-                                {formatDateTime(
-                                  viewSettings.showDeliveryDate ? order.delivery_date : undefined,
-                                  viewSettings.showDeliveryTime ? order.delivery_time : undefined
-                                )}
-                              </span>
-                            </div>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+            {(() => {
+              const isCollapsed = collapsedItems.has(order.id);
+              const totalItems = getTotalItems(order.items as Record<string, number>);
+              const tileBase =
+                "w-full text-left rounded-xl border border-border/40 bg-card/60 hover:bg-muted/40 active:scale-[0.98] transition-all shadow-sm p-3 sm:p-4 min-h-[72px] touch-manipulation select-none flex flex-col justify-between gap-1";
+              const labelCls =
+                "flex items-center gap-1.5 text-[11px] sm:text-xs uppercase tracking-wide font-semibold text-muted-foreground";
+              const valueCls = "text-sm sm:text-base font-bold text-foreground truncate";
 
-                {viewSettings.showOrderStatus && (
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center space-x-2 flex-shrink-0 w-[92px] sm:w-[104px]">
-                      <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="sm:text-sm text-foreground font-bold text-sm">Status   </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <Select 
-                        value={order.status || 'ausstehend'} 
+              return (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                    {/* Lieferung */}
+                    {(viewSettings.showDeliveryDate || viewSettings.showDeliveryTime || viewSettings.showDeliveryType) && (
+                      <button type="button" onClick={() => handleEditDelivery(order)} className={tileBase}>
+                        <span className={labelCls}>
+                          <WashingMachine className="w-4 h-4" strokeWidth={2} />
+                          {t('labels.deliveryBy')}
+                        </span>
+                        <span className={valueCls}>
+                          {formatDateTime(
+                            viewSettings.showDeliveryDate ? order.delivery_date : undefined,
+                            viewSettings.showDeliveryTime ? order.delivery_time : undefined
+                          )}
+                        </span>
+                      </button>
+                    )}
+
+                    {/* Status (als Select, Trigger füllt ganze Kachel) */}
+                    {viewSettings.showOrderStatus && (
+                      <Select
+                        value={order.status || 'ausstehend'}
                         onValueChange={(value) => handleStatusChange(order.id, value)}
                       >
-                        <SelectTrigger className={`w-full min-h-[40px] sm:min-h-[44px] touch-manipulation ring-2 ring-primary/40 ring-offset-1 px-2 sm:px-3 ${getStatusColor(order.status)}`}>
-                          <SelectValue />
+                        <SelectTrigger
+                          className={`${tileBase} ${getStatusColor(order.status)} h-auto items-stretch [&>svg]:hidden`}
+                        >
+                          <div className="flex flex-col justify-between gap-1 w-full text-left">
+                            <span className={labelCls}>
+                              <BarChart3 className="w-4 h-4" strokeWidth={2} />
+                              {t('labels.status', { defaultValue: 'Status' })}
+                            </span>
+                            <span className={valueCls}>{getStatusText(order.status)}</span>
+                          </div>
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50">
                           <SelectItem value="offen" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🟠 {t('status.offen')}</SelectItem>
@@ -303,134 +296,54 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                           <SelectItem value="cancelled" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🔴 {t('status.cancelled')}</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
-                  </div>
-                )}
+                    )}
 
-                {/* Zugewiesene Wäschekraft */}
-                {viewSettings.showAssignedStaff && (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="sm:text-sm text-foreground font-bold text-sm">{t('labels.assigned')}</span>
-                    </div>
-                    
-                    <div>
-                      <Select
-                        value={order.assigned_staff_id || "none"}
-                        onValueChange={(value) => {
-                          if (value === "unassign") {
-                            handleUnassignStaff(order.id);
-                          } else if (value !== "none") {
-                            handleAssignStaff(order.id, value);
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="w-full min-h-[40px] sm:min-h-[44px] touch-manipulation bg-accent border-border px-2 sm:px-3">
-                          <SelectValue placeholder={t('labels.assignStaff')} />
-                        </SelectTrigger>
-                        <SelectContent className="bg-background border border-border shadow-lg z-50 max-h-60">
-                          <SelectItem 
-                            value="none" 
-                            className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
-                          >
-                            {t('labels.noAssignment')}
-                          </SelectItem>
-                          {laundryStaff.map((staff) => (
-                            <SelectItem 
-                              key={staff.id} 
-                              value={staff.id}
-                              className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]"
-                            >
-                              {staff.name}
-                            </SelectItem>
-                          ))}
-                          {order.assigned_staff_id && (
-                            <SelectItem 
-                              value="unassign" 
-                              className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground min-h-[44px]"
-                            >
-                              {t('labels.removeAssignment')}
-                            </SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-
-                {viewSettings.showOrderNotes && (
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center space-x-2 flex-shrink-0 w-[92px] sm:w-[104px]">
-                      <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="sm:text-sm text-foreground font-bold text-sm">{t('labels.notes')}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <button
-                        onClick={() => handleEditNotes(order)}
-                        className="w-full text-left p-2 sm:p-3 rounded-lg bg-accent-strong hover:brightness-95 shadow-sm transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px]"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-accent-strong-foreground text-xs sm:text-sm font-bold truncate text-left">
-                            {order.notes 
-
-                              ? (order.notes.length > 50 
-                                  ? order.notes.substring(0, 50) + '...' 
-                                  : order.notes)
-                              : t('labels.noNotes')
-                            }
-                          </span>
-                        </div>
+                    {/* Notizen */}
+                    {viewSettings.showOrderNotes && (
+                      <button type="button" onClick={() => handleEditNotes(order)} className={tileBase}>
+                        <span className={labelCls}>
+                          <FileText className="w-4 h-4" strokeWidth={2} />
+                          {t('labels.notes')}
+                        </span>
+                        <span className={valueCls}>
+                          {order.notes
+                            ? (order.notes.length > 40 ? order.notes.substring(0, 40) + '…' : order.notes)
+                            : t('labels.noNotes')}
+                        </span>
                       </button>
-                    </div>
-                  </div>
-                )}
+                    )}
 
-                {/* LS-Drucken Button */}
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center space-x-2 flex-shrink-0 w-[92px] sm:w-[104px]">
-                    <Printer className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                    <span className="sm:text-sm text-foreground font-bold text-sm">LSchein</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <Button
-                      size="sm"
-                      onClick={() => handleOpenPrintDialog(order)}
-                      className="w-full no-print min-h-[40px] sm:min-h-[44px] bg-accent-strong text-accent-strong-foreground hover:brightness-95 shadow-sm justify-start text-left px-2 sm:px-3"
-                    >
-                      Drucken
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* ========== RECHTE SPALTE - Artikel Tabelle ========== */}
-              {viewSettings.showOrderItems && (() => {
-                const isCollapsed = collapsedItems.has(order.id);
-                return (
-                <div className="space-y-3">
-                  {/* Artikel-Header mit Anzeigen-Button */}
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center space-x-2 flex-shrink-0 w-[92px] sm:w-[104px]">
-                      <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" strokeWidth={2} />
-                      <span className="sm:text-sm text-foreground font-bold text-sm">
-                        {t('labels.items')}
+                    {/* Lieferschein drucken */}
+                    <button type="button" onClick={() => handleOpenPrintDialog(order)} className={`${tileBase} no-print`}>
+                      <span className={labelCls}>
+                        <Printer className="w-4 h-4" strokeWidth={2} />
+                        LSchein
                       </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
+                      <span className={valueCls}>Drucken</span>
+                    </button>
+
+                    {/* Artikel - volle Breite */}
+                    {viewSettings.showOrderItems && (
                       <button
                         type="button"
                         onClick={() => toggleItems(order.id)}
                         aria-expanded={!isCollapsed}
-                        className="w-full p-2 sm:p-3 rounded-lg bg-accent-strong hover:brightness-95 shadow-sm transition-all cursor-pointer touch-manipulation min-h-[40px] sm:min-h-[44px] text-accent-strong-foreground text-xs sm:text-sm font-bold text-left"
+                        className={`${tileBase} col-span-2`}
                       >
-                        Anzeigen ({getTotalItems(order.items as Record<string, number>)})
+                        <span className={labelCls}>
+                          <ClipboardList className="w-4 h-4" strokeWidth={2} />
+                          {t('labels.items')}
+                        </span>
+                        <span className={`${valueCls} flex items-center justify-between`}>
+                          <span>{isCollapsed ? `Anzeigen (${totalItems})` : `Ausblenden (${totalItems})`}</span>
+                          <ChevronDown className={`w-4 h-4 transition-transform ${isCollapsed ? '' : 'rotate-180'}`} />
+                        </span>
                       </button>
-                    </div>
+                    )}
                   </div>
 
-                  {/* Artikel-Tabelle – einklappbar, transparenter Hintergrund */}
-                  {!isCollapsed && (
+                  {/* Artikel-Tabelle - einklappbar */}
+                  {viewSettings.showOrderItems && !isCollapsed && (
                     <div className="rounded-lg border border-border overflow-hidden bg-transparent">
                       {Object.values(order.items as Record<string, number>).some(qty => qty > 0) ? (
                         <Table>
@@ -486,10 +399,8 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     </div>
                   )}
                 </div>
-                );
-              })()}
-
-            </div>
+              );
+            })()}
           </div>
         ))}
       </div>

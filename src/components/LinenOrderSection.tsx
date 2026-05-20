@@ -250,7 +250,9 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
               const tileBase =
                 "w-full text-left rounded-xl border border-border/40 bg-card/60 hover:bg-muted/40 active:scale-[0.98] transition-all shadow-sm p-3 sm:p-4 min-h-[72px] touch-manipulation select-none flex flex-col justify-between gap-1";
               const labelCls =
-                "flex items-center gap-1.5 text-[11px] sm:text-xs uppercase tracking-wide font-semibold text-muted-foreground";
+                "flex items-center gap-1.5 sm:text-xs uppercase tracking-wide text-muted-foreground text-sm font-bold";
+              const labelClsSecondary =
+                "flex items-center gap-1.5 sm:text-xs uppercase tracking-wide font-semibold text-muted-foreground text-sm";
               const valueCls = "text-sm sm:text-base font-bold text-foreground truncate";
 
               return (

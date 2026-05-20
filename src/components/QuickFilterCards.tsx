@@ -1,15 +1,16 @@
-// Quick filter cards: houses + this/next week
+// Quick filter cards: houses + this/next week (kombinierbar)
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Home, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Booking } from "@/hooks/useBookings";
 
-export type QuickFilter =
-  | { type: "house"; value: string }
-  | { type: "thisWeek" }
-  | { type: "nextWeek" }
-  | null;
+export type QuickFilter = {
+  house: string | null;
+  week: "thisWeek" | "nextWeek" | null;
+};
+
+export const emptyQuickFilter: QuickFilter = { house: null, week: null };
 
 interface QuickFilterCardsProps {
   bookings: Booking[];
@@ -30,17 +31,12 @@ const QuickFilterCards = ({
     return Array.from(names).sort((a, b) => a.localeCompare(b));
   }, [bookings]);
 
-  const isActive = (f: QuickFilter): boolean => {
-    if (!value || !f) return false;
-    if (value.type !== f.type) return false;
-    if (value.type === "house" && f.type === "house") {
-      return value.value === f.value;
-    }
-    return true;
+  const toggleHouse = (name: string) => {
+    onChange({ ...value, house: value.house === name ? null : name });
   };
 
-  const handleClick = (f: QuickFilter) => {
-    onChange(isActive(f) ? null : f);
+  const toggleWeek = (week: "thisWeek" | "nextWeek") => {
+    onChange({ ...value, week: value.week === week ? null : week });
   };
 
   const cardBase =
@@ -51,13 +47,12 @@ const QuickFilterCards = ({
   return (
     <div className="grid grid-cols-2 gap-2">
       {houses.map((name) => {
-        const filter: QuickFilter = { type: "house", value: name };
-        const a = isActive(filter);
+        const a = value.house === name;
         return (
           <button
             key={name}
             type="button"
-            onClick={() => handleClick(filter)}
+            onClick={() => toggleHouse(name)}
             className={cn(cardBase, a ? active : inactive)}
           >
             <Home className="w-6 h-6 shrink-0 text-foreground" />
@@ -70,11 +65,8 @@ const QuickFilterCards = ({
 
       <button
         type="button"
-        onClick={() => handleClick({ type: "thisWeek" })}
-        className={cn(
-          cardBase,
-          isActive({ type: "thisWeek" }) ? active : inactive,
-        )}
+        onClick={() => toggleWeek("thisWeek")}
+        className={cn(cardBase, value.week === "thisWeek" ? active : inactive)}
       >
         <Calendar className="w-6 h-6 shrink-0 text-foreground" />
         <span className="font-bold text-foreground truncate text-sm">
@@ -84,11 +76,8 @@ const QuickFilterCards = ({
 
       <button
         type="button"
-        onClick={() => handleClick({ type: "nextWeek" })}
-        className={cn(
-          cardBase,
-          isActive({ type: "nextWeek" }) ? active : inactive,
-        )}
+        onClick={() => toggleWeek("nextWeek")}
+        className={cn(cardBase, value.week === "nextWeek" ? active : inactive)}
       >
         <Calendar className="w-6 h-6 shrink-0 text-foreground" />
         <span className="font-bold text-foreground truncate text-sm">

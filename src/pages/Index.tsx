@@ -20,13 +20,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import QuickFilterCards, { QuickFilter } from "@/components/QuickFilterCards";
+import QuickFilterCards, { QuickFilter, emptyQuickFilter } from "@/components/QuickFilterCards";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("waesche");
   const [hasNewOrders, setHasNewOrders] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [quickFilter, setQuickFilter] = useState<QuickFilter>(null);
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>(emptyQuickFilter);
   const [notifSettingsOpen, setNotifSettingsOpen] = useState(false);
   const [orderAlertOpen, setOrderAlertOpen] = useState(false);
   const [alertBooking, setAlertBooking] = useState<Booking | null>(null);
@@ -134,17 +134,16 @@ const Index = () => {
   // Apply quick filter to bookings
   const filteredBookings = useMemo(() => {
     let filtered = bookingsWithIndividualOrders;
-    if (quickFilter) {
-      if (quickFilter.type === "house") {
-        filtered = filtered.filter((b) => b.houses?.name === quickFilter.value);
-      } else if (quickFilter.type === "thisWeek" || quickFilter.type === "nextWeek") {
-        const { weekStart, weekEnd } = getWeekRange(quickFilter.type === "thisWeek" ? 0 : 1);
-        filtered = filtered.filter((b) => {
-          const o = b.linen_orders?.[0];
-          const d = o?.delivery_date ? new Date(o.delivery_date) : new Date(b.check_in);
-          return d >= weekStart && d < weekEnd;
-        });
-      }
+    if (quickFilter.house) {
+      filtered = filtered.filter((b) => b.houses?.name === quickFilter.house);
+    }
+    if (quickFilter.week) {
+      const { weekStart, weekEnd } = getWeekRange(quickFilter.week === "thisWeek" ? 0 : 1);
+      filtered = filtered.filter((b) => {
+        const o = b.linen_orders?.[0];
+        const d = o?.delivery_date ? new Date(o.delivery_date) : new Date(b.check_in);
+        return d >= weekStart && d < weekEnd;
+      });
     }
     return filtered;
   }, [bookingsWithIndividualOrders, quickFilter]);

@@ -319,7 +319,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                     <button type="button" onClick={() => handleOpenPrintDialog(order)} className={`${tileBase} no-print`}>
                       <span className={labelClsSecondary}>
                         <Printer className="w-4 h-4" strokeWidth={2} />
-                        LSchein
+                        Lieferschein
                       </span>
                       <span className={valueCls}>Drucken</span>
                     </button>

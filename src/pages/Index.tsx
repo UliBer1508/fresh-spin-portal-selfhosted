@@ -20,7 +20,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import QuickFilterCards, { QuickFilter } from "@/components/QuickFilterCards";
+import QuickFilterCards, { QuickFilter, emptyQuickFilter } from "@/components/QuickFilterCards";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("waesche");

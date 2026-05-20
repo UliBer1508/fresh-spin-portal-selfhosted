@@ -317,7 +317,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
 
                     {/* Lieferschein drucken */}
                     <button type="button" onClick={() => handleOpenPrintDialog(order)} className={`${tileBase} no-print`}>
-                      <span className={labelCls}>
+                      <span className={labelClsSecondary}>
                         <Printer className="w-4 h-4" strokeWidth={2} />
                         LSchein
                       </span>
@@ -332,7 +332,7 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                         aria-expanded={!isCollapsed}
                         className={`${tileBase} col-span-2`}
                       >
-                        <span className={labelCls}>
+                        <span className={labelClsSecondary}>
                           <ClipboardList className="w-4 h-4" strokeWidth={2} />
                           {t('labels.items')}
                         </span>

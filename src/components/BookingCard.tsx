@@ -133,7 +133,7 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
                 <div className="rounded-lg border border-border bg-transparent p-2.5">
                   <div className="flex items-center gap-2 mb-1">
                     <Calendar className="w-4 h-4 text-emerald-600" />
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span className="font-semibold uppercase tracking-wide text-muted-foreground text-sm">
                       {t("common:dates.checkIn")}
                     </span>
                   </div>
@@ -146,7 +146,7 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
                 <div className="rounded-lg border border-border bg-transparent p-2.5">
                   <div className="flex items-center gap-2 mb-1">
                     <Calendar className="w-4 h-4 text-rose-500" />
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span className="font-semibold uppercase tracking-wide text-muted-foreground text-sm">
                       {t("common:dates.checkOut")}
                     </span>
                   </div>

@@ -74,6 +74,18 @@ const Index = () => {
 
   const { bookings, loading, error, refetch } = useBookings(handleNewOrder);
 
+  // TEMP: demo trigger via ?demo=notif
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("demo") !== "notif") return;
+    const b = bookings.find((x) => x.linen_orders && x.linen_orders.length > 0);
+    if (b) {
+      setAlertBooking(b);
+      setOrderAlertOpen(true);
+    }
+  }, [bookings]);
+
   const { 
     settings: viewSettings, 
     showButtonOnMobile,

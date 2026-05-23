@@ -32,6 +32,24 @@ const Index = () => {
   const [orderAlertOpen, setOrderAlertOpen] = useState(false);
   const [alertBooking, setAlertBooking] = useState<Booking | null>(null);
 
+  // TEMP demo trigger: open popup via ?demo=notif
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (new URLSearchParams(window.location.search).get('demo') === 'notif') {
+      (async () => {
+        const { data: bk } = await supabase
+          .from('bookings')
+          .select(`*, houses!bookings_house_id_fkey(name,address), linen_orders!linen_orders_booking_id_fkey(id,status,delivery_date,delivery_time,delivery_type,notes,items,item_variants,provider_id,assigned_staff_id,linen_color,house_id,houses!linen_orders_house_id_fkey(name,address),service_providers!linen_orders_provider_id_fkey(name),laundry_staff!linen_orders_assigned_staff_id_fkey(name))`)
+          .eq('id', 'db1bb81c-00bf-49a0-81f4-73e34b666098')
+          .maybeSingle();
+        if (bk) {
+          setAlertBooking(bk as any);
+          setOrderAlertOpen(true);
+        }
+      })();
+    }
+  }, []);
+
   const handleNewOrder = useCallback(async (newOrder?: any) => {
     setHasNewOrders(true);
     // Check if notifications are enabled

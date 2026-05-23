@@ -1,57 +1,36 @@
-# Plan: 13 Fixes für fresh-spin-portal
+## Änderung am OrderNotificationDialog
 
-Alle Änderungen sind rein technisch (Stabilität, Hooks, Realtime, UX). Keine Schema-, Auth- oder Designänderungen.
+**Datei:** `src/components/OrderNotificationDialog.tsx`
 
-## Kritische Bugs
+### Aktuell
+Der Dialog zeigt im Header nur:
+```
+🔔 Neue Wäschebestellung
+```
+und darunter eine kleine graue Zeile mit „Chalet · Gast: …".
 
-**1. .gitignore erweitern** — `.env`, `.env.local`, `.env.production` hinzufügen.
-Hinweis: Die bereits committete `.env` enthält nur die öffentliche `VITE_SUPABASE_PUBLISHABLE_KEY` (anon key) — kein Sicherheitsrisiko, aber wir verhindern künftige Commits.
+### Neu
+Direkt unter dem Titel wird ein deutlich sichtbarer Begrüßungstext eingefügt, der Teuni persönlich anspricht und die wichtigsten Infos hervorhebt:
 
-**2. `useBookings.ts` — Doppel-Subscription auf `linen_orders`**
-Aktuell zwei `.on(...)` auf derselben Tabelle (einmal `*`, einmal `INSERT`). Zusammenführen zu einem `*`-Handler, der bei `payload.eventType === 'INSERT'` zusätzlich `onNewOrderRef.current(payload.new)` aufruft.
+```
+Hallo Teuni, es gibt eine offene Bestellung 
+für „Steinbock Chalet 3" für den 24.05.2026.
+```
 
-**3. `useBookings.ts` — `navigator.onLine` im `useState`-Initializer**
-Initial-State auf `true` setzen, dann `useEffect` mit `setIsOnline(navigator.onLine)`.
+### Umsetzung
 
-**4. `Index.tsx` — `handleNewOrder` mit `useCallback`**
-`useCallback` zu Imports hinzufügen, `handleNewOrder` mit leerer Dep-Liste umschließen (interner Zustand wird über setState gesetzt, Supabase-Client ist stabil).
+1. Aus `booking` den `houses.name` lesen → Chalet-Name.
+2. Aus `order.delivery_date` lesen und mit `date-fns` (`format(..., 'dd.MM.yyyy', { locale: de })`) ins Format `TT.MM.JJJJ` bringen — `parseLocalDate` aus `lib/utils.ts` verwenden (Memory: Calendar TZ Handling), damit kein Timezone-Shift auftritt.
+3. Den bestehenden grauen `text-muted-foreground`-Untertitel ersetzen durch einen Absatz in `text-base font-medium text-foreground`, der den Satz oben enthält. Chalet-Name und Datum als `<strong>` hervorheben.
+4. Darunter bleibt die `LinenOrderCard` mit den Bestelldetails (Artikel, Farbe, Lieferzeit) unverändert.
+5. „Bestätigen"-Button bleibt unverändert.
 
-**5. `CalendarView.tsx` — `view` in useEffect-Deps**
-`useEffect(() => { fetchCalendarData(); }, [currentDate, i18n.language, view]);`
+### Verifikation
+Nach der Änderung öffne ich das Popup über einen simulierten neuen Order-Event und liefere einen Screenshot (390×736 mobile Viewport) zurück, damit du den fertigen Text siehst.
 
-**6. `LinenOrderSection.tsx` — `status_changed_by: 'Teuni'` → `'portal'`**
+### Nicht im Scope
+- Slider „Tage im Voraus benachrichtigen" verdrahten (separates Thema).
+- Push-Notification-Text.
+- Toast-Text („Neue Bestellung eingegangen!").
 
-**7. `useViewSettings.ts` — `loadSettings` mit `useCallback`**
-`useCallback` importieren, Funktion mit leerer Dep-Liste umschließen, in Realtime-useEffect-Deps aufnehmen.
-
-**8. `CalendarView.tsx` — Gantt Bar Margin Fix**
-- In `getGanttGridPosition`: `startsBeforeRange`/`endsAfterRange` aus Return entfernen.
-- Beim Booking-Bar-Element: nur `gridColumn` + `gridRow: 1` setzen, `marginLeft`/`marginRight`/`width`-Inline-Styles entfernen, entsprechende Klassen-Konditionen in `cn()` entfernen.
-
-## Improvements
-
-**9. `App.tsx` — QueryClient-Defaults**
-`staleTime: 30s`, `gcTime: 5min`, `retry: 2`, exponentielles `retryDelay`, `refetchOnWindowFocus: false`.
-
-**10. `App.tsx` — `TooltipProvider`-Wrapper**
-Import aus `@/components/ui/tooltip`, um `BrowserRouter` legen.
-
-**11. `Index.tsx` — `pb-4` Konflikt**
-`pb-4` aus `<main>`-className entfernen.
-
-**12. `Index.tsx` — Loading-Skeleton**
-Loading-Text durch 3 Skeleton-Karten ersetzen (`<Skeleton>` aus `@/components/ui/skeleton`), Spacing/Padding wie bestehende Booking-Karten.
-
-**13. `CalendarView.tsx` — Mobile-Default `gantt`**
-View-Init-Funktion: bei `window.innerWidth < 768` immer `gantt`, sonst gespeicherten Wert (oder `gantt`).
-
-## Verifikation
-
-- `useBookings`: in DevTools Realtime-Channel prüfen → nur eine Subscription pro Tabelle, `onNewOrder` wird genau einmal pro INSERT aufgerufen.
-- Index: keine Re-Subscription-Loop in der Console.
-- CalendarView: Wechsel Monat→Woche lädt neuen Range, Gantt-Bars sind korrekt ausgerichtet, Mobile startet in Gantt.
-- Build/TS-Check ist grün.
-
-## Reihenfolge
-
-1–8 (Bugs) → 9–13 (Improvements) → Build-Check.
+Sag Bescheid wenn auch Toast und Push den gleichen Text bekommen sollen.

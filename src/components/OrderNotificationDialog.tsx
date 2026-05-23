@@ -4,6 +4,12 @@ import { Button } from "@/components/ui/button";
 import LinenOrderCard from "./LinenOrderCard";
 import { Booking } from "@/hooks/useBookings";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
+const parseLocalDate = (dateStr: string): Date => {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, (m ?? 1) - 1, d ?? 1);
+};
 
 interface Props {
   open: boolean;
@@ -14,6 +20,10 @@ interface Props {
 
 const OrderNotificationDialog = ({ open, onOpenChange, booking, viewSettings }: Props) => {
   const order = booking?.linen_orders?.[0];
+  const chaletName = booking?.houses?.name ?? "";
+  const deliveryDate = order?.delivery_date
+    ? format(parseLocalDate(order.delivery_date), "dd.MM.yyyy", { locale: de })
+    : "";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -23,10 +33,12 @@ const OrderNotificationDialog = ({ open, onOpenChange, booking, viewSettings }: 
         </DialogHeader>
 
         {booking && order ? (
-          <div className="space-y-2">
-            <div className="text-sm text-muted-foreground">
-              {booking.houses?.name} · Gast: {booking.guest_name}
-            </div>
+          <div className="space-y-3">
+            <p className="text-base font-medium text-foreground leading-relaxed">
+              Hallo Teuni, es gibt eine offene Bestellung für{" "}
+              <strong>„{chaletName}"</strong> für den{" "}
+              <strong>{deliveryDate}</strong>.
+            </p>
             <LinenOrderCard
               order={order}
               bookingId={booking.id}

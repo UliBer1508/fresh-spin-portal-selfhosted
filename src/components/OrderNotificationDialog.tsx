@@ -6,7 +6,10 @@ import { Booking } from "@/hooks/useBookings";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import { parseLocalDate } from "@/lib/utils";
+const parseLocalDate = (dateStr: string): Date => {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, (m ?? 1) - 1, d ?? 1);
+};
 
 interface Props {
   open: boolean;

@@ -1,0 +1,2 @@
+INSERT INTO public.linen_orders (booking_id, house_id, delivery_date, delivery_type, status, order_source, notes, items, total_items)
+VALUES ('1e95ab9d-f46c-4ae8-9f7b-86fadfb536fe', 'a2b4d1f7-f396-40a5-b83f-174ccafa55fd', '2026-07-24', 'delivery', 'ausstehend', 'auto_booking_lookahead', 'LIVE TEST 2 – Realtime-Trigger', '{"bed_sheet":4,"towel_large":8}'::jsonb, 12);

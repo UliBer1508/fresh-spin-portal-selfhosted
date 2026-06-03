@@ -328,6 +328,13 @@ const Index = () => {
         booking={alertBooking}
         viewSettings={viewSettings}
       />
+      <OrderNotificationDialog
+        open={!!currentReminder}
+        onOpenChange={(v) => { if (!v) dismissCurrent(); }}
+        booking={currentReminder}
+        viewSettings={viewSettings}
+      />
+
       <Toaster />
       <Sonner />
     </div>

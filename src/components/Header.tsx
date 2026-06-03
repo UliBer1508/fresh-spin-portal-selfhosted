@@ -1,11 +1,7 @@
-// v12.8 - Auth: Logout + Change Password
-import { useState } from "react";
-import { KeyRound } from "lucide-react";
+// v12.9 - Auth: removed password change
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { ChatButton } from "@/components/PortalChat";
-import { Button } from "@/components/ui/button";
 import { usePortalMessages } from "@/hooks/usePortalMessages";
-import ChangePasswordDialog from "@/components/ChangePasswordDialog";
 
 interface HeaderProps {
   viewSettings?: ViewSettings;
@@ -25,7 +21,6 @@ const Header = ({
   onChatOpen,
 }: HeaderProps) => {
   const { unreadCount } = usePortalMessages();
-  const [pwOpen, setPwOpen] = useState(false);
 
   const shouldShowButton =
     viewSettings &&
@@ -51,17 +46,6 @@ const Header = ({
             />
           </span>
         )}
-
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setPwOpen(true)}
-          title="Passwort ändern"
-        >
-          <KeyRound className="h-4 w-4" />
-        </Button>
-
-        <ChangePasswordDialog open={pwOpen} onOpenChange={setPwOpen} />
       </div>
     </header>
   );

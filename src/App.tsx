@@ -8,6 +8,8 @@ import { toast } from "@/hooks/use-toast";
 import "./lib/i18n";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import LoginScreen from "./components/LoginScreen";
+import { useAuth } from "./hooks/useAuth";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,6 +22,31 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center h-screen bg-background">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+      <p className="text-muted-foreground">Lade...</p>
+    </div>
+  </div>
+);
+
+const AuthGate = () => {
+  const { session, loading } = useAuth();
+
+  if (loading) return <LoadingSpinner />;
+  if (!session) return <LoginScreen />;
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
 const App = () => {
   useEffect(() => {
@@ -42,21 +69,9 @@ const App = () => {
         enableSystem={false}
         disableTransitionOnChange
       >
-        <Suspense fallback={
-          <div className="flex items-center justify-center h-screen bg-background">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Lade...</p>
-            </div>
-          </div>
-        }>
+        <Suspense fallback={<LoadingSpinner />}>
           <TooltipProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
+            <AuthGate />
           </TooltipProvider>
         </Suspense>
       </ThemeProvider>

@@ -1,7 +1,12 @@
-// v12.7 - Header reduced to actions only (logo/title removed)
+// v12.8 - Auth: Logout + Change Password
+import { useState } from "react";
+import { LogOut, KeyRound } from "lucide-react";
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { ChatButton } from "@/components/PortalChat";
+import { Button } from "@/components/ui/button";
 import { usePortalMessages } from "@/hooks/usePortalMessages";
+import { useAuth } from "@/hooks/useAuth";
+import ChangePasswordDialog from "@/components/ChangePasswordDialog";
 
 interface HeaderProps {
   viewSettings?: ViewSettings;
@@ -21,15 +26,14 @@ const Header = ({
   onChatOpen,
 }: HeaderProps) => {
   const { unreadCount } = usePortalMessages();
+  const { signOut } = useAuth();
+  const [pwOpen, setPwOpen] = useState(false);
 
   const shouldShowButton =
     viewSettings &&
     onSettingsChange &&
     isMobileDevice !== undefined &&
     (!isMobileDevice || showButtonOnMobile);
-
-  // Nothing to show on mobile → hide the bar entirely
-  const hasDesktopActions = true; // chat + optional settings always render on desktop
 
   return (
     <header className="hidden md:block bg-white border-b border-border px-6 py-2">
@@ -45,6 +49,27 @@ const Header = ({
             onShowButtonOnMobileChange={onShowButtonOnMobileChange}
           />
         )}
+
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setPwOpen(true)}
+          title="Passwort ändern"
+        >
+          <KeyRound className="h-4 w-4" />
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => signOut()}
+          title="Abmelden"
+        >
+          <LogOut className="h-4 w-4" />
+          <span className="ml-2">Abmelden</span>
+        </Button>
+
+        <ChangePasswordDialog open={pwOpen} onOpenChange={setPwOpen} />
       </div>
     </header>
   );

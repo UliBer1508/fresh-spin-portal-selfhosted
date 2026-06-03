@@ -74,6 +74,7 @@ const Index = () => {
   }, []);
 
   const { bookings, loading, error, refetch } = useBookings(handleNewOrder);
+  const { currentReminder, dismissCurrent } = useDeliveryReminders();
 
   // TEMP: demo trigger via ?demo=notif
   useEffect(() => {

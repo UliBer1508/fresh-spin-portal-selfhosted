@@ -15,6 +15,7 @@ import Footer from "@/components/Footer";
 import NotificationSettingsDialog from "@/components/NotificationSettingsDialog";
 import OrderNotificationDialog from "@/components/OrderNotificationDialog";
 import { useBookings, Booking, LinenOrder } from "@/hooks/useBookings";
+import { useDeliveryReminders } from "@/hooks/useDeliveryReminders";
 import { useViewSettings } from "@/hooks/useViewSettings";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Toaster } from "@/components/ui/toaster";
@@ -73,6 +74,7 @@ const Index = () => {
   }, []);
 
   const { bookings, loading, error, refetch } = useBookings(handleNewOrder);
+  const { currentReminder, dismissCurrent } = useDeliveryReminders();
 
   // TEMP: demo trigger via ?demo=notif
   useEffect(() => {
@@ -326,6 +328,13 @@ const Index = () => {
         booking={alertBooking}
         viewSettings={viewSettings}
       />
+      <OrderNotificationDialog
+        open={!!currentReminder}
+        onOpenChange={(v) => { if (!v) dismissCurrent(); }}
+        booking={currentReminder}
+        viewSettings={viewSettings}
+      />
+
       <Toaster />
       <Sonner />
     </div>

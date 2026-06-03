@@ -61,7 +61,6 @@ const Header = ({
           <KeyRound className="h-4 w-4" />
         </Button>
 
-
         <ChangePasswordDialog open={pwOpen} onOpenChange={setPwOpen} />
       </div>
     </header>

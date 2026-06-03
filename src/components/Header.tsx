@@ -1,11 +1,10 @@
 // v12.8 - Auth: Logout + Change Password
 import { useState } from "react";
-import { LogOut, KeyRound } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import ViewSettingsDialog, { ViewSettings } from "@/components/ViewSettingsDialog";
 import { ChatButton } from "@/components/PortalChat";
 import { Button } from "@/components/ui/button";
 import { usePortalMessages } from "@/hooks/usePortalMessages";
-import { useAuth } from "@/hooks/useAuth";
 import ChangePasswordDialog from "@/components/ChangePasswordDialog";
 
 interface HeaderProps {
@@ -26,7 +25,6 @@ const Header = ({
   onChatOpen,
 }: HeaderProps) => {
   const { unreadCount } = usePortalMessages();
-  const { signOut } = useAuth();
   const [pwOpen, setPwOpen] = useState(false);
 
   const shouldShowButton =
@@ -61,16 +59,6 @@ const Header = ({
           title="Passwort ändern"
         >
           <KeyRound className="h-4 w-4" />
-        </Button>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => signOut()}
-          title="Abmelden"
-        >
-          <LogOut className="h-4 w-4" />
-          <span className="ml-2">Abmelden</span>
         </Button>
 
         <ChangePasswordDialog open={pwOpen} onOpenChange={setPwOpen} />

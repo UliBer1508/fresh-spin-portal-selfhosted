@@ -36,18 +36,22 @@ const Header = ({
     (!isMobileDevice || showButtonOnMobile);
 
   return (
-    <header className="hidden md:block bg-white border-b border-border px-6 py-2">
+    <header className="bg-white border-b border-border px-4 md:px-6 py-2">
       <div className="flex items-center justify-end max-w-7xl mx-auto gap-3">
-        <ChatButton onClick={() => onChatOpen?.()} unreadCount={unreadCount} />
+        <span className="hidden md:inline-flex">
+          <ChatButton onClick={() => onChatOpen?.()} unreadCount={unreadCount} />
+        </span>
 
         {shouldShowButton && (
-          <ViewSettingsDialog
-            settings={viewSettings!}
-            onSettingsChange={onSettingsChange!}
-            isMobileDevice={isMobileDevice!}
-            showButtonOnMobile={showButtonOnMobile}
-            onShowButtonOnMobileChange={onShowButtonOnMobileChange}
-          />
+          <span className="hidden md:inline-flex">
+            <ViewSettingsDialog
+              settings={viewSettings!}
+              onSettingsChange={onSettingsChange!}
+              isMobileDevice={isMobileDevice!}
+              showButtonOnMobile={showButtonOnMobile}
+              onShowButtonOnMobileChange={onShowButtonOnMobileChange}
+            />
+          </span>
         )}
 
         <Button

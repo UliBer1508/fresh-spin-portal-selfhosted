@@ -7,7 +7,7 @@ import { Booking } from "@/hooks/useBookings";
 
 export type QuickFilter = {
   house: string | null;
-  week: "thisWeek" | "nextWeek" | null;
+  week: "thisWeek" | "nextWeek" | "thisMonth" | "nextMonth" | null;
 };
 
 export const emptyQuickFilter: QuickFilter = { house: null, week: null };

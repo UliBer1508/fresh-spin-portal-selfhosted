@@ -84,6 +84,28 @@ const QuickFilterCards = ({
           {t("quickFilter.nextWeek", { defaultValue: "Nächste Woche" })}
         </span>
       </button>
+
+      <button
+        type="button"
+        onClick={() => toggleWeek("thisMonth")}
+        className={cn(cardBase, value.week === "thisMonth" ? active : inactive)}
+      >
+        <Calendar className="w-6 h-6 shrink-0 text-foreground" />
+        <span className="font-bold text-foreground truncate text-sm">
+          {t("quickFilter.thisMonth", { defaultValue: "Diesen Monat" })}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => toggleWeek("nextMonth")}
+        className={cn(cardBase, value.week === "nextMonth" ? active : inactive)}
+      >
+        <Calendar className="w-6 h-6 shrink-0 text-foreground" />
+        <span className="font-bold text-foreground truncate text-sm">
+          {t("quickFilter.nextMonth", { defaultValue: "Nächsten Monat" })}
+        </span>
+      </button>
     </div>
   );
 };

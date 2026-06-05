@@ -35,7 +35,7 @@ const QuickFilterCards = ({
     onChange({ ...value, house: value.house === name ? null : name });
   };
 
-  const toggleWeek = (week: "thisWeek" | "nextWeek") => {
+  const toggleWeek = (week: "thisWeek" | "nextWeek" | "thisMonth" | "nextMonth") => {
     onChange({ ...value, week: value.week === week ? null : week });
   };
 

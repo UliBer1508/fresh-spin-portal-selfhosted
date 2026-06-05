@@ -1,31 +1,38 @@
 ## Ziel
-Im Wäschebestellungs-Filter neben "Diese Woche" / "Nächste Woche" zwei zusätzliche Karten hinzufügen: **Diesen Monat** und **Nächsten Monat**. Auswahl bleibt exklusiv pro Zeitraum (eine Periode aktiv) und kombinierbar mit dem Hausfilter.
+Teuni sieht keinen Login-Screen mehr. Die App meldet sich still im Hintergrund mit fixen Zugangsdaten an. RLS bleibt unverändert.
+
+## ⚠️ Sicherheitshinweis (wichtig vor Umsetzung)
+`VITE_PORTAL_PASSWORD` wird zur Build-Zeit ins Browser-Bundle eingebettet. Jeder, der die Portal-URL öffnet, kann das Passwort über DevTools → Sources auslesen und sich überall als Teuni anmelden. Das ist faktisch dasselbe wie ein öffentliches Passwort.
+
+Du hast diesen Weg trotzdem so vorgegeben — ich setze ihn 1:1 um. Falls du später doch Server-Seite (Edge Function) willst, sag Bescheid.
 
 ## Änderungen
 
-### 1. `src/components/QuickFilterCards.tsx`
-- `QuickFilter`-Typ erweitern:  
-  `week: "thisWeek" | "nextWeek" | "thisMonth" | "nextMonth" | null`  
-  (Feldname bleibt `week`, um Diff klein zu halten — alternativ in `period` umbenennen, siehe Technische Details).
-- Zwei neue Buttons unter den bestehenden Wochen-Buttons rendern (gleicher `cardBase`-Style, `Calendar`-Icon), mit `t("quickFilter.thisMonth")` und `t("quickFilter.nextMonth")` und Default-Labels "Diesen Monat" / "Nächsten Monat".
-- Toggle-Funktion `toggleWeek` akzeptiert die neuen Werte.
+### 1. Secrets / Env-Variablen
+Hinzufügen über Lovable Settings:
+- `VITE_PORTAL_EMAIL` = Teunis E-Mail
+- `VITE_PORTAL_PASSWORD` = aktuelles Passwort
 
-### 2. `src/pages/Index.tsx`
-- Neue Helper-Funktion `getMonthRange(offsetMonths: number)` analog zu `getWeekRange`, liefert `{ monthStart, monthEnd }` (1. des Monats bis 1. des Folgemonats, lokale Zeit).
-- Filterblock erweitern: wenn `quickFilter.week` einer der Monatswerte ist, statt Wochen-Range den Monats-Range nutzen.
+Wird per `secrets--add_secret` angefragt (Eingabemaske beim User).
 
-### 3. Übersetzungen
-In `public/locales/{de,en,nl}/common.json` unter `quickFilter`:
-- de: `thisMonth: "Diesen Monat"`, `nextMonth: "Nächsten Monat"`
-- en: `thisMonth: "This Month"`, `nextMonth: "Next Month"`
-- nl: `thisMonth: "Deze Maand"`, `nextMonth: "Volgende Maand"`
+### 2. `src/hooks/useAuth.ts` ersetzen
+- TypeScript-Typen ergänzen (`useState<Session | null>(null)`, `useState<User | null>(null)`) — sonst Build-Fehler
+- Logik wie im Prompt: bei fehlender Session `signInWithPassword` mit den Env-Vars
+- `onAuthStateChange` Listener bleibt
+- Rückgabe: `{ session, user, loading }`
 
-## Technische Details
-- Monats-Range mit `new Date(year, month + offset, 1)` für korrekte Lokal-/Zeitzonen-Behandlung (konsistent zur Project-Memory-Regel zur Datumsbehandlung).
-- Vergleich identisch zu Wochenfilter: `d >= monthStart && d < monthEnd` auf `delivery_date` (Fallback `check_in`).
-- Keine Datenbank-, Hook- oder API-Änderungen nötig — rein Frontend-Filter.
-- Anordnung im Grid: `grid-cols-2` bleibt; die vier Zeit-Buttons reihen sich nach den Häusern automatisch ein.
+### 3. `src/components/LoginScreen.tsx` ersetzen
+- Neutrale Lade-Anzeige (keine Login-Form mehr)
+- Wird nur angezeigt, falls Auto-Login fehlschlägt
+- Verwendet semantische Design-Tokens (light theme)
 
-## Nicht enthalten
-- Kein Rename des Feldes `week` → `period` (würde mehr Diff erzeugen; nur falls gewünscht).
-- Keine Änderung am Hausfilter oder anderen Komponenten.
+### 4. `src/App.tsx`
+- Keine Änderung
+
+## Was NICHT geändert wird
+- Keine RLS-Policies
+- Keine DB-Migrationen
+- Keine anderen Komponenten
+
+## Nach Implementierung
+- Prüfen, ob `signOut`/andere Exports aus `useAuth` an anderer Stelle verwendet werden — falls ja, schnell anpassen.

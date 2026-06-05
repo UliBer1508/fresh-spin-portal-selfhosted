@@ -160,11 +160,15 @@ const Index = () => {
       filtered = filtered.filter((b) => b.houses?.name === quickFilter.house);
     }
     if (quickFilter.week) {
-      const { weekStart, weekEnd } = getWeekRange(quickFilter.week === "thisWeek" ? 0 : 1);
+      const { rangeStart, rangeEnd } =
+        quickFilter.week === "thisWeek" ? getWeekRange(0)
+        : quickFilter.week === "nextWeek" ? getWeekRange(1)
+        : quickFilter.week === "thisMonth" ? getMonthRange(0)
+        : getMonthRange(1);
       filtered = filtered.filter((b) => {
         const o = b.linen_orders?.[0];
         const d = o?.delivery_date ? new Date(o.delivery_date) : new Date(b.check_in);
-        return d >= weekStart && d < weekEnd;
+        return d >= rangeStart && d < rangeEnd;
       });
     }
     return filtered;

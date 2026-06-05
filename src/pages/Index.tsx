@@ -134,7 +134,14 @@ const Index = () => {
     const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     const weekStart = new Date(today.getTime() + (offsetWeeks * 7 - mondayOffset) * 86400000);
     const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
-    return { weekStart, weekEnd };
+    return { rangeStart: weekStart, rangeEnd: weekEnd };
+  };
+
+  const getMonthRange = (offsetMonths: number) => {
+    const now = new Date();
+    const rangeStart = new Date(now.getFullYear(), now.getMonth() + offsetMonths, 1);
+    const rangeEnd = new Date(now.getFullYear(), now.getMonth() + offsetMonths + 1, 1);
+    return { rangeStart, rangeEnd };
   };
 
   // Transform bookings: one entry per linen_order

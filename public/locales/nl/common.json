@@ -36,6 +36,8 @@
   },
   "quickFilter": {
     "thisWeek": "Deze week",
-    "nextWeek": "Volgende week"
+    "nextWeek": "Volgende week",
+    "thisMonth": "Deze maand",
+    "nextMonth": "Volgende maand"
   }
 }

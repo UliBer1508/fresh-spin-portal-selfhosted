@@ -134,7 +134,14 @@ const Index = () => {
     const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     const weekStart = new Date(today.getTime() + (offsetWeeks * 7 - mondayOffset) * 86400000);
     const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
-    return { weekStart, weekEnd };
+    return { rangeStart: weekStart, rangeEnd: weekEnd };
+  };
+
+  const getMonthRange = (offsetMonths: number) => {
+    const now = new Date();
+    const rangeStart = new Date(now.getFullYear(), now.getMonth() + offsetMonths, 1);
+    const rangeEnd = new Date(now.getFullYear(), now.getMonth() + offsetMonths + 1, 1);
+    return { rangeStart, rangeEnd };
   };
 
   // Transform bookings: one entry per linen_order
@@ -153,11 +160,15 @@ const Index = () => {
       filtered = filtered.filter((b) => b.houses?.name === quickFilter.house);
     }
     if (quickFilter.week) {
-      const { weekStart, weekEnd } = getWeekRange(quickFilter.week === "thisWeek" ? 0 : 1);
+      const { rangeStart, rangeEnd } =
+        quickFilter.week === "thisWeek" ? getWeekRange(0)
+        : quickFilter.week === "nextWeek" ? getWeekRange(1)
+        : quickFilter.week === "thisMonth" ? getMonthRange(0)
+        : getMonthRange(1);
       filtered = filtered.filter((b) => {
         const o = b.linen_orders?.[0];
         const d = o?.delivery_date ? new Date(o.delivery_date) : new Date(b.check_in);
-        return d >= weekStart && d < weekEnd;
+        return d >= rangeStart && d < rangeEnd;
       });
     }
     return filtered;

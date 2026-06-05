@@ -7,7 +7,7 @@ import { Booking } from "@/hooks/useBookings";
 
 export type QuickFilter = {
   house: string | null;
-  week: "thisWeek" | "nextWeek" | null;
+  week: "thisWeek" | "nextWeek" | "thisMonth" | "nextMonth" | null;
 };
 
 export const emptyQuickFilter: QuickFilter = { house: null, week: null };
@@ -35,7 +35,7 @@ const QuickFilterCards = ({
     onChange({ ...value, house: value.house === name ? null : name });
   };
 
-  const toggleWeek = (week: "thisWeek" | "nextWeek") => {
+  const toggleWeek = (week: "thisWeek" | "nextWeek" | "thisMonth" | "nextMonth") => {
     onChange({ ...value, week: value.week === week ? null : week });
   };
 
@@ -82,6 +82,28 @@ const QuickFilterCards = ({
         <Calendar className="w-6 h-6 shrink-0 text-foreground" />
         <span className="font-bold text-foreground truncate text-sm">
           {t("quickFilter.nextWeek", { defaultValue: "Nächste Woche" })}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => toggleWeek("thisMonth")}
+        className={cn(cardBase, value.week === "thisMonth" ? active : inactive)}
+      >
+        <Calendar className="w-6 h-6 shrink-0 text-foreground" />
+        <span className="font-bold text-foreground truncate text-sm">
+          {t("quickFilter.thisMonth", { defaultValue: "Diesen Monat" })}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => toggleWeek("nextMonth")}
+        className={cn(cardBase, value.week === "nextMonth" ? active : inactive)}
+      >
+        <Calendar className="w-6 h-6 shrink-0 text-foreground" />
+        <span className="font-bold text-foreground truncate text-sm">
+          {t("quickFilter.nextMonth", { defaultValue: "Nächsten Monat" })}
         </span>
       </button>
     </div>

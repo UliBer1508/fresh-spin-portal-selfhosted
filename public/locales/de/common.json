@@ -36,6 +36,8 @@
   },
   "quickFilter": {
     "thisWeek": "Diese Woche",
-    "nextWeek": "Nächste Woche"
+    "nextWeek": "Nächste Woche",
+    "thisMonth": "Diesen Monat",
+    "nextMonth": "Nächsten Monat"
   }
 }

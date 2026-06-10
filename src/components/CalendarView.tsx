@@ -78,10 +78,22 @@ interface GanttBooking {
   house_name: string;
 }
 
-// Get consistent color for a house based on its ID
-const getHouseColor = (houseId: string) => {
+// Named house color overrides (case-insensitive substring match on house name)
+const HOUSE_NAME_COLOR_OVERRIDES: Array<{ match: string; color: { bg: string; text: string; hex: string } }> = [
+  { match: 'wald', color: { bg: 'bg-green-500', text: 'text-white', hex: '#22c55e' } },
+  { match: 'venediger', color: { bg: 'bg-purple-500', text: 'text-white', hex: '#a855f7' } },
+];
+
+// Get consistent color for a house - name-based override first, then hash fallback
+const getHouseColor = (houseId: string, houseName?: string) => {
+  if (houseName) {
+    const lower = houseName.toLowerCase();
+    const override = HOUSE_NAME_COLOR_OVERRIDES.find(o => lower.includes(o.match));
+    if (override) return override.color;
+  }
   return getColorByHash(HOUSE_COLORS, houseId);
 };
+
 
 // Event priority for sorting in day cells (lower = higher priority, shown first)
 const getEventPriority = (type: CalendarEvent['type']) => {

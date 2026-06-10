@@ -727,7 +727,7 @@ const CalendarView = () => {
                 onClick={() => setView('list')}
                 className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
               >
-                {t('views.list')}
+                Liste
               </Button>
               <Button
                 variant={view === 'month' ? 'default' : 'outline'}

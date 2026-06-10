@@ -720,8 +720,15 @@ const CalendarView = () => {
               }
             </h1>
 
-            {/* View switcher: Monat / Woche / Gantt / Liste — full-width segmented */}
+            {/* View switcher: Liste / Monat / Gantt — full-width segmented */}
             <div className="flex items-center gap-2">
+              <Button
+                variant={view === 'list' ? 'default' : 'outline'}
+                onClick={() => setView('list')}
+                className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
+              >
+                {t('views.list')}
+              </Button>
               <Button
                 variant={view === 'month' ? 'default' : 'outline'}
                 onClick={() => setView('month')}
@@ -730,25 +737,11 @@ const CalendarView = () => {
                 {t('views.month')}
               </Button>
               <Button
-                variant={view === 'week' ? 'default' : 'outline'}
-                onClick={() => setView('week')}
-                className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
-              >
-                {t('views.week')}
-              </Button>
-              <Button
                 variant={view === 'gantt' ? 'default' : 'outline'}
                 onClick={() => setView('gantt')}
                 className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
               >
                 {t('views.gantt')}
-              </Button>
-              <Button
-                variant={view === 'list' ? 'default' : 'outline'}
-                onClick={() => setView('list')}
-                className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
-              >
-                {t('views.list')}
               </Button>
             </div>
           </div>

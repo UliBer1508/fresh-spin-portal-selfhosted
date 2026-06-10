@@ -680,7 +680,7 @@ const CalendarView = () => {
               </div>
               <div className="space-y-2">
                 {group.items.map((event) => {
-                  const houseColor = event.house_id ? getHouseColor(event.house_id) : null;
+                  const houseColor = event.house_id ? getHouseColor(event.house_id, event.house) : null;
                   const IconCmp = event.type === 'linen' ? Shirt : Sparkles;
                   return (
                     <button

@@ -628,11 +628,13 @@ const CalendarView = () => {
             <h1 className="text-xl md:text-2xl font-bold">
               {view === 'week'
                 ? `${format(weekStart, 'd. MMM', { locale: dateLocale })} - ${format(weekEnd, 'd. MMM yyyy', { locale: dateLocale })}`
+                : view === 'list'
+                ? format(new Date(), 'MMMM yyyy', { locale: dateLocale })
                 : format(currentDate, 'MMMM yyyy', { locale: dateLocale })
               }
             </h1>
 
-            {/* View switcher: Monat / Woche / Gantt — full-width segmented */}
+            {/* View switcher: Monat / Woche / Gantt / Liste — full-width segmented */}
             <div className="flex items-center gap-2">
               <Button
                 variant={view === 'month' ? 'default' : 'outline'}
@@ -654,6 +656,13 @@ const CalendarView = () => {
                 className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
               >
                 {t('views.gantt')}
+              </Button>
+              <Button
+                variant={view === 'list' ? 'default' : 'outline'}
+                onClick={() => setView('list')}
+                className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
+              >
+                {t('views.list')}
               </Button>
             </div>
           </div>

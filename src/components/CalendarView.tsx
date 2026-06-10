@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay, addDays } from "date-fns";
 
 // Parst "YYYY-MM-DD" und "YYYY-MM-DDTHH:mm:ss+00:00" als lokales Datum (kein UTC-Offset Problem)
 const parseLocalDate = (dateStr: string | null | undefined): Date | null => {
@@ -83,6 +83,18 @@ const getHouseColor = (houseId: string) => {
   return getColorByHash(HOUSE_COLORS, houseId);
 };
 
+// Event priority for sorting in day cells (lower = higher priority, shown first)
+const getEventPriority = (type: CalendarEvent['type']) => {
+  switch (type) {
+    case 'linen': return 0;
+    case 'cleaning': return 1;
+    case 'check-out': return 2;
+    case 'check-in': return 3;
+    case 'occupied': return 4;
+    default: return 5;
+  }
+};
+
 // Get house name abbreviation (e.g., "Wald Chalet" → "WC")
 const getHouseAbbreviation = (houseName: string) => {
   if (!houseName) return '';
@@ -96,11 +108,11 @@ const CalendarView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [dayDialogOpen, setDayDialogOpen] = useState(false);
-  const [view, setView] = useState<'month' | 'week' | 'gantt'>(() => {
-    const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 768;
-    if (isMobileDevice) return 'gantt';
+  const [view, setView] = useState<'month' | 'week' | 'gantt' | 'list'>(() => {
     const saved = localStorage.getItem('calendar-view');
-    return (saved === 'month' || saved === 'week' || saved === 'gantt') ? saved : 'gantt';
+    if (saved === 'month' || saved === 'week' || saved === 'gantt' || saved === 'list') return saved;
+    const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 768;
+    return isMobileDevice ? 'list' : 'gantt';
   });
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [houses, setHouses] = useState<House[]>([]);
@@ -143,8 +155,11 @@ const CalendarView = () => {
   const fetchCalendarData = async () => {
     setLoading(true);
     try {
-      const startDate = displayStart.toISOString().split('T')[0];
-      const endDate = displayEnd.toISOString().split('T')[0];
+      const isListView = view === 'list';
+      const rangeStart = isListView ? startOfDay(new Date()) : displayStart;
+      const rangeEnd = isListView ? addDays(startOfDay(new Date()), 60) : displayEnd;
+      const startDate = format(rangeStart, 'yyyy-MM-dd');
+      const endDate = format(rangeEnd, 'yyyy-MM-dd');
 
       // Fetch only tourist houses for legend
       const { data: housesData } = await supabase
@@ -603,6 +618,92 @@ const CalendarView = () => {
     );
   };
 
+  // Render List View (chronological, today + 60 days, linen + cleaning only)
+  const renderListView = () => {
+    const today = startOfDay(new Date());
+    const filtered = events
+      .filter(e => (e.type === 'linen' || e.type === 'cleaning') && !isAfter(today, e.date))
+      .sort((a, b) => {
+        const d = a.date.getTime() - b.date.getTime();
+        if (d !== 0) return d;
+        return getEventPriority(a.type) - getEventPriority(b.type);
+      });
+
+    // Group by day (yyyy-MM-dd)
+    const groups: { date: Date; items: CalendarEvent[] }[] = [];
+    filtered.forEach((e) => {
+      const key = format(e.date, 'yyyy-MM-dd');
+      const last = groups[groups.length - 1];
+      if (last && format(last.date, 'yyyy-MM-dd') === key) {
+        last.items.push(e);
+      } else {
+        groups.push({ date: e.date, items: [e] });
+      }
+    });
+
+    if (groups.length === 0) {
+      return (
+        <div className="bg-background border rounded-lg p-8 text-center text-muted-foreground">
+          {t('sidebar.noEvents')}
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-background border rounded-lg divide-y">
+        {groups.map((group) => {
+          const isToday = isSameDay(group.date, new Date());
+          return (
+            <div key={group.date.toISOString()} className="p-3 md:p-4">
+              <div className={cn(
+                "flex items-center gap-2 mb-2 text-sm md:text-base font-semibold",
+                isToday ? "text-primary" : "text-foreground"
+              )}>
+                <span>{format(group.date, 'EEEE, d. MMMM', { locale: dateLocale })}</span>
+                {isToday && (
+                  <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">
+                    {t('navigation.today')}
+                  </Badge>
+                )}
+              </div>
+              <div className="space-y-2">
+                {group.items.map((event) => {
+                  const houseColor = event.house_id ? getHouseColor(event.house_id) : null;
+                  const IconCmp = event.type === 'linen' ? Shirt : Sparkles;
+                  return (
+                    <button
+                      key={event.id}
+                      type="button"
+                      onClick={() => handleDayClick(group.date)}
+                      className="w-full min-h-[44px] flex items-center gap-3 bg-card border rounded-xl p-3 text-left hover:bg-muted/40 transition-colors"
+                    >
+                      <span className={cn(
+                        "w-3 h-3 rounded-full shrink-0",
+                        houseColor ? houseColor.bg : "bg-muted"
+                      )} />
+                      <div className={cn(
+                        "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
+                        houseColor ? cn(houseColor.bg, houseColor.text) : "bg-muted text-foreground"
+                      )}>
+                        <IconCmp className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0 text-sm">
+                        <span className="font-medium">{event.title}</span>
+                        {event.house && <> · <span className="truncate">{event.house}</span></>}
+                        {event.time && <> · <span className="text-muted-foreground">{event.time}</span></>}
+                      </div>
+                      <ChevronRightIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-6 lg:space-y-0 lg:flex lg:gap-6">
@@ -613,11 +714,13 @@ const CalendarView = () => {
             <h1 className="text-xl md:text-2xl font-bold">
               {view === 'week'
                 ? `${format(weekStart, 'd. MMM', { locale: dateLocale })} - ${format(weekEnd, 'd. MMM yyyy', { locale: dateLocale })}`
+                : view === 'list'
+                ? format(new Date(), 'MMMM yyyy', { locale: dateLocale })
                 : format(currentDate, 'MMMM yyyy', { locale: dateLocale })
               }
             </h1>
 
-            {/* View switcher: Monat / Woche / Gantt — full-width segmented */}
+            {/* View switcher: Monat / Woche / Gantt / Liste — full-width segmented */}
             <div className="flex items-center gap-2">
               <Button
                 variant={view === 'month' ? 'default' : 'outline'}
@@ -639,6 +742,13 @@ const CalendarView = () => {
                 className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
               >
                 {t('views.gantt')}
+              </Button>
+              <Button
+                variant={view === 'list' ? 'default' : 'outline'}
+                onClick={() => setView('list')}
+                className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
+              >
+                {t('views.list')}
               </Button>
             </div>
           </div>
@@ -676,8 +786,11 @@ const CalendarView = () => {
           {/* Gantt View */}
           {view === 'gantt' && renderGanttView()}
 
+          {/* List View */}
+          {view === 'list' && renderListView()}
+
           {/* Calendar Grid (Month/Week) */}
-          {view !== 'gantt' && (
+          {view !== 'gantt' && view !== 'list' && (
             <div className="bg-background border rounded-lg">
               {/* In-card header: house legend (left) + Today/arrows (right) */}
               <div className="flex items-center justify-between gap-2 p-3 md:p-4 border-b">
@@ -735,10 +848,17 @@ const CalendarView = () => {
               {/* Calendar days */}
               <div className={cn("grid", view === 'month' ? "grid-cols-7" : "grid-cols-7")}>
                 {displayDays.map((date) => {
-                  const dayEvents = getEventsByDate(date);
+                  const allDayEvents = getEventsByDate(date);
                   const isToday = isSameDay(date, new Date());
                   const isCurrentMonth = view === 'month' ? format(date, 'M') === format(currentDate, 'M') : true;
-                  const isOccupied = dayEvents.some(e => e.type === 'occupied' || e.type === 'check-in' || e.type === 'check-out');
+                  const isOccupied = allDayEvents.some(e => e.type === 'occupied' || e.type === 'check-in' || e.type === 'check-out');
+                  // Hide occupied from badges; sort remaining by priority so linen/cleaning are never clipped
+                  const visibleEvents = allDayEvents
+                    .filter(e => e.type !== 'occupied')
+                    .sort((a, b) => getEventPriority(a.type) - getEventPriority(b.type));
+                  const maxItems = 3;
+                  const shownEvents = visibleEvents.slice(0, maxItems);
+                  const hiddenCount = visibleEvents.length - shownEvents.length;
 
                   return (
                     <div
@@ -746,8 +866,8 @@ const CalendarView = () => {
                       className={cn(
                         view === 'month' ? "min-h-[80px] md:min-h-[120px]" : "min-h-[120px] md:min-h-[150px]",
                         "p-1 md:p-2 border-r border-b last:border-r-0 cursor-pointer transition-colors",
-                        "bg-blue-50 hover:bg-blue-100",
-                        isOccupied && "bg-blue-200 hover:bg-blue-300",
+                        "bg-muted/30 hover:bg-muted/50",
+                        isOccupied && "bg-primary/15 hover:bg-primary/25",
                         isToday && "ring-2 ring-primary ring-inset",
                         !isCurrentMonth && "text-muted-foreground opacity-60"
                       )}
@@ -761,7 +881,7 @@ const CalendarView = () => {
                         {view === 'week' ? format(date, 'EEE d', { locale: dateLocale }) : format(date, 'd')}
                       </div>
                       <div className="space-y-0.5 md:space-y-1">
-                        {dayEvents.slice(0, view === 'week' ? 3 : 2).map((event) => (
+                        {shownEvents.map((event) => (
                           <Badge
                             key={event.id}
                             className={cn(
@@ -776,9 +896,9 @@ const CalendarView = () => {
                             {getEventDisplayText(event)}
                           </Badge>
                         ))}
-                        {dayEvents.length > (view === 'week' ? 3 : 2) && (
+                        {hiddenCount > 0 && (
                           <div className="text-[10px] md:text-xs text-muted-foreground">
-                            {t('events.more', { count: dayEvents.length - (view === 'week' ? 3 : 2) })}
+                            {t('events.more', { count: hiddenCount })}
                           </div>
                         )}
                       </div>
@@ -819,16 +939,20 @@ const CalendarView = () => {
               const statusLower = (event.status || '').toLowerCase();
               const statusDotColor =
                 statusLower.includes('geliefert') || statusLower.includes('delivered') || statusLower.includes('abgeschlossen') || statusLower.includes('completed') || statusLower.includes('done')
-                  ? 'bg-emerald-500'
+                  ? 'bg-success'
                   : statusLower.includes('offen') || statusLower.includes('open') || statusLower.includes('pending')
-                  ? 'bg-amber-500'
-                  : 'bg-blue-500';
+                  ? 'bg-warning'
+                  : 'bg-info';
+              const iconHouseColor = event.house_id ? getHouseColor(event.house_id) : null;
               return (
                 <div
                   key={event.id}
                   className="flex items-center gap-3 bg-card border rounded-xl p-3"
                 >
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
+                    iconHouseColor ? cn(iconHouseColor.bg, iconHouseColor.text) : "bg-muted text-foreground"
+                  )}>
                     <IconCmp className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">

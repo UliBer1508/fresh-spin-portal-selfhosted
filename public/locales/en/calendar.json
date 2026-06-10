@@ -2,7 +2,8 @@
   "views": {
     "month": "Month",
     "week": "Week",
-    "gantt": "Gantt"
+    "gantt": "Gantt",
+    "list": "List"
   },
   "navigation": {
     "today": "Today"

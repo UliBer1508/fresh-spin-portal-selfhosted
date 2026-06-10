@@ -376,7 +376,7 @@ const CalendarView = () => {
 
   const getEventIconColor = (event: CalendarEvent) => {
     if (event.type === 'occupied' && event.house_id) {
-      return getHouseColor(event.house_id).bg;
+      return getHouseColor(event.house_id, event.house).bg;
     }
     switch (event.type) {
       case 'check-in':

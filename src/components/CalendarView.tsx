@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay, addDays } from "date-fns";
 
 // Parst "YYYY-MM-DD" und "YYYY-MM-DDTHH:mm:ss+00:00" als lokales Datum (kein UTC-Offset Problem)
 const parseLocalDate = (dateStr: string | null | undefined): Date | null => {

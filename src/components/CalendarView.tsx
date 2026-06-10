@@ -96,11 +96,11 @@ const CalendarView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [dayDialogOpen, setDayDialogOpen] = useState(false);
-  const [view, setView] = useState<'month' | 'week' | 'gantt'>(() => {
-    const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 768;
-    if (isMobileDevice) return 'gantt';
+  const [view, setView] = useState<'month' | 'week' | 'gantt' | 'list'>(() => {
     const saved = localStorage.getItem('calendar-view');
-    return (saved === 'month' || saved === 'week' || saved === 'gantt') ? saved : 'gantt';
+    if (saved === 'month' || saved === 'week' || saved === 'gantt' || saved === 'list') return saved;
+    const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 768;
+    return isMobileDevice ? 'list' : 'gantt';
   });
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [houses, setHouses] = useState<House[]>([]);

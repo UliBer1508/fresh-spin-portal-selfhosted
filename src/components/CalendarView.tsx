@@ -357,7 +357,7 @@ const CalendarView = () => {
   // Get event color - for occupied events use house color
   const getEventColor = (event: CalendarEvent) => {
     if (event.type === 'occupied' && event.house_id) {
-      const houseColor = getHouseColor(event.house_id);
+      const houseColor = getHouseColor(event.house_id, event.house);
       return `${houseColor.bg} ${houseColor.text}`;
     }
     switch (event.type) {

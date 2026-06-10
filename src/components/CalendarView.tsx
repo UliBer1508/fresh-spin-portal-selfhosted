@@ -83,6 +83,18 @@ const getHouseColor = (houseId: string) => {
   return getColorByHash(HOUSE_COLORS, houseId);
 };
 
+// Event priority for sorting in day cells (lower = higher priority, shown first)
+const getEventPriority = (type: CalendarEvent['type']) => {
+  switch (type) {
+    case 'linen': return 0;
+    case 'cleaning': return 1;
+    case 'check-out': return 2;
+    case 'check-in': return 3;
+    case 'occupied': return 4;
+    default: return 5;
+  }
+};
+
 // Get house name abbreviation (e.g., "Wald Chalet" → "WC")
 const getHouseAbbreviation = (houseName: string) => {
   if (!houseName) return '';

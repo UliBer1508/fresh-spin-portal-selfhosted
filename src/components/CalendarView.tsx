@@ -750,10 +750,17 @@ const CalendarView = () => {
               {/* Calendar days */}
               <div className={cn("grid", view === 'month' ? "grid-cols-7" : "grid-cols-7")}>
                 {displayDays.map((date) => {
-                  const dayEvents = getEventsByDate(date);
+                  const allDayEvents = getEventsByDate(date);
                   const isToday = isSameDay(date, new Date());
                   const isCurrentMonth = view === 'month' ? format(date, 'M') === format(currentDate, 'M') : true;
-                  const isOccupied = dayEvents.some(e => e.type === 'occupied' || e.type === 'check-in' || e.type === 'check-out');
+                  const isOccupied = allDayEvents.some(e => e.type === 'occupied' || e.type === 'check-in' || e.type === 'check-out');
+                  // Hide occupied from badges; sort remaining by priority so linen/cleaning are never clipped
+                  const visibleEvents = allDayEvents
+                    .filter(e => e.type !== 'occupied')
+                    .sort((a, b) => getEventPriority(a.type) - getEventPriority(b.type));
+                  const maxItems = 3;
+                  const shownEvents = visibleEvents.slice(0, maxItems);
+                  const hiddenCount = visibleEvents.length - shownEvents.length;
 
                   return (
                     <div
@@ -761,8 +768,8 @@ const CalendarView = () => {
                       className={cn(
                         view === 'month' ? "min-h-[80px] md:min-h-[120px]" : "min-h-[120px] md:min-h-[150px]",
                         "p-1 md:p-2 border-r border-b last:border-r-0 cursor-pointer transition-colors",
-                        "bg-blue-50 hover:bg-blue-100",
-                        isOccupied && "bg-blue-200 hover:bg-blue-300",
+                        "bg-muted/30 hover:bg-muted/50",
+                        isOccupied && "bg-primary/15 hover:bg-primary/25",
                         isToday && "ring-2 ring-primary ring-inset",
                         !isCurrentMonth && "text-muted-foreground opacity-60"
                       )}
@@ -776,7 +783,7 @@ const CalendarView = () => {
                         {view === 'week' ? format(date, 'EEE d', { locale: dateLocale }) : format(date, 'd')}
                       </div>
                       <div className="space-y-0.5 md:space-y-1">
-                        {dayEvents.slice(0, view === 'week' ? 3 : 2).map((event) => (
+                        {shownEvents.map((event) => (
                           <Badge
                             key={event.id}
                             className={cn(
@@ -791,9 +798,9 @@ const CalendarView = () => {
                             {getEventDisplayText(event)}
                           </Badge>
                         ))}
-                        {dayEvents.length > (view === 'week' ? 3 : 2) && (
+                        {hiddenCount > 0 && (
                           <div className="text-[10px] md:text-xs text-muted-foreground">
-                            {t('events.more', { count: dayEvents.length - (view === 'week' ? 3 : 2) })}
+                            {t('events.more', { count: hiddenCount })}
                           </div>
                         )}
                       </div>

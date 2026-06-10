@@ -700,8 +700,11 @@ const CalendarView = () => {
           {/* Gantt View */}
           {view === 'gantt' && renderGanttView()}
 
+          {/* List View */}
+          {view === 'list' && renderListView()}
+
           {/* Calendar Grid (Month/Week) */}
-          {view !== 'gantt' && (
+          {view !== 'gantt' && view !== 'list' && (
             <div className="bg-background border rounded-lg">
               {/* In-card header: house legend (left) + Today/arrows (right) */}
               <div className="flex items-center justify-between gap-2 p-3 md:p-4 border-b">

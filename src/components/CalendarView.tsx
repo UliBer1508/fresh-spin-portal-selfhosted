@@ -677,16 +677,15 @@ const CalendarView = () => {
                       onClick={() => handleDayClick(group.date)}
                       className="w-full min-h-[44px] flex items-center gap-3 bg-card border rounded-xl p-3 text-left hover:bg-muted/40 transition-colors"
                     >
-                      <span className={cn(
-                        "w-3 h-3 rounded-full shrink-0",
-                        houseColor ? houseColor.bg : "bg-muted"
-                      )} />
                       <div className={cn(
                         "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
-                        houseColor ? cn(houseColor.bg, houseColor.text) : "bg-muted text-foreground"
+                        event.type === 'linen'
+                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
+                          : "bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300"
                       )}>
                         <IconCmp className="w-4 h-4" />
                       </div>
+
                       <div className="flex-1 min-w-0 text-sm">
                         <span className="font-medium">{event.title}</span>
                         {event.house && <> · <span className="truncate">{event.house}</span></>}

@@ -143,8 +143,11 @@ const CalendarView = () => {
   const fetchCalendarData = async () => {
     setLoading(true);
     try {
-      const startDate = displayStart.toISOString().split('T')[0];
-      const endDate = displayEnd.toISOString().split('T')[0];
+      const isListView = view === 'list';
+      const rangeStart = isListView ? startOfDay(new Date()) : displayStart;
+      const rangeEnd = isListView ? addDays(startOfDay(new Date()), 60) : displayEnd;
+      const startDate = format(rangeStart, 'yyyy-MM-dd');
+      const endDate = format(rangeEnd, 'yyyy-MM-dd');
 
       // Fetch only tourist houses for legend
       const { data: housesData } = await supabase

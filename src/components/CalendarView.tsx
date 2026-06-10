@@ -803,7 +803,7 @@ const CalendarView = () => {
               <div className="flex items-center justify-between gap-2 p-3 md:p-4 border-b">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
                   {houses.map((house) => {
-                    const houseColor = getHouseColor(house.id);
+                    const houseColor = getHouseColor(house.id, house.name);
                     return (
                       <div key={house.id} className="flex items-center gap-1.5">
                         <span className={cn("w-2.5 h-2.5 rounded-full shrink-0", houseColor.bg)} />

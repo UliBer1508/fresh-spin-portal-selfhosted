@@ -522,7 +522,8 @@ const CalendarView = () => {
 
               {/* House rows */}
               {houses.map((house) => {
-                const houseColor = getHouseColor(house.id);
+                const houseColor = getHouseColor(house.id, house.name);
+
                 const bookings = getHouseBookings(house.id);
 
                 return (

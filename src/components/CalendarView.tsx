@@ -618,6 +618,92 @@ const CalendarView = () => {
     );
   };
 
+  // Render List View (chronological, today + 60 days, linen + cleaning only)
+  const renderListView = () => {
+    const today = startOfDay(new Date());
+    const filtered = events
+      .filter(e => (e.type === 'linen' || e.type === 'cleaning') && !isAfter(today, e.date))
+      .sort((a, b) => {
+        const d = a.date.getTime() - b.date.getTime();
+        if (d !== 0) return d;
+        return getEventPriority(a.type) - getEventPriority(b.type);
+      });
+
+    // Group by day (yyyy-MM-dd)
+    const groups: { date: Date; items: CalendarEvent[] }[] = [];
+    filtered.forEach((e) => {
+      const key = format(e.date, 'yyyy-MM-dd');
+      const last = groups[groups.length - 1];
+      if (last && format(last.date, 'yyyy-MM-dd') === key) {
+        last.items.push(e);
+      } else {
+        groups.push({ date: e.date, items: [e] });
+      }
+    });
+
+    if (groups.length === 0) {
+      return (
+        <div className="bg-background border rounded-lg p-8 text-center text-muted-foreground">
+          {t('sidebar.noEvents')}
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-background border rounded-lg divide-y">
+        {groups.map((group) => {
+          const isToday = isSameDay(group.date, new Date());
+          return (
+            <div key={group.date.toISOString()} className="p-3 md:p-4">
+              <div className={cn(
+                "flex items-center gap-2 mb-2 text-sm md:text-base font-semibold",
+                isToday ? "text-primary" : "text-foreground"
+              )}>
+                <span>{format(group.date, 'EEEE, d. MMMM', { locale: dateLocale })}</span>
+                {isToday && (
+                  <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">
+                    {t('navigation.today')}
+                  </Badge>
+                )}
+              </div>
+              <div className="space-y-2">
+                {group.items.map((event) => {
+                  const houseColor = event.house_id ? getHouseColor(event.house_id) : null;
+                  const IconCmp = event.type === 'linen' ? Shirt : Sparkles;
+                  return (
+                    <button
+                      key={event.id}
+                      type="button"
+                      onClick={() => handleDayClick(group.date)}
+                      className="w-full min-h-[44px] flex items-center gap-3 bg-card border rounded-xl p-3 text-left hover:bg-muted/40 transition-colors"
+                    >
+                      <span className={cn(
+                        "w-3 h-3 rounded-full shrink-0",
+                        houseColor ? houseColor.bg : "bg-muted"
+                      )} />
+                      <div className={cn(
+                        "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
+                        houseColor ? cn(houseColor.bg, houseColor.text) : "bg-muted text-foreground"
+                      )}>
+                        <IconCmp className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0 text-sm">
+                        <span className="font-medium">{event.title}</span>
+                        {event.house && <> · <span className="truncate">{event.house}</span></>}
+                        {event.time && <> · <span className="text-muted-foreground">{event.time}</span></>}
+                      </div>
+                      <ChevronRightIcon className="w-4 h-4 text-muted-foreground shrink-0" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-6 lg:space-y-0 lg:flex lg:gap-6">

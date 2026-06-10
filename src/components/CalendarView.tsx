@@ -675,8 +675,10 @@ const CalendarView = () => {
                       key={event.id}
                       type="button"
                       onClick={() => handleDayClick(group.date)}
+                      style={houseColor ? { borderLeftColor: houseColor.hex, borderLeftWidth: 4 } : undefined}
                       className="w-full min-h-[44px] flex items-center gap-3 bg-card border rounded-xl p-3 text-left hover:bg-muted/40 transition-colors"
                     >
+
                       <div className={cn(
                         "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
                         event.type === 'linen'

@@ -950,7 +950,7 @@ const CalendarView = () => {
                   : statusLower.includes('offen') || statusLower.includes('open') || statusLower.includes('pending')
                   ? 'bg-warning'
                   : 'bg-info';
-              const iconHouseColor = event.house_id ? getHouseColor(event.house_id) : null;
+              const iconHouseColor = event.house_id ? getHouseColor(event.house_id, event.house) : null;
               return (
                 <div
                   key={event.id}

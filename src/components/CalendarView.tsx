@@ -841,16 +841,20 @@ const CalendarView = () => {
               const statusLower = (event.status || '').toLowerCase();
               const statusDotColor =
                 statusLower.includes('geliefert') || statusLower.includes('delivered') || statusLower.includes('abgeschlossen') || statusLower.includes('completed') || statusLower.includes('done')
-                  ? 'bg-emerald-500'
+                  ? 'bg-success'
                   : statusLower.includes('offen') || statusLower.includes('open') || statusLower.includes('pending')
-                  ? 'bg-amber-500'
-                  : 'bg-blue-500';
+                  ? 'bg-warning'
+                  : 'bg-info';
+              const iconHouseColor = event.house_id ? getHouseColor(event.house_id) : null;
               return (
                 <div
                   key={event.id}
                   className="flex items-center gap-3 bg-card border rounded-xl p-3"
                 >
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
+                    iconHouseColor ? cn(iconHouseColor.bg, iconHouseColor.text) : "bg-muted text-foreground"
+                  )}>
                     <IconCmp className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">

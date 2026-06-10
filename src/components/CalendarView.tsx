@@ -78,10 +78,22 @@ interface GanttBooking {
   house_name: string;
 }
 
-// Get consistent color for a house based on its ID
-const getHouseColor = (houseId: string) => {
+// Named house color overrides (case-insensitive substring match on house name)
+const HOUSE_NAME_COLOR_OVERRIDES: Array<{ match: string; color: { bg: string; text: string; hex: string } }> = [
+  { match: 'wald', color: { bg: 'bg-green-500', text: 'text-white', hex: '#22c55e' } },
+  { match: 'venediger', color: { bg: 'bg-purple-500', text: 'text-white', hex: '#a855f7' } },
+];
+
+// Get consistent color for a house - name-based override first, then hash fallback
+const getHouseColor = (houseId: string, houseName?: string) => {
+  if (houseName) {
+    const lower = houseName.toLowerCase();
+    const override = HOUSE_NAME_COLOR_OVERRIDES.find(o => lower.includes(o.match));
+    if (override) return override.color;
+  }
   return getColorByHash(HOUSE_COLORS, houseId);
 };
+
 
 // Event priority for sorting in day cells (lower = higher priority, shown first)
 const getEventPriority = (type: CalendarEvent['type']) => {
@@ -345,7 +357,7 @@ const CalendarView = () => {
   // Get event color - for occupied events use house color
   const getEventColor = (event: CalendarEvent) => {
     if (event.type === 'occupied' && event.house_id) {
-      const houseColor = getHouseColor(event.house_id);
+      const houseColor = getHouseColor(event.house_id, event.house);
       return `${houseColor.bg} ${houseColor.text}`;
     }
     switch (event.type) {
@@ -364,7 +376,7 @@ const CalendarView = () => {
 
   const getEventIconColor = (event: CalendarEvent) => {
     if (event.type === 'occupied' && event.house_id) {
-      return getHouseColor(event.house_id).bg;
+      return getHouseColor(event.house_id, event.house).bg;
     }
     switch (event.type) {
       case 'check-in':
@@ -510,7 +522,8 @@ const CalendarView = () => {
 
               {/* House rows */}
               {houses.map((house) => {
-                const houseColor = getHouseColor(house.id);
+                const houseColor = getHouseColor(house.id, house.name);
+
                 const bookings = getHouseBookings(house.id);
 
                 return (
@@ -668,7 +681,7 @@ const CalendarView = () => {
               </div>
               <div className="space-y-2">
                 {group.items.map((event) => {
-                  const houseColor = event.house_id ? getHouseColor(event.house_id) : null;
+                  const houseColor = event.house_id ? getHouseColor(event.house_id, event.house) : null;
                   const IconCmp = event.type === 'linen' ? Shirt : Sparkles;
                   return (
                     <button
@@ -790,7 +803,7 @@ const CalendarView = () => {
               <div className="flex items-center justify-between gap-2 p-3 md:p-4 border-b">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
                   {houses.map((house) => {
-                    const houseColor = getHouseColor(house.id);
+                    const houseColor = getHouseColor(house.id, house.name);
                     return (
                       <div key={house.id} className="flex items-center gap-1.5">
                         <span className={cn("w-2.5 h-2.5 rounded-full shrink-0", houseColor.bg)} />
@@ -937,7 +950,7 @@ const CalendarView = () => {
                   : statusLower.includes('offen') || statusLower.includes('open') || statusLower.includes('pending')
                   ? 'bg-warning'
                   : 'bg-info';
-              const iconHouseColor = event.house_id ? getHouseColor(event.house_id) : null;
+              const iconHouseColor = event.house_id ? getHouseColor(event.house_id, event.house) : null;
               return (
                 <div
                   key={event.id}

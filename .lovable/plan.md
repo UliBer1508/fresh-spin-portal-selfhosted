@@ -1,30 +1,67 @@
-## Problem
+## Ziel
 
-Die Rechnungsliste zeigt 0 Einträge, obwohl in `laundry_invoices` 56 Datensätze (13 echte + 43 Entwürfe) liegen.
+`status_changed_by` in `linen_orders` soll den real eingeloggten User widerspiegeln — für Teuni's Account immer `"Teuni"`, statt aktuell hartcodiert `"portal"`.
 
-**Ursache:** Die einzige RLS-Policy auf `laundry_invoices` ist `Admin full access` (nur Rolle `admin`). Der eingeloggte User `waescheoberpinzgau@gmail.com` hat keine Rolle in `user_roles` → RLS filtert alle Zeilen weg → `count: 0, error: null`.
+## Änderungen
 
-## Lösung
+### 1. `src/components/LinenOrderSection.tsx` — `handleStatusChange`
 
-Neue PERMISSIVE SELECT-Policy für alle authentifizierten User hinzufügen. Bestehende Admin-Policy für Schreibrechte bleibt unverändert. Zusätzlich fehlende GRANTs für `authenticated` / `service_role` ergänzen.
-
-### Migration
-
-```sql
--- Grants (fehlen aktuell komplett)
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.laundry_invoices TO authenticated;
-GRANT ALL ON public.laundry_invoices TO service_role;
-
--- Neue SELECT-Policy: alle eingeloggten User dürfen lesen
-CREATE POLICY "Authenticated users can read invoices"
-ON public.laundry_invoices
-FOR SELECT
-TO authenticated
-USING (true);
+Aktuell (Zeile 84–101):
+```ts
+.update({
+  status: newStatus,
+  status_changed_by: 'portal',
+  status_changed_at: new Date().toISOString()
+})
 ```
 
-Schreib-/Lösch-/Update-Rechte bleiben auf Admins beschränkt (durch die bestehende `Admin full access` Policy).
+Neu: Vor dem Update den aktuellen User holen und daraus den Namen ableiten.
 
-## Ergebnis
+```ts
+const { data: { user } } = await supabase.auth.getUser();
+const email = user?.email?.toLowerCase() ?? '';
 
-Nach Anwendung sehen alle eingeloggten User die 13 echten Rechnungen (Entwürfe werden weiterhin clientseitig in `InvoiceList.tsx` ausgefiltert).
+let changedBy = 'Unbekannt';
+if (email === 'waescheoberpinzgau@gmail.com') {
+  changedBy = 'Teuni';
+} else if (email === 'uli.berresheim@hotmail.de') {
+  changedBy = 'Admin';
+} else if (email) {
+  changedBy = email;
+}
+
+await supabase.from('linen_orders').update({
+  status: newStatus,
+  status_changed_by: changedBy,
+  status_changed_at: new Date().toISOString(),
+}).eq('id', orderId);
+```
+
+Mapping in einer kleinen Helper-Funktion `getStatusChangerName()` in `src/lib/utils.ts` kapseln, damit es wiederverwendbar ist (z. B. falls künftig weitere Update-Stellen dazukommen).
+
+### 2. PWA-Cache invalidieren
+
+`src/lib/version.ts` Version hochzählen, damit Teuni's gecachte PWA (die heute noch `"Admin"` schreibt) automatisch ein Update zieht. Siehe Memory `pwa-update-mechanism`.
+
+### 3. Datenkorrektur (optional, einmalig)
+
+Den heutigen falschen Eintrag korrigieren:
+```sql
+UPDATE public.linen_orders
+SET status_changed_by = 'Teuni'
+WHERE id = '5b4e4e71-cc6f-4b12-a91e-7e9810166474'
+  AND status_changed_by = 'Admin';
+```
+
+### 4. Memory-Update
+
+`mem://features/linen-order-status-tracking` ergänzen: `status_changed_by` wird dynamisch aus dem eingeloggten User abgeleitet (Email-Mapping in `src/lib/utils.ts`).
+
+## Nicht im Scope
+
+- Keine Änderungen an Triggern, RLS oder Rechnungs-Logik.
+- Keine Änderungen an externen Sync-Pfaden (gibt es laut Analyse ohnehin keine — alle DB-Writes auf `status` kommen aus dieser App).
+
+## Offene Frage
+
+Punkt 3 (heutigen Eintrag von Wald Chalet auf „Teuni" korrigieren) — mit ausführen oder lassen?

@@ -1,9 +1,9 @@
 import {
-  require_react_dom
-} from "./chunk-ZZLBGYQN.js";
-import {
   createSlot
 } from "./chunk-HJ4PIVKN.js";
+import {
+  require_react_dom
+} from "./chunk-ZZLBGYQN.js";
 import {
   require_jsx_runtime
 } from "./chunk-JO3Y3TZY.js";
@@ -58,4 +58,4 @@ export {
   Primitive,
   dispatchDiscreteCustomEvent
 };
-//# sourceMappingURL=chunk-WUAOFWCW.js.map
+//# sourceMappingURL=chunk-Z7JQNAW5.js.map

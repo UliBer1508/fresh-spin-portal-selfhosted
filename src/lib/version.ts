@@ -1,2 +1,2 @@
-// v12.22
-export const APP_VERSION = '12.22.0';
+// v12.23
+export const APP_VERSION = '12.23.0';

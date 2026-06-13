@@ -13,6 +13,7 @@ import DeliveryDateDialog from "@/components/dialogs/DeliveryDateDialog";
 import LinenNotesDialog from "@/components/dialogs/LinenNotesDialog";
 import PrintDeliveryNoteDialog from "@/components/dialogs/PrintDeliveryNoteDialog";
 import { getLinenLabel, getLinenColorLabel, LINEN_ORDER } from "@/lib/linenLabels";
+import { getStatusChangerName } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
 interface LaundryStaff {
@@ -85,11 +86,14 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const changedBy = getStatusChangerName(user?.email);
+
       const { error } = await supabase
         .from('linen_orders')
         .update({ 
           status: newStatus,
-          status_changed_by: 'portal',
+          status_changed_by: changedBy,
           status_changed_at: new Date().toISOString()
         })
         .eq('id', orderId);

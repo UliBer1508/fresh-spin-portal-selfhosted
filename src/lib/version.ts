@@ -1,2 +1,2 @@
-// v12.23
-export const APP_VERSION = '12.23.0';
+// v12.24 - Booking change acknowledgment
+export const APP_VERSION = '12.24.0';

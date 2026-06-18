@@ -14,6 +14,8 @@ import PortalChat from "@/components/PortalChat";
 import Footer from "@/components/Footer";
 import NotificationSettingsDialog from "@/components/NotificationSettingsDialog";
 import OrderNotificationDialog from "@/components/OrderNotificationDialog";
+import BookingChangeNotificationDialog from "@/components/BookingChangeNotificationDialog";
+import { useBookingChangeNotifications } from "@/hooks/useBookingChangeNotifications";
 import { useBookings, Booking, LinenOrder } from "@/hooks/useBookings";
 import { useDeliveryReminders } from "@/hooks/useDeliveryReminders";
 import { useViewSettings } from "@/hooks/useViewSettings";
@@ -75,6 +77,7 @@ const Index = () => {
 
   const { bookings, loading, error, refetch } = useBookings(handleNewOrder);
   const { currentReminder, dismissCurrent } = useDeliveryReminders();
+  const { current: bookingChange, acknowledge: acknowledgeChange } = useBookingChangeNotifications();
 
   // TEMP: demo trigger via ?demo=notif
   useEffect(() => {
@@ -344,6 +347,10 @@ const Index = () => {
         onOpenChange={(v) => { if (!v) dismissCurrent(); }}
         booking={currentReminder}
         viewSettings={viewSettings}
+      />
+      <BookingChangeNotificationDialog
+        notification={bookingChange}
+        onAcknowledge={acknowledgeChange}
       />
 
       <Toaster />

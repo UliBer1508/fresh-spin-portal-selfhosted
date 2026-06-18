@@ -1,67 +1,87 @@
-## Ziel
 
-`status_changed_by` in `linen_orders` soll den real eingeloggten User widerspiegeln — für Teuni's Account immer `"Teuni"`, statt aktuell hartcodiert `"portal"`.
+# Konzept: Pflicht-Benachrichtigung bei Buchungsänderungen
 
-## Änderungen
+## Problem
+Teuni hat nicht gesehen, dass sich die Gästeanzahl der Buchung "Dot Shaw" geändert hat. Wir brauchen einen Mechanismus, der:
+1. Teuni aktiv informiert, sobald sich relevante Buchungsdaten ändern.
+2. **Bestätigung erzwingt** ("wegdrücken"), damit Admin nachvollziehen kann, dass die Nachricht gesehen wurde.
 
-### 1. `src/components/LinenOrderSection.tsx` — `handleStatusChange`
+## Lösung (Übersicht)
+Wir erweitern das bestehende `OrderNotificationDialog`/`useDeliveryReminders`-Muster um einen zweiten Kanal: **Booking-Change-Notifications**. Eine DB-Tabelle protokolliert Änderungen, ein DB-Trigger erzeugt automatisch Einträge, und ein Pflicht-Dialog im Frontend zwingt Teuni zur Bestätigung. Der Bestätigungs-Zeitpunkt + Bestätiger-Name wird gespeichert, sodass Admin (Uli) jederzeit sieht, ob/wann Teuni die Änderung gesehen hat.
 
-Aktuell (Zeile 84–101):
-```ts
-.update({
-  status: newStatus,
-  status_changed_by: 'portal',
-  status_changed_at: new Date().toISOString()
-})
+## Ablauf
+
+```text
+Admin/iCal ändert number_of_guests
+        ↓
+DB-Trigger auf bookings (nur wenn aktiver linen_order existiert)
+        ↓
+INSERT in booking_change_notifications
+        ↓
+Realtime → Teunis App
+        ↓
+Pflicht-Dialog (nur "Verstanden" Button, kein X, kein Outside-Click)
+        ↓
+UPDATE acknowledged_at + acknowledged_by = "Teuni"
+        ↓
+Admin sieht Status in Buchungskarte / Übersicht
 ```
 
-Neu: Vor dem Update den aktuellen User holen und daraus den Namen ableiten.
+## Umfang
 
-```ts
-const { data: { user } } = await supabase.auth.getUser();
-const email = user?.email?.toLowerCase() ?? '';
+### 1. Neue Tabelle `booking_change_notifications`
+Spalten:
+- `id uuid pk`
+- `booking_id uuid → bookings(id) on delete cascade`
+- `change_type text` (Start mit `'guest_count'`, später erweiterbar: `'check_in'`, `'check_out'`, `'house'`)
+- `old_value text`, `new_value text`
+- `created_at timestamptz default now()`
+- `acknowledged_at timestamptz null`
+- `acknowledged_by text null` (über `getStatusChangerName`)
 
-let changedBy = 'Unbekannt';
-if (email === 'waescheoberpinzgau@gmail.com') {
-  changedBy = 'Teuni';
-} else if (email === 'uli.berresheim@hotmail.de') {
-  changedBy = 'Admin';
-} else if (email) {
-  changedBy = email;
-}
+GRANTs + RLS analog zu bestehenden Tabellen (lesen/updaten für `authenticated`).
 
-await supabase.from('linen_orders').update({
-  status: newStatus,
-  status_changed_by: changedBy,
-  status_changed_at: new Date().toISOString(),
-}).eq('id', orderId);
-```
+### 2. DB-Trigger `notify_booking_guest_count_change`
+- AFTER UPDATE OF `number_of_guests` ON `bookings`
+- Bedingung: `OLD.number_of_guests IS DISTINCT FROM NEW.number_of_guests` **und** es existiert mind. ein `linen_orders`-Eintrag für diese Buchung mit Status in `('offen','ausstehend','pending','bestaetigt')`.
+- Fügt Zeile in `booking_change_notifications` ein.
+- Realtime publication für die Tabelle aktivieren.
 
-Mapping in einer kleinen Helper-Funktion `getStatusChangerName()` in `src/lib/utils.ts` kapseln, damit es wiederverwendbar ist (z. B. falls künftig weitere Update-Stellen dazukommen).
+### 3. Frontend — neuer Hook `useBookingChangeNotifications`
+- Lädt alle Zeilen mit `acknowledged_at IS NULL`, inkl. Booking + Haus-Name + aktuelle/alte Gästeanzahl.
+- Realtime-Subscription (postgres_changes INSERT).
+- Liefert `currentNotification`, `acknowledge()` → UPDATE mit `acknowledged_at = now()`, `acknowledged_by = getStatusChangerName(user.email)`.
 
-### 2. PWA-Cache invalidieren
+### 4. Frontend — `BookingChangeDialog` (neu)
+Basierend auf `OrderNotificationDialog`, aber:
+- **Nicht schließbar** außer per Button: `onOpenChange` blockiert Schließen, kein `X`, `onPointerDownOutside`/`onEscapeKeyDown` `preventDefault`.
+- Inhalt: Haus, Gast, "Anzahl Gäste geändert: **3 → 5**", Check-in/Check-out.
+- Großer Button: "✓ Verstanden – Bestätigen".
+- Nach Klick: `acknowledge()` → nächste Notification aus Queue.
 
-`src/lib/version.ts` Version hochzählen, damit Teuni's gecachte PWA (die heute noch `"Admin"` schreibt) automatisch ein Update zieht. Siehe Memory `pwa-update-mechanism`.
+### 5. Einbindung in `Index.tsx`
+Analog zu `useDeliveryReminders`: Hook aufrufen, Dialog rendern, läuft parallel zu bestehenden Reminder-Popups.
 
-### 3. Datenkorrektur (optional, einmalig)
+### 6. Admin-Sichtbarkeit
+In `BookingCard` bzw. `BookingWithOrdersGroup`: kleines Badge wenn eine offene (= nicht bestätigte) Änderung existiert → "⏳ Wartet auf Teunis Bestätigung". Bei bestätigten: "✓ Teuni bestätigt am dd.mm.yyyy hh:mm". Reine Anzeige, keine Logikänderung an Bestellungen.
 
-Den heutigen falschen Eintrag korrigieren:
-```sql
-UPDATE public.linen_orders
-SET status_changed_by = 'Teuni'
-WHERE id = '5b4e4e71-cc6f-4b12-a91e-7e9810166474'
-  AND status_changed_by = 'Admin';
-```
+### 7. Bestehende Fälle (z. B. Dot Shaw)
+Beim Migration-Deploy: **kein** Auto-Insert für historische Änderungen — Trigger greift nur ab jetzt. Falls gewünscht, kann ein einmaliger Insert für die aktuelle Dot-Shaw-Buchung manuell folgen (separate Bestätigung).
 
-### 4. Memory-Update
+## Technische Details (für Entwickler)
 
-`mem://features/linen-order-status-tracking` ergänzen: `status_changed_by` wird dynamisch aus dem eingeloggten User abgeleitet (Email-Mapping in `src/lib/utils.ts`).
+- Tabelle in Supabase publication `supabase_realtime` aufnehmen und `REPLICA IDENTITY FULL` setzen.
+- Trigger als `SECURITY DEFINER` mit `SET search_path = public`.
+- RLS-Policies:
+  - `SELECT`: `authenticated` (alle eingeloggten dürfen lesen).
+  - `UPDATE`: `authenticated`, nur die Felder `acknowledged_at`, `acknowledged_by`.
+  - `INSERT`: nur via Trigger (kein direkter Client-Insert nötig).
+- PWA-Version (`src/lib/version.ts`) hochzählen, damit Teunis Cache den neuen Dialog lädt.
+- Memory-Eintrag `mem://features/booking-change-acknowledgment` mit Regeln (Pflicht-Dialog, `acknowledged_by` via `getStatusChangerName`).
 
-## Nicht im Scope
+## Erweiterbarkeit
+`change_type` als Text macht es einfach, später Änderungen an `check_in`, `check_out`, `house_id` etc. mit demselben Mechanismus zu melden — nur Trigger erweitern.
 
-- Keine Änderungen an Triggern, RLS oder Rechnungs-Logik.
-- Keine Änderungen an externen Sync-Pfaden (gibt es laut Analyse ohnehin keine — alle DB-Writes auf `status` kommen aus dieser App).
-
-## Offene Frage
-
-Punkt 3 (heutigen Eintrag von Wald Chalet auf „Teuni" korrigieren) — mit ausführen oder lassen?
+## Nicht im Umfang
+- E-Mail/Push-Versand (kann später ergänzt werden, wenn PWA-Notification gewünscht).
+- Änderungs-Historie / Audit-Log über die reine Benachrichtigung hinaus.

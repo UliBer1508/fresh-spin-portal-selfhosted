@@ -348,6 +348,10 @@ const Index = () => {
         booking={currentReminder}
         viewSettings={viewSettings}
       />
+      <BookingChangeNotificationDialog
+        notification={bookingChange}
+        onAcknowledge={acknowledgeChange}
+      />
 
       <Toaster />
       <Sonner />

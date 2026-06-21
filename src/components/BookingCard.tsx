@@ -33,25 +33,8 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
     });
   }, [booking.service_tasks, booking.linen_orders]);
 
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "confirmed":
-        return "bg-success text-success-foreground";
-      case "cancelled":
-        return "bg-destructive text-destructive-foreground";
-      case "pending":
-        return "bg-warning text-warning-foreground";
-      default:
-        return "bg-muted text-muted-foreground";
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    const normalizedStatus = status?.toLowerCase() || "unknown";
-    return t(`bookings:status.${normalizedStatus}`, {
-      defaultValue: status || t("common:unknown"),
-    });
-  };
+  const today = new Date().toISOString().split("T")[0];
+  const isCheckedIn = booking.check_in <= today && booking.check_out >= today;
 
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString(i18n.language);
@@ -68,9 +51,9 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
       <CardContent className="p-3 sm:p-4">
         <div className="space-y-2.5">
           {/* Header: icon tile + house name + booking subtitle + status */}
-          {(viewSettings.showAccommodationName || viewSettings.showBookingStatus) && (
+          {(viewSettings.showAccommodationName || isCheckedIn) && (
             <div className="flex items-start justify-between gap-3">
-              {viewSettings.showAccommodationName && (
+              {viewSettings.showAccommodationName ? (
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0">
                     <Home className="w-5 h-5" />
@@ -84,10 +67,10 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
                     </p>
                   </div>
                 </div>
-              )}
-              {viewSettings.showBookingStatus && (
-                <Badge className={getStatusColor(booking.status)}>
-                  {getStatusText(booking.status)}
+              ) : <div />}
+              {isCheckedIn && (
+                <Badge className="bg-success text-success-foreground">
+                  {t("bookings:status.checkedIn", { defaultValue: "Eingescheckt" })}
                 </Badge>
               )}
             </div>

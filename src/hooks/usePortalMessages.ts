@@ -111,7 +111,7 @@ export const usePortalMessages = () => {
     console.log('🔌 Setting up realtime subscription...');
     
     const channel = supabase
-      .channel('teuni-portal-messages')
+      .channel(`teuni-portal-messages-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {

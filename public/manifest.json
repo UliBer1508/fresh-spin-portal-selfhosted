@@ -1,6 +1,6 @@
 {
-  "name": "Teuni Wäscheportal",
-  "short_name": "Wäscheportal",
+  "name": "Steinbockchalets-Wäscheportal",
+  "short_name": "Wäsche",
   "description": "Verwalten Sie alle Wäscheaufträge für Ihre Gäste",
   "start_url": "/?v=12.20",
   "display": "standalone",

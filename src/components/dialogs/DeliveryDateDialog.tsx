@@ -38,11 +38,11 @@ const DeliveryDateDialog = ({ order, open, onOpenChange, onUpdate }: DeliveryDat
 
     setIsLoading(true);
     try {
-      const { error } = await supabase
+     const { error } = await supabase
         .from('linen_orders')
         .update({
-          delivery_date: deliveryDate,
-          delivery_time: deliveryTime
+          delivery_date: deliveryDate || null,
+          delivery_time: deliveryTime || null
         })
         .eq('id', order.id);
 

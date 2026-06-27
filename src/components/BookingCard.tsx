@@ -33,8 +33,9 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
     });
   }, [booking.service_tasks, booking.linen_orders]);
 
-  const today = new Date().toISOString().split("T")[0];
-  const isCheckedIn = booking.check_in <= today && booking.check_out >= today;
+   // „Eingescheckt" = echter Buchungsstatus aus der Hausverwaltung,
+  // nicht aus dem Datum abgeleitet.
+  const isCheckedIn = (booking.status || "").toLowerCase() === "checked_in";
 
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString(i18n.language);

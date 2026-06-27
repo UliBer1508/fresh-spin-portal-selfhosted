@@ -118,21 +118,21 @@ export const useBookings = (onNewOrder?: (order?: any) => void) => {
 
       if (bookingsError) throw bookingsError;
 
-      const ACTIVE_STATUSES = ['offen', 'ausstehend', 'pending'];
-      const today = new Date().toISOString().split('T')[0];
+     // Sichtbare Wäschestatus: 'offen' gehört NICHT dazu (= noch nicht von der
+      // Hausverwaltung bestätigt). 'delivered'/'geliefert' bleiben sichtbar,
+      // damit Vorab-Lieferungen für künftige Gäste nicht verschwinden.
+      const VISIBLE_LINEN_STATUSES = ['ausstehend', 'pending', 'delivered', 'geliefert'];
+      // Abgeschlossene und stornierte Buchungen erscheinen nicht im Teuni-Portal.
+      const HIDDEN_BOOKING_STATUSES = ['completed', 'cancelled'];
       const bookingsWithLinenOrders = (bookingsData || [])
+        .filter((booking: any) =>
+          !HIDDEN_BOOKING_STATUSES.includes((booking.status || '').toLowerCase())
+        )
         .map((booking: any) => {
-          const isCurrentlyCheckedIn =
-            booking.check_in <= today && booking.check_out >= today;
-          const activeOrders = (booking.linen_orders || []).filter((o: any) =>
-            ACTIVE_STATUSES.includes((o.status || '').toLowerCase())
+          const visibleOrders = (booking.linen_orders || []).filter((o: any) =>
+            VISIBLE_LINEN_STATUSES.includes((o.status || '').toLowerCase())
           );
-          // Eingecheckte Gäste sollen sichtbar bleiben, auch wenn die
-          // Wäsche bereits geliefert/abgeschlossen ist.
-          const linen_orders = isCurrentlyCheckedIn
-            ? (booking.linen_orders || [])
-            : activeOrders;
-          return { ...booking, linen_orders };
+          return { ...booking, linen_orders: visibleOrders };
         })
         .filter((booking: any) => booking.linen_orders.length > 0);
 

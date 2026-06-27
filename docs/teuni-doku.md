@@ -1,0 +1,165 @@
+# Teuni Wäscheportal — Zweck, Ablauf & Zusammenspiel
+
+> Stand: 27.06.2026
+> Repo: `fresh-spin-portal-selfhosted` · gehostet auf `teuni.steinbockchalets-charge.com`
+> Diese Datei beschreibt, **wofür** das Portal da ist und **wie** es im Alltag
+> genutzt wird — den Arbeitsablauf, nicht den technischen Aufbau.
+> Sie ist die maßgebliche Beschreibung des Portal-Zwecks.
+
+---
+
+## 1. Wofür ist dieses Portal?
+
+Das Teuni-Portal ist die App für **Teuni, die Wäschelieferung**. Damit sieht sie:
+
+- **welche Wäschebestellungen anstehen** (pro Buchung: Haus, Gast, Check-in/out)
+- **wann die Wäsche geliefert werden muss** — abgestimmt auf den **Reinigungstag**,
+  den Amela festlegt
+- **welche Artikel** in welcher Menge zu liefern sind
+- Lieferschein drucken, Liefertermin/Status setzen, Notizen
+
+Es ist ein **Arbeitswerkzeug** für die Wäschelogistik — keine Verwaltung. Teuni
+meldet sich nicht selbst an; das Portal loggt sich automatisch im Hintergrund ein
+(Portal-Konto `waescheoberpinzgau@gmail.com`).
+
+---
+
+## 2. Wie entsteht eine Wäschebestellung? (wichtig — anders als bei Amela)
+
+**Wäschebestellungen werden NICHT bei Anlage einer neuen Buchung erstellt** — und
+auch **nicht im Teuni-Portal**. Sie entstehen über das **automatische
+Wäschebestellsystem in der Hausverwaltung**.
+
+### Warum nicht sofort bei jeder Buchung?
+**Lagerkapazität.** Es kann nicht so viel Wäsche auf Vorrat gelagert werden, um für
+alle künftigen Buchungen gleichzeitig Wäsche bereitzustellen. Deshalb wird nicht im
+Voraus für alle Buchungen bestellt, sondern **bedarfsgerecht** für die nächsten
+anstehenden.
+
+### Das Vorausschau-Prinzip (3 Buchungen)
+Das automatische System in der Hausverwaltung **prüft laufend die Buchungen** und
+schaut immer **3 Buchungen voraus** (dieser Wert ist **einstellbar**). Für diese
+**nächsten 3 Buchungen** wird dann jeweils Wäsche bestellt.
+
+> So ist immer genug Wäsche für die unmittelbar anstehenden Gästewechsel da, ohne
+> dass große Mengen gelagert werden müssen.
+
+### Folge für die Bedienung im Portal
+- Teuni **erstellt** keine Bestellungen (kommen automatisch aus der Hausverwaltung).
+- Teuni **bearbeitet** bestehende Bestellungen: Liefertermin eintragen, Status auf
+  „geliefert" setzen, Lieferschein drucken, Notizen.
+
+---
+
+## 3. Das Zusammenspiel der drei Systeme
+
+Der **Reinigungstag** ist der gemeinsame Taktgeber (siehe auch Amela-Doku):
+
+```
+        Hausverwaltung
+   • legt Buchung + Reinigung an (Reinigung am Check-in-Tag)
+   • automatisches Wäschesystem: schaut 3 Buchungen voraus,
+     bestellt Wäsche für die nächsten 3 Buchungen
+                │
+                ▼
+   ┌─────────────────────────┐        ┌─────────────────────────┐
+   │   AMELA-Portal          │        │   TEUNI-Portal (Wäsche) │
+   │                         │        │                         │
+   │ • legt Reinigungstag    │───────▶│ • sieht den             │
+   │   fest / passt ihn an   │        │   Reinigungstag         │
+   │                         │        │   → weiß, wann Wäsche    │
+   │                         │        │     geliefert sein muss  │
+   │ • sieht Wäsche-         │◀───────│ • trägt Lieferdatum +    │
+   │   Lieferdatum           │        │   Status ein             │
+   └─────────────────────────┘        └─────────────────────────┘
+```
+
+Konkret:
+
+- **Amela → Teuni:** Der **Reinigungstag** (von Amela festgelegt/angepasst) wird im
+  Teuni-Portal angezeigt. So weiß Teuni, **wann die Wäsche da sein muss** — die
+  Lieferung muss rechtzeitig vor der Reinigung erfolgen.
+  *(Das Portal sucht sogar automatisch die Reinigung heraus, die zeitlich am besten
+  zum Lieferdatum passt, wenn es mehrere gibt.)*
+- **Teuni → Amela:** Das von Teuni eingetragene **Lieferdatum** wird im Amela-Portal
+  angezeigt. So sieht Amela, **wann die frische Wäsche kommt** — sie kann nicht
+  reinigen, bevor die Wäsche da ist.
+
+Beide Portale greifen auf **dieselbe Datenbank** zu (`usblrulkcgucxtkhugck`),
+abgestimmt über die Tabellen `service_tasks` (Reinigung) und `linen_orders`
+(Wäsche), beide an die Buchung gekoppelt.
+
+---
+
+## 4. Was Teuni im Portal sieht (Kartenaufbau)
+
+Pro Buchung:
+
+1. **Buchungskarte** — Gast, Anzahl Gäste, Check-in, Check-out, Haus, und der
+   **Reinigungstag** (damit Teuni das Liefertiming kennt).
+2. **Wäschekarte** — Lieferdatum/-zeit, Status (ausstehend / geliefert), Notizen,
+   Lieferschein drucken, Artikel-Liste.
+
+### Statuswerte einer Wäschebestellung (`linen_orders.status`)
+
+| Status | Bedeutung | Im Teuni-Portal? |
+|---|---|---|
+| `offen` | Von der Automatik erstellt, **noch nicht** in der Hausverwaltung bestätigt | **Nein** — Vor-Bestätigungs-Zustand, gehört nicht zu Teuni |
+| `ausstehend` / `pending` | In der Hausverwaltung bestätigt, wartet auf Lieferung | **Ja** — anzeigen |
+| `delivered` / `geliefert` | Teuni hat geliefert | **Ja** — bleibt sichtbar (auch Vorab-Lieferung für künftige Gäste) |
+| `cancelled` | Storniert | nein |
+
+> **Wichtig:** `offen` ist der interne Zustand **vor** der Bestätigung durch die
+> Hausverwaltung. Erst nach Umstellung auf `ausstehend` wird die Bestellung für
+> Teuni relevant. Deshalb kann Teuni `offen` auch nicht selbst auswählen.
+
+### Statuswerte einer Buchung (`bookings.status`, Enum `booking_status`)
+
+Vier feste Werte: `confirmed` · `checked_in` · `completed` · `cancelled`.
+
+| Status | Bedeutung | Im Teuni-Portal? |
+|---|---|---|
+| `confirmed` | Buchung bestätigt, Gast noch nicht da | **Ja** — anzeigen |
+| `checked_in` | Gast ist im Haus | **Ja** — anzeigen, **Badge „Eingescheckt"** |
+| `completed` | Abgeschlossen, Gast ausgezogen | **Nein** — ausblenden |
+| `cancelled` | Storniert | **Nein** — ausblenden |
+
+> **Maßgebliche Regeln (Stand 27.06.2026, im Code umgesetzt):**
+> 1. Die Badge **„Eingescheckt"** hängt am echten Status `checked_in` —
+>    **nicht** am Datum. (Ein Gast, der früher abreist und dessen Buchung auf
+>    `completed` gesetzt wird, gilt sofort als nicht mehr eingecheckt.)
+> 2. Buchungen mit `completed` oder `cancelled` werden **komplett ausgeblendet**.
+> 3. Gelieferte Wäsche (`delivered`) bleibt sichtbar, solange die Buchung nicht
+>    `completed` ist — damit Vorab-Lieferungen nicht verschwinden.
+>
+> Betroffene Dateien: `src/hooks/useBookings.ts` (Sichtbarkeits-Filter),
+> `src/components/BookingCard.tsx` (Badge), `src/components/LinenOrderSection.tsx`
+> (`offen` aus Auswahl entfernt), `src/hooks/usePendingOrderCount.ts` (Zähler).
+
+> **Bugfix 26.06.2026:** Das Speichern des Liefertermins schlug fehl, wenn das
+> Zeitfeld leer war (`invalid input syntax for type time: ""`). Behoben — leere
+> Werte werden jetzt als `null` gespeichert statt als leerer String.
+
+> **Bugfix 27.06.2026:** Abgeschlossene Buchungen (z. B. früh abgereister Gast)
+> wurden weiterhin als „Eingescheckt" angezeigt; Buchungen, deren Vorab-Wäsche
+> bereits auf `delivered` stand, verschwanden ganz. Ursache: Anzeige hing am
+> Datum statt am `booking.status`, und der Sichtbarkeits-Filter kannte
+> `delivered` nicht als gültigen Status. Behoben gemäß den Regeln oben.
+
+---
+
+## 5. Was Teuni NICHT tut (Abgrenzung)
+
+- Keine Wäschebestellungen anlegen (kommen automatisch aus der Hausverwaltung,
+  Vorausschau über 3 Buchungen)
+- Keine Buchungen oder Reinigungen anlegen/ändern
+- Nur: **bestehende Wäschebestellungen einsehen, Liefertermin/Status pflegen,
+  Lieferschein drucken**
+
+---
+
+## 6. Technische Notiz (PWA)
+
+Teuni ist eine vollwertige **PWA** (installierbar, offline-fähig, Push). Der
+Service Worker wird im normalen Betrieb registriert, nur in der Lovable-Vorschau
+nicht — auf der eigenen Domain ist die PWA also aktiv.

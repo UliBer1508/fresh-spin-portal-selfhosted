@@ -296,7 +296,6 @@ const LinenOrderSection = ({ linenOrders, onUpdate, viewSettings, hideHeader }: 
                           </div>
                         </SelectTrigger>
                         <SelectContent className="bg-background border border-border shadow-lg z-50">
-                          <SelectItem value="offen" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🟠 {t('status.offen')}</SelectItem>
                           <SelectItem value="ausstehend" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🟡 {t('status.ausstehend')}</SelectItem>
                           <SelectItem value="delivered" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🟢 {t('status.delivered')}</SelectItem>
                           <SelectItem value="cancelled" className="cursor-pointer hover:bg-accent hover:text-accent-foreground min-h-[44px]">🔴 {t('status.cancelled')}</SelectItem>

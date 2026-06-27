@@ -12,7 +12,7 @@ export const usePendingOrderCount = () => {
     const { count: c, error } = await supabase
       .from('linen_orders')
       .select('*', { count: 'exact', head: true })
-      .in('status', ['offen', 'ausstehend']);
+      .in('status', ['ausstehend']);
     if (!error && typeof c === 'number') setCount(c);
   };
 

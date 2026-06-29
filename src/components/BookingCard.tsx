@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Home, MapPin, User, Users, Calendar, Sparkles } from "lucide-react";
+import { MapPin, User, Users, Calendar, Sparkles } from "lucide-react";
 
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking } from "@/hooks/useBookings";
@@ -56,8 +56,8 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
             <div className="flex items-start justify-between gap-3">
               {viewSettings.showAccommodationName ? (
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0">
-                    <Home className="w-5 h-5" />
+                  <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0 p-1.5">
+                    <img src="/steinbock-logo.png" alt="Steinbock Chalets" className="w-full h-full object-contain" />
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-bold text-base text-foreground truncate leading-tight">

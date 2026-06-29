@@ -56,7 +56,7 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
             <div className="flex items-start justify-between gap-3">
               {viewSettings.showAccommodationName ? (
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0 p-1.5">
+                  <div className="w-12 h-12 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0 p-0.5">
                     <img src="/steinbock-logo.png" alt="Steinbock Chalets" className="w-full h-full object-contain" />
                   </div>
                   <div className="min-w-0">

@@ -10,7 +10,7 @@ const TEUNI_PROVIDER_ID = PROVIDER_IDS.TEUNI;
 export interface PortalMessage {
   id: string;
   provider_id: string;
-  sender_type: 'admin' | 'provider';
+  sender_type: 'admin' | 'provider' | 'assistant';
   message: string;
   is_read: boolean;
   related_task_id?: string | null;
@@ -52,7 +52,7 @@ export const usePortalMessages = () => {
         .from('provider_messages')
         .select('*', { count: 'exact', head: true })
         .eq('provider_id', TEUNI_PROVIDER_ID)
-        .eq('sender_type', 'admin')  // NUR Admin-Nachrichten zählen
+        .neq('sender_type', 'provider')  // Admin UND Max (assistant) zählen, nicht eigene
         .eq('is_read', false);
 
       if (error) throw error;

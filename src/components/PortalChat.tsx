@@ -123,17 +123,28 @@ const PortalChat = ({ isOpen, onClose }: PortalChatProps) => {
                 className={`max-w-[80%] rounded-lg p-3 ${
                   msg.sender_type === 'provider'
                     ? 'bg-primary text-primary-foreground'  // Eigene Nachrichten rechts (blau)
+                    : msg.sender_type === 'assistant'
+                    ? 'bg-purple-100 dark:bg-purple-900/40 border border-purple-300 dark:border-purple-700'  // Max (Assistent)
                     : 'bg-muted'  // Admin-Nachrichten links (grau)
                 }`}
               >
+                {msg.sender_type === 'assistant' && (
+                  <p className="text-xs font-semibold mb-1 text-purple-700 dark:text-purple-300">
+                    Max (Assistent)
+                  </p>
+                )}
                 <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
                 <p className="text-xs mt-1 opacity-70">
-                  {new Date(msg.created_at).toLocaleString('de-DE', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
+                  {msg.sender_type === 'assistant'
+                    ? `Gesendet: ${new Date(msg.created_at).toLocaleString('de-DE', {
+                        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+                      })}`
+                    : new Date(msg.created_at).toLocaleString('de-DE', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                 </p>
               </div>
             </div>

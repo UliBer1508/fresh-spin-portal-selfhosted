@@ -72,7 +72,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>🔄 Update auf v12.0</h1>
+    <h1>🔄 App wird aktualisiert</h1>
     <div class="spinner"></div>
     <p class="status">Cache wird aktualisiert, bitte warten...</p>
     <div class="log" id="log"></div>
@@ -80,7 +80,7 @@
 
   <script>
     const log = document.getElementById('log');
-    
+
     function addLog(message, type = 'success') {
       console.log(message);
       const p = document.createElement('p');
@@ -94,7 +94,7 @@
     async function forceUpdate() {
       try {
         addLog('Update-Prozess gestartet', 'info');
-        
+
         // 1. Unregister all service workers
         addLog('Service Worker werden deregistriert...', 'info');
         if ('serviceWorker' in navigator) {
@@ -132,11 +132,11 @@
 
         // 3. Migrate localStorage
         addLog('localStorage wird migriert...', 'info');
-        
+
         const oldDesktop = localStorage.getItem('viewSettings-desktop');
         const oldMobile = localStorage.getItem('viewSettings-mobile');
         const currentSettings = localStorage.getItem('viewSettings');
-        
+
         if (oldDesktop && !currentSettings) {
           localStorage.setItem('viewSettings', oldDesktop);
           addLog('Desktop-Settings → viewSettings migriert');
@@ -148,7 +148,7 @@
         } else {
           addLog('Keine Settings zum Migrieren gefunden', 'info');
         }
-        
+
         // Remove old keys
         let removedCount = 0;
         if (oldDesktop) {
@@ -162,10 +162,14 @@
         if (removedCount > 0) {
           addLog(`${removedCount} alte Setting-Keys gelöscht`);
         }
-        
-        // Set app version
-        localStorage.setItem('app-version', '12.0');
-        addLog('app-version auf 12.0 gesetzt');
+
+        // Version handling:
+        // We deliberately do NOT hard-code a version here. We remove the stored
+        // app-version so that main.tsx sets the CURRENT version (from
+        // src/lib/version.ts) on the next load. This keeps this recovery tool
+        // from ever going stale again.
+        localStorage.removeItem('app-version');
+        addLog('app-version zurückgesetzt (App setzt aktuelle Version beim Neuladen)');
 
         // 4. Clear sessionStorage
         addLog('sessionStorage wird geleert...', 'info');
@@ -180,12 +184,12 @@
         // 5. Final status
         addLog('✅ Migration erfolgreich abgeschlossen!', 'success');
         addLog('App wird in 2 Sekunden neu geladen...', 'info');
-        
-        // 6. Redirect with cache busting
+
+        // 6. Redirect with cache busting (no fixed version)
         await new Promise(resolve => setTimeout(resolve, 2000));
         const timestamp = Date.now();
-        window.location.href = `/?v=12.0&updated=true&t=${timestamp}`;
-        
+        window.location.href = `/?updated=true&t=${timestamp}`;
+
       } catch (error) {
         console.error('Update error:', error);
         addLog(`Fehler: ${error.message}`, 'error');

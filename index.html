@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- v12.20 -->
-    
+    <!-- v12.24.0 -->
+
     <!-- Service Worker Registration with Auto-Update -->
     <script>
       (function () {
@@ -34,14 +34,21 @@
           return;
         }
 
-        // Production: register SW with auto-update
+        // Production: register SW with auto-update.
+        // Guard the reload so a controllerchange can only ever trigger ONE
+        // reload per page load. Without this guard, skipWaiting() + clients.claim()
+        // could fire controllerchange repeatedly and put the tab into a reload loop
+        // (the "Cache wird bereinigt… startet nicht mehr" symptom).
+        var hasReloaded = false;
         navigator.serviceWorker.addEventListener('controllerchange', function () {
-          console.log('[PWA] New SW active, reloading...');
+          if (hasReloaded) return;
+          hasReloaded = true;
+          console.log('[PWA] New SW active, reloading once...');
           window.location.reload();
         });
 
-        navigator.serviceWorker.register('/sw.js?v=12.20').then(function (reg) {
-          console.log('[PWA] SW registered v12.20');
+        navigator.serviceWorker.register('/sw.js?v=12.24.0').then(function (reg) {
+          console.log('[PWA] SW registered v12.24.0');
           reg.update();
           setInterval(function () { reg.update(); }, 5 * 60 * 1000);
           reg.addEventListener('updatefound', function () {
@@ -59,7 +66,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    
+
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#10b981" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -68,7 +75,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="msapplication-TileColor" content="#10b981" />
     <meta name="msapplication-tap-highlight" content="no" />
-    
+
     <title>Steinbockchalets-Wäscheportal</title>
     <meta name="description" content="Professionelles Wäscheportal zur Verwaltung von Wäscheaufträgen und Bestellungen für Ferienhäuser und Hotels" />
     <meta name="author" content="Lovable" />
@@ -81,12 +88,12 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="/icons/icon-512x512.png" />
-    
+
     <!-- Apple Touch Icons -->
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
     <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-192x192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
-    
+
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
   </head>

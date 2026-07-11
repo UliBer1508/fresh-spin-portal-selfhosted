@@ -2,7 +2,7 @@
   "name": "Steinbockchalets-Wäscheportal",
   "short_name": "Wäsche",
   "description": "Verwalten Sie alle Wäscheaufträge für Ihre Gäste",
-  "start_url": "/?v=12.20",
+  "start_url": "/?v=12.24.0",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#10b981",
@@ -13,7 +13,7 @@
     "business",
     "utilities"
   ],
-  "version": "12.20",
+  "version": "12.24.0",
   "screenshots": [
     {
       "src": "/icons/screenshot-wide.png",

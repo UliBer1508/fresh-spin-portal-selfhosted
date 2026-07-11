@@ -1,12 +1,12 @@
-const VERSION = '12.20';
+const VERSION = '12.24.0';
 const CACHE_NAME = `teuni-waescheportal-v${VERSION}`;
 const RUNTIME_CACHE = `teuni-runtime-v${VERSION}`;
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
-  '/?v=12.20',
+  '/?v=12.24.0',
   '/offline.html',
-  '/manifest.json?v=12.20',
+  '/manifest.json?v=12.24.0',
   '/icons/icon-72x72.png',
   '/icons/icon-96x96.png',
   '/icons/icon-128x128.png',
@@ -18,12 +18,16 @@ const PRECACHE_ASSETS = [
 ];
 
 // Install event - precache assets
+// NOTE: addAll is atomic - a single missing asset would abort the whole install.
+// We therefore cache non-critical assets individually and tolerate failures.
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('[SW] Precaching assets');
-        return cache.addAll(PRECACHE_ASSETS);
+        console.log('[SW] Precaching assets v' + VERSION);
+        return Promise.allSettled(
+          PRECACHE_ASSETS.map(asset => cache.add(asset))
+        );
       })
       .then(() => self.skipWaiting())
   );
@@ -31,7 +35,7 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating new service worker v12.20');
+  console.log('[SW] Activating new service worker v' + VERSION);
   event.waitUntil(
     caches.keys()
       .then(cacheNames => {
@@ -39,7 +43,7 @@ self.addEventListener('activate', (event) => {
         const cachesToDelete = cacheNames.filter(cacheName => {
           return cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE;
         });
-        
+
         return Promise.all(
           cachesToDelete.map(cacheName => {
             console.log('[SW] Deleting old cache:', cacheName);
@@ -88,11 +92,34 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network first for app code (JS/CSS/HTML) - never serve stale app code
-  if (url.pathname.endsWith('.js') || 
-      url.pathname.endsWith('.css') || 
-      url.pathname === '/' || 
-      url.pathname.startsWith('/assets/')) {
+  // Content-hashed build assets (/assets/*.js, *.css) are IMMUTABLE:
+  // the hash in the filename guarantees the content. Use cache-first and
+  // ONLY ever return the exact same-hash file. We never substitute a
+  // different chunk on a miss - that is what caused the "two copies of
+  // React / Invalid hook call" crash after a deploy. A miss simply goes
+  // to the network; if the network 404s (old chunk purged), we let it
+  // 404 so the page reloads cleanly instead of running mixed versions.
+  if (url.pathname.startsWith('/assets/')) {
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        if (cached) return cached;
+        return fetch(event.request).then(response => {
+          if (response && response.ok) {
+            const clone = response.clone();
+            caches.open(RUNTIME_CACHE).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
+  // Network first for the app document (HTML) and top-level JS/CSS -
+  // never serve a stale app shell.
+  if (url.pathname.endsWith('.js') ||
+      url.pathname.endsWith('.css') ||
+      url.pathname === '/') {
     event.respondWith(
       fetch(event.request)
         .then(response => {
@@ -241,8 +268,12 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
-  if (event.data && event.data.type === 'CLEAR_CACHE') {
+
+  // Accept BOTH message names - the ErrorBoundary in main.tsx sends
+  // 'CLEAR_ALL_CACHES', earlier code sent 'CLEAR_CACHE'. Previously only
+  // 'CLEAR_CACHE' was handled, so the ErrorBoundary's request was silently
+  // ignored and the SW-side caches were never cleared.
+  if (event.data && (event.data.type === 'CLEAR_CACHE' || event.data.type === 'CLEAR_ALL_CACHES')) {
     event.waitUntil(
       caches.keys().then(cacheNames => {
         return Promise.all(

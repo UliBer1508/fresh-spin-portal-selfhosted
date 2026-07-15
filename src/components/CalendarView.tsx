@@ -1,208 +1,87 @@
-// v12 - Full i18n Translation Support
-import { useState, useEffect, useRef, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, Sparkles, Shirt, LogIn, LogOut, BedDouble, ChevronRight as ChevronRightIcon } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { ChevronLeft, ChevronRight, Shirt, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, differenceInDays, isAfter, startOfDay, addDays } from "date-fns";
-
-// Parst "YYYY-MM-DD" und "YYYY-MM-DDTHH:mm:ss+00:00" als lokales Datum (kein UTC-Offset Problem)
-const parseLocalDate = (dateStr: string | null | undefined): Date | null => {
-  if (!dateStr) return null;
-  // Datumsteil extrahieren (vor dem 'T' bei ISO-Timestamps)
-  const datePart = dateStr.split('T')[0];
-  const parts = datePart.split('-').map(Number);
-  if (parts.length !== 3 || parts.some(isNaN)) return null;
-  const [year, month, day] = parts;
-  if (year < 2000 || month < 1 || month > 12 || day < 1 || day > 31) return null;
-  return new Date(year, month - 1, day);
-};
+import {
+  format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, isToday,
+  addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, isWithinInterval,
+} from "date-fns";
 import { de, enUS, nl } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HOUSE_COLORS, getColorByHash, BOOKING_STATUS } from "@/lib/constants";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useTranslation } from "react-i18next";
 
-interface CalendarEvent {
+type ViewType = "week" | "month";
+
+// Status, die eine Wäschelieferung / Reinigung als nicht mehr aktiv markieren -> ausblenden
+const CANCELLED_STATUSES = new Set(["cancelled", "storniert", "abgebrochen"]);
+
+const parseLocalDate = (dateStr: string | null | undefined): Date | null => {
+  if (!dateStr) return null;
+  const [y, m, d] = dateStr.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+};
+
+const getLocale = (lng: string) => (lng === "en" ? enUS : lng === "nl" ? nl : de);
+
+// Wäsche = To-do für Teuni; Reinigung = nur Info
+interface LinenEvent {
   id: string;
-  type: 'check-in' | 'check-out' | 'occupied' | 'cleaning' | 'linen';
+  orderId: string;
   date: Date;
-  title: string;
-  house?: string;
-  house_id?: string;
-  guest?: string;
-  time?: string;
+  house: string;
+  house_id: string;
   status?: string;
+  deliveryTime?: string | null;
 }
 
-interface Booking {
+interface CleaningInfoEvent {
   id: string;
-  guest_name: string;
-  check_in: string;
-  check_out: string;
+  date: Date;
+  house: string;
   house_id: string;
-  houses?: { name: string };
+  scheduledTime?: string | null;
 }
-
-interface ServiceTask {
-  id: string;
-  scheduled_date: string;
-  service_type: string;
-  house_id: string;
-  houses?: { name: string };
-}
-
-interface LinenOrder {
-  id: string;
-  delivery_date: string;
-  house_id: string;
-  houses?: { name: string };
-}
-
-interface House {
-  id: string;
-  name: string;
-}
-
-interface GanttBooking {
-  id: string;
-  guest_name: string;
-  check_in: Date | null;
-  check_out: Date | null;
-  house_id: string;
-  house_name: string;
-}
-
-// Named house color overrides (case-insensitive substring match on house name)
-const HOUSE_NAME_COLOR_OVERRIDES: Array<{ match: string; color: { bg: string; text: string; hex: string } }> = [
-  { match: 'wald', color: { bg: 'bg-green-500', text: 'text-white', hex: '#22c55e' } },
-  { match: 'venediger', color: { bg: 'bg-purple-500', text: 'text-white', hex: '#a855f7' } },
-];
-
-// Get consistent color for a house - name-based override first, then hash fallback
-const getHouseColor = (houseId: string, houseName?: string) => {
-  if (houseName) {
-    const lower = houseName.toLowerCase();
-    const override = HOUSE_NAME_COLOR_OVERRIDES.find(o => lower.includes(o.match));
-    if (override) return override.color;
-  }
-  return getColorByHash(HOUSE_COLORS, houseId);
-};
-
-
-// Event priority for sorting in day cells (lower = higher priority, shown first)
-const getEventPriority = (type: CalendarEvent['type']) => {
-  switch (type) {
-    case 'linen': return 0;
-    case 'cleaning': return 1;
-    case 'check-out': return 2;
-    case 'check-in': return 3;
-    case 'occupied': return 4;
-    default: return 5;
-  }
-};
-
-// Get house name abbreviation (e.g., "Wald Chalet" → "WC")
-const getHouseAbbreviation = (houseName: string) => {
-  if (!houseName) return '';
-  const words = houseName.split(' ').filter(w => w.length > 0);
-  if (words.length === 1) return houseName.substring(0, 3).toUpperCase();
-  return words.map(w => w[0]).join('').toUpperCase().substring(0, 3);
-};
 
 const CalendarView = () => {
-  const { t, i18n } = useTranslation('calendar');
+  const { t, i18n } = useTranslation("calendar");
+  const locale = getLocale(i18n.language);
+
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [dayDialogOpen, setDayDialogOpen] = useState(false);
-  const [view, setView] = useState<'month' | 'week' | 'gantt' | 'list'>(() => {
-    const saved = localStorage.getItem('calendar-view');
-    if (saved === 'month' || saved === 'week' || saved === 'gantt' || saved === 'list') return saved;
-    const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 768;
-    return isMobileDevice ? 'list' : 'gantt';
-  });
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [houses, setHouses] = useState<House[]>([]);
-  const [ganttBookings, setGanttBookings] = useState<GanttBooking[]>([]);
-  const ganttScrollRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(true);
-  const isMobile = useIsMobile();
+  const [viewType, setViewType] = useState<ViewType>("week");
+  const [linenEvents, setLinenEvents] = useState<LinenEvent[]>([]);
+  const [cleaningInfo, setCleaningInfo] = useState<CleaningInfoEvent[]>([]);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
-  // Get date-fns locale based on current language
-  const getDateLocale = () => {
-    switch (i18n.language) {
-      case 'de': return de;
-      case 'nl': return nl;
-      case 'en':
-      default: return enUS;
-    }
-  };
-
-  const dateLocale = getDateLocale();
-
-  // Get weekdays array from translations
-  const weekdaysShort = t('weekdays.short', { returnObjects: true }) as string[];
-
-  const monthStart = startOfMonth(currentDate);
-  const monthEnd = endOfMonth(currentDate);
-  const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
-
-  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
-  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
-
-  const displayStart = view === 'month' || view === 'gantt' ? monthStart : weekStart;
-  const displayEnd = view === 'month' || view === 'gantt' ? monthEnd : weekEnd;
-  const displayDays = view === 'month' || view === 'gantt' ? monthDays : weekDays;
+  // Datenbereich: großzügig laden (aktueller Monat +/- damit Wochenvorschau gefüllt ist)
+  const rangeStart = useMemo(() => format(startOfWeek(startOfMonth(subMonths(currentDate, 1)), { weekStartsOn: 1 }), "yyyy-MM-dd"), [currentDate]);
+  const rangeEnd = useMemo(() => format(endOfWeek(endOfMonth(addMonths(currentDate, 2)), { weekStartsOn: 1 }), "yyyy-MM-dd"), [currentDate]);
 
   useEffect(() => {
-    fetchCalendarData();
-  }, [currentDate, i18n.language, view]);
-
-  const fetchCalendarData = async () => {
-    setLoading(true);
-    try {
-      const isListView = view === 'list';
-      const rangeStart = isListView ? startOfDay(new Date()) : displayStart;
-      const rangeEnd = isListView ? addDays(startOfDay(new Date()), 60) : displayEnd;
-      const startDate = format(rangeStart, 'yyyy-MM-dd');
-      const endDate = format(rangeEnd, 'yyyy-MM-dd');
-
-      // Fetch only tourist houses for legend
-      const { data: housesData } = await supabase
-        .from('houses')
-        .select('id, name')
-        .eq('rental_type', 'tourist')
-        .order('name');
-
-      if (housesData) {
-        setHouses(housesData);
-      }
-
-      // Fetch bookings with house_id - only tourist rentals, exclude cancelled
-      const { data: bookings } = await supabase
-        .from('bookings')
+    let active = true;
+    const fetchData = async () => {
+      // Wäschelieferungen (To-do)
+      const { data: linenOrders } = await supabase
+        .from("linen_orders")
         .select(`
           id,
-          guest_name,
-          check_in,
-          check_out,
+          delivery_date,
+          delivery_time,
+          status,
           house_id,
-          houses!bookings_house_id_fkey!inner (name, rental_type)
+          houses!linen_orders_house_id_fkey!inner (name, rental_type)
         `)
-        .eq('houses.rental_type', 'tourist')
-        .neq('status', BOOKING_STATUS.CANCELLED)
-        .gte('check_out', startDate)
-        .lte('check_in', endDate);
+        .eq("houses.rental_type", "tourist")
+        .gte("delivery_date", rangeStart)
+        .lte("delivery_date", rangeEnd);
 
-      // Fetch service tasks (cleaning) with house_id - only tourist rentals
+      // Reinigungen (nur Info)
       const { data: serviceTasks } = await supabase
-        .from('service_tasks')
+        .from("service_tasks")
         .select(`
           id,
           scheduled_date,
@@ -212,779 +91,353 @@ const CalendarView = () => {
           house_id,
           houses!service_tasks_house_id_fkey!inner (name, rental_type)
         `)
-        .eq('houses.rental_type', 'tourist')
-        .gte('scheduled_date', startDate)
-        .lte('scheduled_date', endDate)
-        .eq('service_type', 'cleaning');
+        .eq("houses.rental_type", "tourist")
+        .eq("service_type", "cleaning")
+        .gte("scheduled_date", rangeStart)
+        .lte("scheduled_date", rangeEnd);
 
-      // Fetch linen orders with house_id - only tourist rentals
-      const { data: linenOrders } = await supabase
-        .from('linen_orders')
-        .select(`
-          id,
-          delivery_date,
-          delivery_time,
-          status,
-          house_id,
-          houses!linen_orders_house_id_fkey!inner (name, rental_type)
-        `)
-        .eq('houses.rental_type', 'tourist')
-        .gte('delivery_date', startDate)
-        .lte('delivery_date', endDate);
+      if (!active) return;
 
-      const calendarEvents: CalendarEvent[] = [];
-      const ganttData: GanttBooking[] = [];
-
-      // Process bookings
-      bookings?.forEach((booking: Booking) => {
-        const checkInDate = parseLocalDate(booking.check_in);
-        const checkOutDate = parseLocalDate(booking.check_out);
-
-        // Skip bookings with invalid dates
-        if (!checkInDate || !checkOutDate) return;
-
-        // Add to Gantt data
-        ganttData.push({
-          id: booking.id,
-          guest_name: booking.guest_name,
-          check_in: checkInDate,
-          check_out: checkOutDate,
-          house_id: booking.house_id,
-          house_name: booking.houses?.name || ''
-        });
-
-        // Add check-in event
-        calendarEvents.push({
-          id: `checkin-${booking.id}`,
-          type: 'check-in',
-          date: checkInDate,
-          title: t('events.checkIn'),
-          house: booking.houses?.name,
-          house_id: booking.house_id,
-          guest: booking.guest_name
-        });
-
-        // Add check-out event
-        calendarEvents.push({
-          id: `checkout-${booking.id}`,
-          type: 'check-out',
-          date: checkOutDate,
-          title: t('events.checkOut'),
-          house: booking.houses?.name,
-          house_id: booking.house_id,
-          guest: booking.guest_name
-        });
-
-        // Add occupied days between check-in and check-out
-        const occupiedDays = eachDayOfInterval({ start: checkInDate, end: checkOutDate });
-        occupiedDays.forEach((day, index) => {
-          if (index > 0 && index < occupiedDays.length - 1) {
-            calendarEvents.push({
-              id: `occupied-${booking.id}-${format(day, 'yyyy-MM-dd')}`,
-              type: 'occupied',
-              date: day,
-              title: t('events.occupied'),
-              house: booking.houses?.name,
-              house_id: booking.house_id,
-              guest: booking.guest_name
-            });
-          }
+      const linen: LinenEvent[] = [];
+      (linenOrders || []).forEach((o: any) => {
+        if (CANCELLED_STATUSES.has(String(o.status || "").toLowerCase())) return;
+        const date = parseLocalDate(o.delivery_date);
+        if (!date) return;
+        linen.push({
+          id: `linen-${o.id}`,
+          orderId: o.id,
+          date,
+          house: o.houses?.name || "—",
+          house_id: o.house_id,
+          status: o.status,
+          deliveryTime: o.delivery_time ?? null,
         });
       });
 
-      // Process service tasks (cleaning)
-      serviceTasks?.forEach((task: any) => {
-        const taskDate = parseLocalDate(task.scheduled_date);
-        if (!taskDate) return;
-        calendarEvents.push({
-          id: `cleaning-${task.id}`,
-          type: 'cleaning',
-          date: taskDate,
-          title: t('events.cleaning'),
-          house: task.houses?.name,
-          house_id: task.house_id,
-          time: task.scheduled_time ? String(task.scheduled_time).slice(0, 5) : undefined,
-          status: task.status || undefined,
+      const cleaning: CleaningInfoEvent[] = [];
+      (serviceTasks || []).forEach((tk: any) => {
+        if (CANCELLED_STATUSES.has(String(tk.status || "").toLowerCase())) return;
+        const date = parseLocalDate(tk.scheduled_date);
+        if (!date) return;
+        cleaning.push({
+          id: `cleaning-${tk.id}`,
+          date,
+          house: tk.houses?.name || "—",
+          house_id: tk.house_id,
+          scheduledTime: tk.scheduled_time ?? null,
         });
       });
 
-      // Process linen orders
-      linenOrders?.forEach((order: any) => {
-        if (order.delivery_date) {
-          const deliveryDate = parseLocalDate(order.delivery_date);
-          if (!deliveryDate) return;
-          calendarEvents.push({
-            id: `linen-${order.id}`,
-            type: 'linen',
-            date: deliveryDate,
-            title: t('events.linen'),
-            house: order.houses?.name,
-            house_id: order.house_id,
-            time: order.delivery_time ? String(order.delivery_time).slice(0, 5) : undefined,
-            status: order.status || undefined,
-          });
-        }
-      });
+      setLinenEvents(linen);
+      setCleaningInfo(cleaning);
+    };
 
-      setEvents(calendarEvents);
-      setGanttBookings(ganttData);
-    } catch (error) {
-      console.error('Error fetching calendar data:', error);
-    } finally {
-      setLoading(false);
+    fetchData();
+
+    // Realtime: bei Änderungen an linen_orders / service_tasks neu laden
+    const channel = supabase
+      .channel("teuni-calendar")
+      .on("postgres_changes", { event: "*", schema: "public", table: "linen_orders" }, fetchData)
+      .on("postgres_changes", { event: "*", schema: "public", table: "service_tasks" }, fetchData)
+      .subscribe();
+
+    return () => {
+      active = false;
+      supabase.removeChannel(channel);
+    };
+  }, [rangeStart, rangeEnd]);
+
+  const linenForDay = (day: Date) =>
+    linenEvents.filter(e => isSameDay(e.date, day)).sort((a, b) => (a.deliveryTime || "").localeCompare(b.deliveryTime || ""));
+  const cleaningForDay = (day: Date) =>
+    cleaningInfo.filter(e => isSameDay(e.date, day)).sort((a, b) => (a.scheduledTime || "").localeCompare(b.scheduledTime || ""));
+
+  const weekDays = useMemo(() => {
+    const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+    const end = endOfWeek(currentDate, { weekStartsOn: 1 });
+    return eachDayOfInterval({ start, end });
+  }, [currentDate]);
+
+  const upcomingWeeks = useMemo(() => {
+    const result: Array<{ start: Date; end: Date; events: LinenEvent[] }> = [];
+    for (let i = 1; i <= 4; i++) {
+      const start = startOfWeek(addWeeks(currentDate, i), { weekStartsOn: 1 });
+      const end = endOfWeek(addWeeks(currentDate, i), { weekStartsOn: 1 });
+      const events = linenEvents
+        .filter(e => isWithinInterval(e.date, { start, end }))
+        .sort((a, b) => a.date.getTime() - b.date.getTime());
+      if (events.length > 0) result.push({ start, end, events });
     }
-  };
+    return result;
+  }, [linenEvents, currentDate]);
 
-  const getEventsByDate = (date: Date) => {
-    return events.filter(event => isSameDay(event.date, date));
-  };
-
-  const getSelectedDateEvents = () => {
-    if (!selectedDate) return [];
-    return getEventsByDate(selectedDate);
-  };
-
-  const handleEventClick = (event: CalendarEvent) => {
-    setSelectedDate(event.date);
-    setDayDialogOpen(true);
-  };
-
-  const handleDayClick = (date: Date) => {
-    setSelectedDate(date);
-    setDayDialogOpen(true);
-  };
-
-  // Get event color - for occupied events use house color
-  const getEventColor = (event: CalendarEvent) => {
-    if (event.type === 'occupied' && event.house_id) {
-      const houseColor = getHouseColor(event.house_id, event.house);
-      return `${houseColor.bg} ${houseColor.text}`;
-    }
-    switch (event.type) {
-      case 'check-in':
-        return 'bg-success text-success-foreground';
-      case 'check-out':
-        return 'bg-destructive text-destructive-foreground';
-      case 'cleaning':
-        return 'bg-info text-info-foreground';
-      case 'linen':
-        return 'bg-purple-500 text-white';
-      default:
-        return 'bg-muted text-muted-foreground';
-    }
-  };
-
-  const getEventIconColor = (event: CalendarEvent) => {
-    if (event.type === 'occupied' && event.house_id) {
-      return getHouseColor(event.house_id, event.house).bg;
-    }
-    switch (event.type) {
-      case 'check-in':
-        return 'bg-success';
-      case 'check-out':
-        return 'bg-destructive';
-      case 'cleaning':
-        return 'bg-info';
-      case 'linen':
-        return 'bg-purple-500';
-      default:
-        return 'bg-muted';
-    }
-  };
-
-  // Get display text for event badge
-  const getEventDisplayText = (event: CalendarEvent) => {
-    const abbr = event.house ? getHouseAbbreviation(event.house) : '';
-    
-    if (event.type === 'occupied') {
-      // For occupied, show house name
-      return event.house || t('events.occupied');
-    }
-    
-    // For other types, show type + house abbreviation
-    const typeText = event.title;
-    return abbr ? `${typeText} • ${abbr}` : typeText;
-  };
-
-  const goToPrevious = () => {
-    if (view === 'gantt' && isMobile) {
-      setCurrentDate(subWeeks(currentDate, 1));
-    } else if (view === 'month' || view === 'gantt') {
-      setCurrentDate(subMonths(currentDate, 1));
-    } else {
-      setCurrentDate(subWeeks(currentDate, 1));
-    }
-  };
-
-  const goToNext = () => {
-    if (view === 'gantt' && isMobile) {
-      setCurrentDate(addWeeks(currentDate, 1));
-    } else if (view === 'month' || view === 'gantt') {
-      setCurrentDate(addMonths(currentDate, 1));
-    } else {
-      setCurrentDate(addWeeks(currentDate, 1));
-    }
-  };
-
-  const goToToday = () => {
-    setCurrentDate(new Date());
-  };
-
-  // Get bookings for a specific house in the Gantt view
-  const getHouseBookings = (houseId: string) => {
-    return ganttBookings.filter(b => b.house_id === houseId);
-  };
-
-
-  // Auto-scroll to today when Gantt view loads (only on desktop)
-  useEffect(() => {
-    if (view === 'gantt' && !loading && ganttScrollRef.current && !isMobile) {
-      const today = new Date();
-      const todayIndex = differenceInDays(today, monthStart);
-      
-      if (todayIndex >= 0 && todayIndex < monthDays.length) {
-        // Calculate scroll position: scroll to show today on the left side
-        const scrollContainer = ganttScrollRef.current;
-        const totalWidth = scrollContainer.scrollWidth;
-        const dayWidth = totalWidth / monthDays.length;
-        const scrollPosition = Math.max(0, (todayIndex * dayWidth) - 50);
-        
-        setTimeout(() => {
-          scrollContainer.scrollTo({ left: scrollPosition, behavior: 'smooth' });
-        }, 100);
-      }
-    }
-  }, [view, loading, currentDate, isMobile]);
-
-  // Persist view state in localStorage
-  useEffect(() => {
-    localStorage.setItem('calendar-view', view);
-  }, [view]);
-
-  // Mobile: Wochenansicht, Desktop: Monatsansicht für Gantt
-  const ganttDays = (view === 'gantt' && isMobile) ? weekDays : monthDays;
-  const ganttStart = (view === 'gantt' && isMobile) ? weekStart : monthStart;
-
-  // Calculate Gantt grid position - grid columns are 1-indexed
-  const getGanttGridPosition = (booking: GanttBooking) => {
-    const totalDays = ganttDays.length;
-    const referenceStart = ganttStart;
-    
-    if (!booking.check_in || !booking.check_out) {
-      return { gridColumn: '1 / 2' };
-    }
-    
-    const startDayRaw = differenceInDays(booking.check_in, referenceStart);
-    const endDayRaw = differenceInDays(booking.check_out, referenceStart);
-    
-    const startCol = Math.max(1, startDayRaw + 1);
-    const endCol = Math.min(totalDays + 1, endDayRaw + 2);
-    
-    return { gridColumn: `${startCol} / ${endCol}` };
-  };
-
-  // Render Gantt Chart View
-  const renderGanttView = () => {
-    const dayWidth = isMobile ? 'minmax(40px, 1fr)' : 'minmax(24px, 1fr)';
-    const gridCols = `repeat(${ganttDays.length}, ${dayWidth})`;
-
-    return (
-      <div className="space-y-3">
-        <div className="bg-background border rounded-lg overflow-hidden">
-          <ScrollArea className="w-full">
-            <div ref={ganttScrollRef} className={isMobile ? "min-w-0" : "min-w-[600px]"}>
-              {/* Header with days */}
-              <div className="flex border-b sticky top-0 bg-background z-10">
-                <div className="w-20 md:w-40 shrink-0 p-2 md:p-3 font-medium text-xs md:text-sm border-r bg-muted/50">
-                  <Home className="w-4 h-4 md:hidden" />
-                  <span className="hidden md:inline">{t('gantt.accommodation')}</span>
-                </div>
-                <div className="flex-1 grid" style={{ gridTemplateColumns: gridCols }}>
-                  {ganttDays.map((day) => {
-                    const isToday = isSameDay(day, new Date());
-                    const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                    return (
-                      <div
-                        key={day.toISOString()}
-                        className={cn(
-                          "p-0.5 md:p-1 text-center text-[10px] md:text-xs border-r last:border-r-0",
-                          isToday && "bg-primary/20 font-bold",
-                          isWeekend && "bg-muted/30"
-                        )}
-                      >
-                        <div className="font-medium">{format(day, 'd')}</div>
-                        <div className="text-muted-foreground text-[9px] md:text-xs">{format(day, 'EEE', { locale: dateLocale })}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* House rows */}
-              {houses.map((house) => {
-                const houseColor = getHouseColor(house.id, house.name);
-
-                const bookings = getHouseBookings(house.id);
-
-                return (
-                  <div key={house.id} className="flex border-b last:border-b-0 min-h-[44px] md:min-h-[60px]">
-                    {/* House name */}
-                    <div className="w-20 md:w-40 shrink-0 p-1.5 md:p-3 border-r bg-muted/20 flex items-center">
-                      <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
-                        <div className={cn("w-2.5 h-2.5 md:w-3 md:h-3 rounded-full shrink-0", houseColor.bg)} />
-                        <span className="text-[10px] md:text-sm font-medium truncate">{house.name}</span>
-                      </div>
-                    </div>
-
-                    {/* Timeline with bookings - Grid-based */}
-                     <div className="flex-1 relative" style={{ minHeight: isMobile ? '44px' : '60px' }}>
-                       {/* Background grid lines layer (absolute, always visible) */}
-                       <div className="absolute inset-0 grid" style={{ gridTemplateColumns: gridCols, zIndex: 0 }}>
-                         {ganttDays.map((day) => {
-                           const isToday = isSameDay(day, new Date());
-                           const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                           return (
-                             <div
-                               key={day.toISOString()}
-                               onClick={() => handleDayClick(day)}
-                               className={cn(
-                                 "border-r last:border-r-0 h-full cursor-pointer hover:bg-primary/5",
-                                 isToday && "bg-primary/10",
-                                 isWeekend && "bg-muted/20"
-                               )}
-                             />
-                           );
-                         })}
-                       </div>
-                       {/* Booking bars layer (on top of grid lines) */}
-                       <div className="absolute inset-0 grid items-center" style={{ gridTemplateColumns: gridCols, zIndex: 1 }}>
-                         {bookings.map((booking) => {
-                           const gridPos = getGanttGridPosition(booking);
-                           const nights = (booking.check_in && booking.check_out) ? differenceInDays(booking.check_out, booking.check_in) : 0;
-                           
-                           return (
-                             <TooltipProvider key={booking.id}>
-                               <Tooltip>
-                                 <TooltipTrigger asChild>
-                                    <div
-                                       onClick={(e) => {
-                                         e.stopPropagation();
-                                         if (booking.check_in) handleDayClick(booking.check_in);
-                                       }}
-                                       className={cn(
-                                         "h-6 md:h-8 rounded-md flex items-center px-1 md:px-2 cursor-pointer hover:opacity-90 transition-opacity mx-0.5",
-                                         "border border-white/40 shadow-md",
-                                         houseColor.bg, houseColor.text
-                                       )}
-                                       style={{ 
-                                         gridColumn: gridPos.gridColumn, 
-                                         gridRow: 1
-                                       }}
-                                     >
-                                     <span className="truncate text-[9px] md:text-xs font-medium leading-tight">
-                                       {booking.guest_name}
-                                     </span>
-                                   </div>
-                                 </TooltipTrigger>
-                                 <TooltipContent side="top" className="max-w-xs">
-                                   <div className="space-y-1">
-                                     <p className="font-medium">{booking.guest_name}</p>
-                                     <p className="text-xs text-muted-foreground">
-                                       {booking.check_in ? format(booking.check_in, 'dd.MM.yyyy') : ''} – {booking.check_out ? format(booking.check_out, 'dd.MM.yyyy') : ''}
-                                     </p>
-                                     <p className="text-xs">
-                                       {nights} {nights === 1 ? t('gantt.night') : t('gantt.nights')} • {booking.house_name}
-                                     </p>
-                                   </div>
-                                 </TooltipContent>
-                               </Tooltip>
-                             </TooltipProvider>
-                           );
-                         })}
-
-                         {/* Empty state */}
-                         {bookings.length === 0 && (
-                           <div 
-                             className="flex items-center justify-center"
-                             style={{ gridColumn: `1 / -1`, gridRow: 1 }}
-                           >
-                             <span className="text-[10px] md:text-xs text-muted-foreground">{t('gantt.noBookings')}</span>
-                           </div>
-                         )}
-                       </div>
-                     </div>
-                   </div>
-                 );
-               })}
-
-              {/* Empty state if no houses */}
-              {houses.length === 0 && (
-                <div className="p-8 text-center text-muted-foreground">
-                  {t('gantt.noProperties')}
-                </div>
-              )}
-            </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
-        </div>
-      </div>
-    );
-  };
-
-  // Render List View (chronological, today + 60 days, linen + cleaning only)
-  const renderListView = () => {
-    const today = startOfDay(new Date());
-    const filtered = events
-      .filter(e => (e.type === 'linen' || e.type === 'cleaning') && !isAfter(today, e.date))
-      .sort((a, b) => {
-        const d = a.date.getTime() - b.date.getTime();
-        if (d !== 0) return d;
-        return getEventPriority(a.type) - getEventPriority(b.type);
-      });
-
-    // Group by day (yyyy-MM-dd)
-    const groups: { date: Date; items: CalendarEvent[] }[] = [];
-    filtered.forEach((e) => {
-      const key = format(e.date, 'yyyy-MM-dd');
-      const last = groups[groups.length - 1];
-      if (last && format(last.date, 'yyyy-MM-dd') === key) {
-        last.items.push(e);
-      } else {
-        groups.push({ date: e.date, items: [e] });
-      }
+  const monthGridDays = useMemo(() => {
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+    return eachDayOfInterval({
+      start: startOfWeek(monthStart, { weekStartsOn: 1 }),
+      end: endOfWeek(monthEnd, { weekStartsOn: 1 }),
     });
+  }, [currentDate]);
 
-    if (groups.length === 0) {
-      return (
-        <div className="bg-background border rounded-lg p-8 text-center text-muted-foreground">
-          {t('sidebar.noEvents')}
-        </div>
-      );
-    }
+  const goToToday = () => setCurrentDate(new Date());
+  const previousPeriod = () => setCurrentDate(prev => (viewType === "week" ? subWeeks(prev, 1) : subMonths(prev, 1)));
+  const nextPeriod = () => setCurrentDate(prev => (viewType === "week" ? addWeeks(prev, 1) : addMonths(prev, 1)));
 
-    return (
-      <div className="bg-background border rounded-lg divide-y">
-        {groups.map((group) => {
-          const isToday = isSameDay(group.date, new Date());
-          return (
-            <div key={group.date.toISOString()} className="p-3 md:p-4">
-              <div className={cn(
-                "flex items-center gap-2 mb-2 text-sm md:text-base font-semibold",
-                isToday ? "text-primary" : "text-foreground"
-              )}>
-                <span>{format(group.date, 'EEEE, d. MMMM', { locale: dateLocale })}</span>
-                {isToday && (
-                  <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">
-                    {t('navigation.today')}
-                  </Badge>
-                )}
-              </div>
-              <div className="space-y-2">
-                {group.items.map((event) => {
-                  const houseColor = event.house_id ? getHouseColor(event.house_id, event.house) : null;
-                  const IconCmp = event.type === 'linen' ? Shirt : Sparkles;
-                  return (
-                    <button
-                      key={event.id}
-                      type="button"
-                      onClick={() => handleDayClick(group.date)}
-                      style={houseColor ? { borderLeftColor: houseColor.hex, borderLeftWidth: 4 } : undefined}
-                      className="w-full min-h-[44px] flex items-center gap-3 bg-card border rounded-xl p-3 text-left hover:bg-muted/40 transition-colors"
-                    >
+  const periodTitle =
+    viewType === "week"
+      ? `${format(startOfWeek(currentDate, { weekStartsOn: 1 }), "d. MMM", { locale })} – ${format(endOfWeek(currentDate, { weekStartsOn: 1 }), "d. MMM yyyy", { locale })}`
+      : format(currentDate, "MMMM yyyy", { locale });
 
-                      <div className={cn(
-                        "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
-                        event.type === 'linen'
-                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
-                          : "bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300"
-                      )}>
-                        <IconCmp className="w-4 h-4" />
-                      </div>
+  const weekdayHeader = (t("weekdays.short", { returnObjects: true }) as string[]) || ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 
-                      <div className="flex-1 min-w-0 text-sm">
-                        <span className="font-medium">{event.title}</span>
-                        {event.house && <> · <span className="truncate">{event.house}</span></>}
-                        {event.time && <> · <span className="text-muted-foreground">{event.time}</span></>}
-                      </div>
-                      <ChevronRightIcon className="w-4 h-4 text-muted-foreground shrink-0" />
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
+  const openDetail = (orderId: string) => {
+    setSelectedOrderId(orderId);
+    setDetailOpen(true);
   };
+
+  const houseColor = (houseId: string) => getColorByHash(HOUSE_COLORS, houseId).hex;
+
+  const selectedEvent = selectedOrderId ? linenEvents.find(e => e.orderId === selectedOrderId) : null;
+
+  // eindeutige Häuser für Legende
+  const legendHouses = useMemo(() => {
+    const map = new Map<string, string>();
+    [...linenEvents, ...cleaningInfo].forEach(e => { if (e.house_id) map.set(e.house_id, e.house); });
+    return Array.from(map.entries());
+  }, [linenEvents, cleaningInfo]);
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-6 lg:space-y-0 lg:flex lg:gap-6">
-        {/* Main Calendar */}
-        <div className="flex-1">
-          {/* Calendar Header */}
-          <div className="mb-4 space-y-3">
-            <h1 className="text-xl md:text-2xl font-bold">
-              {view === 'week'
-                ? `${format(weekStart, 'd. MMM', { locale: dateLocale })} - ${format(weekEnd, 'd. MMM yyyy', { locale: dateLocale })}`
-                : view === 'list'
-                ? format(new Date(), 'MMMM yyyy', { locale: dateLocale })
-                : format(currentDate, 'MMMM yyyy', { locale: dateLocale })
-              }
-            </h1>
-
-            {/* View switcher: Liste / Monat / Gantt — full-width segmented */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant={view === 'list' ? 'default' : 'outline'}
-                onClick={() => setView('list')}
-                className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
-              >
-                Liste
-              </Button>
-              <Button
-                variant={view === 'month' ? 'default' : 'outline'}
-                onClick={() => setView('month')}
-                className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
-              >
-                {t('views.month')}
-              </Button>
-              <Button
-                variant={view === 'gantt' ? 'default' : 'outline'}
-                onClick={() => setView('gantt')}
-                className="flex-1 h-11 rounded-lg text-sm md:text-base font-medium"
-              >
-                {t('views.gantt')}
-              </Button>
-            </div>
-          </div>
-
-          {/* Gantt-only nav row (since the in-card nav lives in month/week view) */}
-          {view === 'gantt' && (
-            <div className="flex items-center justify-end gap-2 mb-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToPrevious}
-                className="h-9 w-9 p-0 rounded-full"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToToday}
-                className="h-9 px-4 rounded-full text-sm"
-              >
-                {t('navigation.today')}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToNext}
-                className="h-9 w-9 p-0 rounded-full"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
-
-          {/* Gantt View */}
-          {view === 'gantt' && renderGanttView()}
-
-          {/* List View */}
-          {view === 'list' && renderListView()}
-
-          {/* Calendar Grid (Month/Week) */}
-          {view !== 'gantt' && view !== 'list' && (
-            <div className="bg-background border rounded-lg">
-              {/* In-card header: house legend (left) + Today/arrows (right) */}
-              <div className="flex items-center justify-between gap-2 p-3 md:p-4 border-b">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
-                  {houses.map((house) => {
-                    const houseColor = getHouseColor(house.id, house.name);
-                    return (
-                      <div key={house.id} className="flex items-center gap-1.5">
-                        <span className={cn("w-2.5 h-2.5 rounded-full shrink-0", houseColor.bg)} />
-                        <span className="text-xs md:text-sm font-medium text-muted-foreground">
-                          {getHouseAbbreviation(house.name)}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={goToPrevious}
-                    className="h-8 w-8 p-0 rounded-full"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={goToToday}
-                    className="h-8 px-3 rounded-full text-xs md:text-sm"
-                  >
-                    {t('navigation.today')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={goToNext}
-                    className="h-8 w-8 p-0 rounded-full"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Days of week header */}
-              <div className="grid grid-cols-7 border-b">
-
-                {weekdaysShort.map((day) => (
-                  <div key={day} className="p-2 md:p-4 text-center text-xs md:text-sm font-medium text-muted-foreground">
-                    {day}
-                  </div>
-                ))}
-              </div>
-
-              {/* Calendar days */}
-              <div className={cn("grid", view === 'month' ? "grid-cols-7" : "grid-cols-7")}>
-                {displayDays.map((date) => {
-                  const allDayEvents = getEventsByDate(date);
-                  const isToday = isSameDay(date, new Date());
-                  const isCurrentMonth = view === 'month' ? format(date, 'M') === format(currentDate, 'M') : true;
-                  const isOccupied = allDayEvents.some(e => e.type === 'occupied' || e.type === 'check-in' || e.type === 'check-out');
-                  // Hide occupied from badges; sort remaining by priority so linen/cleaning are never clipped
-                  const visibleEvents = allDayEvents
-                    .filter(e => e.type !== 'occupied')
-                    .sort((a, b) => getEventPriority(a.type) - getEventPriority(b.type));
-                  const maxItems = 3;
-                  const shownEvents = visibleEvents.slice(0, maxItems);
-                  const hiddenCount = visibleEvents.length - shownEvents.length;
-
-                  return (
-                    <div
-                      key={date.toISOString()}
-                      className={cn(
-                        view === 'month' ? "min-h-[80px] md:min-h-[120px]" : "min-h-[120px] md:min-h-[150px]",
-                        "p-1 md:p-2 border-r border-b last:border-r-0 cursor-pointer transition-colors",
-                        "bg-muted/30 hover:bg-muted/50",
-                        isOccupied && "bg-primary/15 hover:bg-primary/25",
-                        isToday && "ring-2 ring-primary ring-inset",
-                        !isCurrentMonth && "text-muted-foreground opacity-60"
-                      )}
-                      onClick={() => handleDayClick(date)}
-                    >
-                      <div className={cn(
-                        "text-xs md:text-sm font-medium mb-1 md:mb-2",
-                        isToday && "text-primary font-bold",
-                        !isCurrentMonth && "text-muted-foreground"
-                      )}>
-                        {view === 'week' ? format(date, 'EEE d', { locale: dateLocale }) : format(date, 'd')}
-                      </div>
-                      <div className="space-y-0.5 md:space-y-1">
-                        {shownEvents.map((event) => (
-                          <Badge
-                            key={event.id}
-                            className={cn(
-                              "text-[10px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 block truncate cursor-pointer hover:opacity-80",
-                              getEventColor(event)
-                            )}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEventClick(event);
-                            }}
-                          >
-                            {getEventDisplayText(event)}
-                          </Badge>
-                        ))}
-                        {hiddenCount > 0 && (
-                          <div className="text-[10px] md:text-xs text-muted-foreground">
-                            {t('events.more', { count: hiddenCount })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-
+    <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4">
+      {/* Ansichts-Umschalter */}
+      <div className="grid grid-cols-2 gap-2 mb-4">
+        <Button variant={viewType === "week" ? "default" : "outline"} onClick={() => setViewType("week")} className="min-h-[44px] active:scale-95">
+          {t("views.week")}
+        </Button>
+        <Button variant={viewType === "month" ? "default" : "outline"} onClick={() => setViewType("month")} className="min-h-[44px] active:scale-95">
+          {t("views.month")}
+        </Button>
       </div>
 
-      {/* Day details popup */}
-      <Dialog open={dayDialogOpen} onOpenChange={setDayDialogOpen}>
-        <DialogContent className="max-w-md rounded-2xl p-5">
-          <DialogHeader className="space-y-1 text-left">
-            <DialogTitle className="text-xl font-bold">
-              {selectedDate ? format(selectedDate, 'EEEE', { locale: dateLocale }) : ''}
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
-              {selectedDate ? format(selectedDate, 'd. MMMM yyyy', { locale: dateLocale }) : ''}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-3 space-y-2">
-            {selectedDate && getSelectedDateEvents().length === 0 && (
-              <p className="text-sm text-muted-foreground py-4 text-center">
-                {t('sidebar.noEvents')}
-              </p>
-            )}
-            {selectedDate && getSelectedDateEvents().map((event) => {
-              const IconCmp =
-                event.type === 'cleaning' ? Sparkles :
-                event.type === 'linen' ? Shirt :
-                event.type === 'check-in' ? LogIn :
-                event.type === 'check-out' ? LogOut :
-                BedDouble;
-              const statusLower = (event.status || '').toLowerCase();
-              const statusDotColor =
-                statusLower.includes('geliefert') || statusLower.includes('delivered') || statusLower.includes('abgeschlossen') || statusLower.includes('completed') || statusLower.includes('done')
-                  ? 'bg-success'
-                  : statusLower.includes('offen') || statusLower.includes('open') || statusLower.includes('pending')
-                  ? 'bg-warning'
-                  : 'bg-info';
-              const iconHouseColor = event.house_id ? getHouseColor(event.house_id, event.house) : null;
+      {/* Zeitraum-Navigation */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-base md:text-xl font-semibold">{periodTitle}</h2>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button variant="outline" onClick={previousPeriod} className="h-11 w-11 p-0 rounded-full shadow-sm active:scale-95">
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <Button variant="outline" onClick={goToToday} className="h-11 px-4 rounded-full shadow-sm active:scale-95">
+            {t("navigation.today")}
+          </Button>
+          <Button variant="outline" onClick={nextPeriod} className="h-11 w-11 p-0 rounded-full shadow-sm active:scale-95">
+            <ChevronRight className="h-6 w-6" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Legende */}
+      {legendHouses.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {legendHouses.map(([id, name]) => (
+            <div key={id} className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted/40">
+              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: houseColor(id) }} />
+              <span className="text-xs font-medium">{name}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {viewType === "week" ? (
+        /* ---------- WOCHENANSICHT ---------- */
+        <div className="space-y-5">
+          <div className="rounded-lg border border-border bg-card p-3 md:p-4 space-y-2">
+            {weekDays.map(day => {
+              const linen = linenForDay(day);
+              const cleaning = cleaningForDay(day);
+              const todayFlag = isToday(day);
+              const hasWork = linen.length > 0;
+              const hasInfo = cleaning.length > 0;
               return (
                 <div
-                  key={event.id}
-                  className="flex items-center gap-3 bg-card border rounded-xl p-3"
+                  key={day.toISOString()}
+                  className={cn(
+                    "flex items-start gap-3 rounded-lg p-2.5",
+                    hasWork ? "bg-muted/30" : "bg-muted/10",
+                    todayFlag && "ring-2 ring-primary ring-inset"
+                  )}
                 >
-                  <div className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                    iconHouseColor ? cn(iconHouseColor.bg, iconHouseColor.text) : "bg-muted text-foreground"
-                  )}>
-                    <IconCmp className="w-5 h-5" />
+                  <div className={cn("w-14 shrink-0 text-sm", !hasWork && !hasInfo && "opacity-60")}>
+                    <div className={cn("font-semibold", todayFlag && "text-primary")}>{format(day, "EEE", { locale })}</div>
+                    <div className="text-xs text-muted-foreground">{format(day, "d.", { locale })}</div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm truncate">
-                      {event.house || event.title}
-                    </div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap mt-0.5">
-                      <span>{event.title}</span>
-                      {event.time && <><span>·</span><span>{event.time}</span></>}
-                      {event.status && (
-                        <>
-                          <span className={cn('inline-block w-1.5 h-1.5 rounded-full ml-1', statusDotColor)} />
-                          <span>{event.status}</span>
-                        </>
-                      )}
-                      {event.guest && <><span>·</span><span className="truncate">{event.guest}</span></>}
-                    </div>
+                  <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+                    {linen.map(event => {
+                      const color = houseColor(event.house_id);
+                      return (
+                        <button
+                          key={event.id}
+                          type="button"
+                          onClick={() => openDetail(event.orderId)}
+                          style={{ borderLeftColor: color, borderLeftWidth: 4 }}
+                          className="w-full flex items-center gap-2 px-3 py-2 bg-card border border-border/60 rounded-r-lg text-left active:scale-[0.99] transition-transform"
+                        >
+                          <Shirt className="w-4 h-4 shrink-0" style={{ color }} />
+                          <span className="font-medium text-sm truncate">{event.house}</span>
+                          <span className="ml-auto text-sm text-muted-foreground shrink-0">
+                            {event.deliveryTime ? event.deliveryTime.slice(0, 5) : ""}
+                          </span>
+                        </button>
+                      );
+                    })}
+                    {/* Reinigung nur als kleine Info-Zeile */}
+                    {cleaning.map(c => (
+                      <div key={c.id} className="flex items-center gap-1.5 px-1 text-xs text-muted-foreground">
+                        <Sparkles className="w-3 h-3 shrink-0" />
+                        <span className="truncate">{t("events.cleaning")} · {c.house}{c.scheduledTime ? " · " + c.scheduledTime.slice(0, 5) : ""}</span>
+                      </div>
+                    ))}
+                    {!hasWork && !hasInfo && (
+                      <div className="flex items-center text-sm text-muted-foreground opacity-60">{t("sidebar.noEvents")}</div>
+                    )}
                   </div>
-                  <ChevronRightIcon className="w-4 h-4 text-muted-foreground shrink-0" />
                 </div>
               );
             })}
           </div>
-        </DialogContent>
-      </Dialog>
+
+          {upcomingWeeks.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-2">{t("sidebar.upcomingWeeks", "Kommende Wochen")}</h3>
+              <div className="rounded-lg border border-border bg-card p-3 md:p-4 space-y-2">
+                {upcomingWeeks.map(week => (
+                  <div key={week.start.toISOString()} className="flex items-start gap-3">
+                    <div className="w-28 shrink-0 text-xs text-muted-foreground pt-0.5">
+                      {format(week.start, "d. MMM", { locale })} – {format(week.end, "d. MMM", { locale })}
+                    </div>
+                    <div className="flex-1 flex flex-wrap gap-x-3 gap-y-1">
+                      {week.events.map(event => (
+                        <button
+                          key={event.id}
+                          type="button"
+                          onClick={() => openDetail(event.orderId)}
+                          className="flex items-center gap-1.5 text-sm active:opacity-70"
+                        >
+                          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: houseColor(event.house_id) }} />
+                          <span className="font-medium">{format(event.date, "EEE", { locale })}</span>
+                          <span className="text-muted-foreground">· {event.house}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        /* ---------- MONATSANSICHT ---------- */
+        <div className="rounded-lg border border-border bg-card p-3 md:p-4">
+          <div className="grid grid-cols-7 gap-1">
+            {weekdayHeader.map((d, i) => (
+              <div key={i} className="p-2 text-center text-sm font-medium text-muted-foreground">{d}</div>
+            ))}
+            {monthGridDays.map((day, idx) => {
+              const linen = linenForDay(day);
+              const cleaning = cleaningForDay(day);
+              const isCurrentMonth = isSameMonth(day, currentDate);
+              const todayFlag = isToday(day);
+              const shown = linen.slice(0, 3);
+              const hidden = linen.length - shown.length;
+              return (
+                <div
+                  key={idx}
+                  className={cn(
+                    "min-h-[76px] sm:min-h-[92px] p-1.5 border border-border rounded-sm",
+                    isCurrentMonth ? "bg-card" : "bg-muted/40 text-muted-foreground",
+                    todayFlag && "ring-2 ring-primary ring-inset"
+                  )}
+                >
+                  <div className="text-sm font-medium mb-1">{format(day, "d")}</div>
+                  <div className="space-y-1">
+                    {shown.map(event => {
+                      const color = houseColor(event.house_id);
+                      return (
+                        <button
+                          key={event.id}
+                          type="button"
+                          onClick={() => openDetail(event.orderId)}
+                          style={{ backgroundColor: color }}
+                          className="w-full text-[10px] sm:text-xs px-1.5 py-0.5 rounded text-white flex items-center gap-1 truncate active:opacity-80"
+                          title={`${event.house}${event.deliveryTime ? " · " + event.deliveryTime.slice(0, 5) : ""}`}
+                        >
+                          <Shirt className="w-3 h-3 shrink-0" />
+                          <span className="truncate">
+                            {event.deliveryTime ? event.deliveryTime.slice(0, 5) + " " : ""}{event.house}
+                          </span>
+                        </button>
+                      );
+                    })}
+                    {hidden > 0 && (
+                      <div className="text-[10px] sm:text-xs text-muted-foreground">{t("events.more", { count: hidden })}</div>
+                    )}
+                    {/* Reinigung als dezenter Punkt (nur Info) */}
+                    {cleaning.length > 0 && shown.length < 3 && (
+                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                        <Sparkles className="w-3 h-3 shrink-0" />
+                        <span className="truncate">{t("events.cleaning")}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Detail-Sheet: nur Ansicht */}
+      <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
+        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl pb-[env(safe-area-inset-bottom)]">
+          <SheetHeader className="text-left">
+            <SheetTitle className="flex items-center gap-2 text-base">
+              <span
+                className="w-3 h-3 rounded-full shrink-0"
+                style={{ backgroundColor: selectedEvent ? houseColor(selectedEvent.house_id) : "#999" }}
+              />
+              {t("events.linen")}
+            </SheetTitle>
+          </SheetHeader>
+          {selectedEvent ? (
+            <div className="mt-4 space-y-4">
+              <div>
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("gantt.accommodation")}</div>
+                <div className="font-medium text-sm mt-0.5">{selectedEvent.house}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Datum</div>
+                  <div className="text-sm mt-0.5">{format(selectedEvent.date, "EEE, d. MMM yyyy", { locale })}</div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Uhrzeit</div>
+                  <div className="text-sm mt-0.5">{selectedEvent.deliveryTime ? selectedEvent.deliveryTime.slice(0, 5) : "—"}</div>
+                </div>
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">Status</div>
+                <Badge variant="secondary" className="text-xs mt-1">{selectedEvent.status || "—"}</Badge>
+              </div>
+              <div className="pt-2">
+                <SheetClose asChild>
+                  <Button className="w-full min-h-[44px]">{t("common.close", "Schliessen")}</Button>
+                </SheetClose>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground py-6 text-center">{t("sidebar.noEvents")}</p>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

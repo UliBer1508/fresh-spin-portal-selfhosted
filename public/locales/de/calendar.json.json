@@ -43,5 +43,8 @@
     "chooseDate": "Datum wählen",
     "legend": "Legende",
     "upcomingWeeks": "Kommende Wochen"
+  },
+  "detail": {
+    "guestCount": "Anzahl Gäste"
   }
 }

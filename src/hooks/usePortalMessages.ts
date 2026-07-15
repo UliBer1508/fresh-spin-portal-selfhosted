@@ -67,12 +67,21 @@ export const usePortalMessages = () => {
   const sendMessageMutation = useMutation({
     mutationFn: async (message: string) => {
       // Kette nicht reißen lassen: die Antwort bezieht sich auf die letzte
-      // Erinnerung von Max (assistant). Deren related_task_id (Reinigungs-ID)
-      // wird mitgeschickt, damit Max die Antwort eindeutig zuordnen kann.
+      // Frage/Erinnerung von Max (assistant). Teuni ist die WÄSCHE-Seite, daher
+      // trägt Max' Nachricht ihren Bezug in der Regel in related_linen_order_id
+      // (Wäschebestellung) — nicht in related_task_id (das ist die Reinigungs-
+      // Spalte). Wir suchen deshalb die letzte assistant-Nachricht mit
+      // IRGENDEINEM Bezug und geben BEIDE Bezugsfelder unverändert weiter, damit
+      // Max die Antwort eindeutig zuordnen und die Kette schließen kann.
       const lastAssistantMsg = [...messages]
         .reverse()
-        .find((m) => m.sender_type === 'assistant' && m.related_task_id);
+        .find(
+          (m) =>
+            m.sender_type === 'assistant' &&
+            (m.related_task_id || m.related_linen_order_id)
+        );
       const relatedTaskId = lastAssistantMsg?.related_task_id ?? null;
+      const relatedLinenOrderId = lastAssistantMsg?.related_linen_order_id ?? null;
 
       const { data, error } = await supabase
         .from('provider_messages')
@@ -81,6 +90,7 @@ export const usePortalMessages = () => {
           sender_type: 'provider',  // WICHTIG: Als Provider senden
           message,
           related_task_id: relatedTaskId,
+          related_linen_order_id: relatedLinenOrderId,
         })
         .select()
         .single();

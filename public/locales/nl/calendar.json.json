@@ -43,5 +43,8 @@
     "chooseDate": "Kies datum",
     "legend": "Legenda",
     "upcomingWeeks": "Komende weken"
+  },
+  "detail": {
+    "guestCount": "Aantal gasten"
   }
 }

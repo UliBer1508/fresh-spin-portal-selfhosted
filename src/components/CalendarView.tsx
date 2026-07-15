@@ -36,6 +36,10 @@ interface LinenEvent {
   house_id: string;
   status?: string;
   deliveryTime?: string | null;
+  guestName?: string | null;
+  guestCount?: number | null;
+  checkIn?: string | null;
+  checkOut?: string | null;
 }
 
 interface CleaningInfoEvent {
@@ -73,7 +77,9 @@ const CalendarView = () => {
           delivery_time,
           status,
           house_id,
-          houses!linen_orders_house_id_fkey!inner (name, rental_type)
+          booking_id,
+          houses!linen_orders_house_id_fkey!inner (name, rental_type),
+          bookings!linen_orders_booking_id_fkey (guest_name, number_of_guests, check_in, check_out)
         `)
         .eq("houses.rental_type", "tourist")
         .gte("delivery_date", rangeStart)
@@ -111,6 +117,10 @@ const CalendarView = () => {
           house_id: o.house_id,
           status: o.status,
           deliveryTime: o.delivery_time ?? null,
+          guestName: o.bookings?.guest_name ?? null,
+          guestCount: o.bookings?.number_of_guests ?? null,
+          checkIn: o.bookings?.check_in ?? null,
+          checkOut: o.bookings?.check_out ?? null,
         });
       });
 
@@ -426,6 +436,19 @@ const CalendarView = () => {
               <div>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">Status</div>
                 <Badge variant="secondary" className="text-xs mt-1">{selectedEvent.status || "—"}</Badge>
+              </div>
+              {/* Buchungsinfo: für Teuni ist die Anzahl Gäste entscheidend (Wäschemenge) */}
+              <div className="grid grid-cols-2 gap-3 pt-1 border-t border-border/60">
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("sidebar.guest")}</div>
+                  <div className="text-sm mt-0.5">{selectedEvent.guestName || "—"}</div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("detail.guestCount", "Anzahl Gäste")}</div>
+                  <div className="text-sm mt-0.5 font-semibold">
+                    {selectedEvent.guestCount != null ? selectedEvent.guestCount : "—"}
+                  </div>
+                </div>
               </div>
               <div className="pt-2">
                 <SheetClose asChild>

@@ -1,0 +1,47 @@
+{
+  "views": {
+    "month": "Maand",
+    "week": "Week",
+    "gantt": "Gantt",
+    "list": "Lijst"
+  },
+  "navigation": {
+    "today": "Vandaag"
+  },
+  "gantt": {
+    "accommodation": "Accommodatie",
+    "noBookings": "Geen boekingen",
+    "noProperties": "Geen toeristische verhuuraccommodaties gevonden.",
+    "night": "nacht",
+    "nights": "nachten"
+  },
+  "weekdays": {
+    "short": [
+      "Ma",
+      "Di",
+      "Wo",
+      "Do",
+      "Vr",
+      "Za",
+      "Zo"
+    ]
+  },
+  "events": {
+    "checkIn": "Inchecken",
+    "checkOut": "Uitchecken",
+    "occupied": "Bezet",
+    "cleaning": "Schoonmaak",
+    "linen": "Linnengoed",
+    "more": "+{{count}} meer"
+  },
+  "sidebar": {
+    "eventsFor": "Afspraken voor {{date}}",
+    "noEvents": "Geen afspraken voor deze dag.",
+    "guest": "Gast",
+    "selectDate": "Datum selecteren",
+    "selectDateHint": "Selecteer een datum uit de kalender",
+    "chooseDate": "Kies datum",
+    "legend": "Legenda",
+    "upcomingWeeks": "Komende weken"
+  }
+}

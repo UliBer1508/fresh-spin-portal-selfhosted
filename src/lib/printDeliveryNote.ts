@@ -1,5 +1,6 @@
 import { LinenOrder } from "@/hooks/useBookings";
 import { getLinenLabel, getLinenColorLabel, LINEN_ORDER } from "@/lib/linenLabels";
+import { getGuestName } from '@/lib/guestHelpers';
 
 const isMobile = (): boolean =>
   typeof navigator !== "undefined" &&
@@ -76,7 +77,7 @@ export const generatePrintHtml = (order: LinenOrder): string => {
           <p style="font-weight:600;margin:0 0 8px 0;">Buchungsdetails:</p>
           <table style="width:100%;border-collapse:collapse;">
             <tr>
-              <td style="padding:4px 0;width:50%;"><strong>Gast:</strong> ${order.bookings.guest_name}</td>
+              <td style="padding:4px 0;width:50%;"><strong>Gast:</strong> ${getGuestName(order.bookings)}</td>
               <td style="padding:4px 0;width:50%;"><strong>Gäste:</strong> ${order.bookings.number_of_guests} Personen</td>
             </tr>
             <tr>

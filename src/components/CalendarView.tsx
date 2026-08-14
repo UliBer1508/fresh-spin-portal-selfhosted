@@ -12,6 +12,7 @@ import { de, enUS, nl } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { HOUSE_COLORS, getColorByHash, BOOKING_STATUS } from "@/lib/constants";
 import { useTranslation } from "react-i18next";
+import { getGuestName } from '@/lib/guestHelpers';
 
 type ViewType = "week" | "month";
 
@@ -79,7 +80,7 @@ const CalendarView = () => {
           house_id,
           booking_id,
           houses!linen_orders_house_id_fkey!inner (name, rental_type),
-          bookings!linen_orders_booking_id_fkey (guest_name, number_of_guests, check_in, check_out)
+          bookings!linen_orders_booking_id_fkey (guest_name, guests ( name ), number_of_guests, check_in, check_out)
         `)
         .eq("houses.rental_type", "tourist")
         .gte("delivery_date", rangeStart)
@@ -117,7 +118,7 @@ const CalendarView = () => {
           house_id: o.house_id,
           status: o.status,
           deliveryTime: o.delivery_time ?? null,
-          guestName: o.bookings?.guest_name ?? null,
+          guestName: o.bookings ? getGuestName(o.bookings) : null,
           guestCount: o.bookings?.number_of_guests ?? null,
           checkIn: o.bookings?.check_in ?? null,
           checkOut: o.bookings?.check_out ?? null,

@@ -5,6 +5,7 @@ import { AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import type { BookingChangeNotification } from "@/hooks/useBookingChangeNotifications";
+import { getGuestName } from '@/lib/guestHelpers';
 
 // Robust gegen reine Datumsstrings ("2026-07-20") UND volle Zeitstempel
 // ("2026-07-20T00:00:00+00:00"). Liefert null bei allem, was kein gültiges
@@ -46,7 +47,7 @@ const CHANGE_LABELS: Record<string, string> = {
 const BookingChangeNotificationDialog = ({ notification, onAcknowledge }: Props) => {
   const open = !!notification;
   const houseName = notification?.booking?.houses?.name ?? "Unbekannt";
-  const guest = notification?.booking?.guest_name ?? "";
+  const guest = notification?.booking ? getGuestName(notification.booking) : "";
   const ci = parseLocalDate(notification?.booking?.check_in);
   const co = parseLocalDate(notification?.booking?.check_out);
   const label = notification

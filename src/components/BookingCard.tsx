@@ -8,6 +8,7 @@ import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking } from "@/hooks/useBookings";
 import { BOOKING_COLORS, getColorByHash } from "@/lib/constants";
 import { useTranslation } from "react-i18next";
+import { getGuestName } from '@/lib/guestHelpers';
 
 interface BookingCardProps {
   booking: Booking;
@@ -92,7 +93,7 @@ const BookingCard = ({ booking, viewSettings, onUpdate }: BookingCardProps) => {
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4 text-foreground" />
                   <span className="font-semibold text-foreground text-sm">
-                    {booking.guest_name}
+                    {getGuestName(booking)}
                   </span>
                 </div>
               )}

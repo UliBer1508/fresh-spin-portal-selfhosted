@@ -5,6 +5,7 @@ import BookingCard from "./BookingCard";
 import LinenOrderCard from "./LinenOrderCard";
 import { ViewSettings } from "@/components/ViewSettingsDialog";
 import { Booking, LinenOrder } from "@/hooks/useBookings";
+import { getGuestName } from '@/lib/guestHelpers';
 
 interface BookingWithOrdersGroupProps {
   booking: Booking;
@@ -44,7 +45,7 @@ const BookingWithOrdersGroup = ({
             order={{
               ...order,
               bookings: {
-                guest_name: booking.guest_name,
+                guest_name: getGuestName(booking),
                 check_in: booking.check_in,
                 check_out: booking.check_out,
                 number_of_guests: booking.number_of_guests,

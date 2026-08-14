@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { LinenOrder } from "@/hooks/useBookings";
 import { getLinenLabel, getLinenColorLabel, LINEN_ORDER } from "@/lib/linenLabels";
 import { printDeliveryNote } from "@/lib/printDeliveryNote";
+import { getGuestName } from '@/lib/guestHelpers';
 
 interface PrintDeliveryNoteDialogProps {
   open: boolean;
@@ -146,7 +147,7 @@ const PrintDeliveryNoteDialog = ({ open, onOpenChange, order, onUpdate }: PrintD
                 <span className="font-semibold">Buchungsdetails</span>
               </div>
               <div className="ml-6 grid grid-cols-2 gap-2 text-sm">
-                <p><strong>Gast:</strong> {order.bookings.guest_name}</p>
+                <p><strong>Gast:</strong> {getGuestName(order.bookings)}</p>
                 <p><strong>Gäste:</strong> {order.bookings.number_of_guests} Personen</p>
                 <p><strong>Check-in:</strong> {formatDate(order.bookings.check_in)}</p>
                 <p><strong>Check-out:</strong> {formatDate(order.bookings.check_out)}</p>

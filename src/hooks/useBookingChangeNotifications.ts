@@ -33,7 +33,7 @@ export const useBookingChangeNotifications = () => {
         id, booking_id, change_type, old_value, new_value,
         created_at, acknowledged_at, acknowledged_by,
         bookings!booking_change_notifications_booking_id_fkey (
-          guest_name, check_in, check_out, number_of_guests,
+          guest_name, guests ( name ), check_in, check_out, number_of_guests,
           houses!bookings_house_id_fkey ( name )
         )
       `)

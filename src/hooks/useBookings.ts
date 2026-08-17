@@ -1,421 +1,211 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Booking, StatusFilter, TimeFilter, StaffFilter, HouseFilter, ProviderFilter, StandaloneCleaningTask, CleaningEntry } from '@/types/booking';
-import { APP_CONFIG } from '@/constants/app';
-import { isWithinTimeRange } from '@/utils/date';
-import { sanitizeSearchTerm } from '@/utils/validation';
-import { getGuestName } from '@/lib/guestHelpers';
-import { format } from 'date-fns';
-// Provider dieses Portals (Boris). Wird für den Badge-Zähler gebraucht,
-// damit er dieselben Reinigungen zählt, die die Liste anzeigt.
-import { PROVIDER_ID as PORTAL_PROVIDER_ID } from '@/constants/app';
+// v12.3 - Fix onNewOrder dependency
+import { useState, useEffect, useCallback, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-export const useBookings = () => {
+export interface ServiceTask {
+  scheduled_date: string;
+  scheduled_time?: string;
+  service_type: string;
+}
+
+export interface Booking {
+  id: string;
+  guest_name: string;
+  guest_email?: string;
+  guest_phone?: string;
+  number_of_guests: number;
+  check_in: string;
+  check_out: string;
+  status: string;
+  house_id: string;
+  houses?: {
+    name: string;
+    address: string;
+  };
+  linen_orders?: LinenOrder[];
+  service_tasks?: ServiceTask[];
+}
+
+export interface LinenOrder {
+  id: string;
+  booking_id?: string;
+  house_id?: string;
+  status: string;
+  delivery_date?: string;
+  delivery_time?: string;
+  delivery_type?: string;
+  notes?: string;
+  items: any;
+  item_variants?: Record<string, string>;
+  provider_id?: string;
+  assigned_staff_id?: string;
+  linen_color?: string;
+  service_providers?: {
+    name: string;
+  };
+  laundry_staff?: {
+    name: string;
+  };
+  houses?: {
+    name: string;
+    address: string;
+  };
+  bookings?: {
+    guest_name: string;
+    check_in: string;
+    check_out: string;
+    number_of_guests: number;
+  };
+}
+
+export const useBookings = (onNewOrder?: (order?: any) => void) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [standaloneCleanings, setStandaloneCleanings] = useState<StandaloneCleaningTask[]>([]);
-  const [combinedEntries, setCombinedEntries] = useState<CleaningEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [isOnline, setIsOnline] = useState(true);
+  
+  // Use ref to avoid stale closure in subscription callback
+  const onNewOrderRef = useRef(onNewOrder);
+  onNewOrderRef.current = onNewOrder;
 
-  const fetchBookings = useCallback(async (_forceRefresh = false) => {
+  const fetchBookings = async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       setError(null);
-
-      const { data: cleaningData, error: cleaningError } = await supabase
+      
+      // Fetch bookings with linen orders
+      const { data: bookingsData, error: bookingsError } = await supabase
         .from('bookings')
         .select(`
-          id,
-          check_in,
-          check_out,
-          number_of_guests,
-          status,
-          house_id,
+          *,
           houses!bookings_house_id_fkey (
             name,
             address
-          ),
-          guests (*),
-          service_tasks!service_tasks_booking_id_fkey!inner (
-            id,
-            service_type,
-            scheduled_date,
-            scheduled_time,
-            status,
-            assigned_staff_id,
-            provider_id,
-            completed_at,
-            notes,
-            payment_status,
-            service_providers!service_tasks_provider_id_fkey (
-              name
-            )
           ),
           linen_orders!linen_orders_booking_id_fkey (
             id,
             status,
             delivery_date,
             delivery_time,
-            total_items,
-            status_changed_at,
-            status_changed_by
-          )
-        `)
-        .eq('service_tasks.service_type', 'cleaning')
-        .limit(APP_CONFIG.ITEMS_PER_PAGE);
-
-      if (cleaningError) throw cleaningError;
-
-      const bookingsData = cleaningData as unknown as Booking[];
-
-      const bookingsWithCleaning = bookingsData?.filter(booking =>
-        booking.service_tasks && booking.service_tasks.length > 0
-      ) || [];
-
-      // Sort by earliest cleaning date first
-      bookingsWithCleaning.sort((a, b) => {
-        const aDate = a.service_tasks?.[0]?.scheduled_date;
-        const bDate = b.service_tasks?.[0]?.scheduled_date;
-        if (!aDate || !bDate) return 0;
-        return new Date(aDate).getTime() - new Date(bDate).getTime();
-      });
-
-      // Fetch standalone cleaning tasks (ohne booking_id)
-      const { data: standaloneData, error: standaloneError } = await supabase
-        .from('service_tasks')
-        .select(`
-          id,
-          house_id,
-          service_type,
-          scheduled_date,
-          scheduled_time,
-          status,
-          assigned_staff_id,
-          provider_id,
-          notes,
-          payment_status,
-          houses!service_tasks_house_id_fkey (
-            name,
-            address
+            delivery_type,
+            notes,
+            items,
+            item_variants,
+            provider_id,
+            assigned_staff_id,
+            linen_color,
+            house_id,
+            houses!linen_orders_house_id_fkey (
+              name,
+              address
+            ),
+            service_providers!linen_orders_provider_id_fkey (
+              name
+            ),
+            laundry_staff!linen_orders_assigned_staff_id_fkey (
+              name
+            )
           ),
-          service_providers!service_tasks_provider_id_fkey (
-            name
+          service_tasks!service_tasks_booking_id_fkey (
+            scheduled_date,
+            scheduled_time,
+            service_type
           )
         `)
-        .eq('service_type', 'cleaning')
-        .is('booking_id', null)
-        .order('scheduled_date', { ascending: true });
+        .not('linen_orders', 'is', null)
+        .gte('check_out', new Date().toISOString().split('T')[0])
+        .order('check_in', { ascending: true });
 
-      if (standaloneError) throw standaloneError;
+      if (bookingsError) throw bookingsError;
 
-      const standaloneCleaningsData = standaloneData as unknown as StandaloneCleaningTask[];
-      setStandaloneCleanings(standaloneCleaningsData || []);
+     // Sichtbare Wäschestatus: 'offen' gehört NICHT dazu (= noch nicht von der
+      // Hausverwaltung bestätigt). 'delivered'/'geliefert' bleiben sichtbar,
+      // damit Vorab-Lieferungen für künftige Gäste nicht verschwinden.
+      const VISIBLE_LINEN_STATUSES = ['ausstehend', 'pending', 'delivered', 'geliefert'];
+      // Abgeschlossene und stornierte Buchungen erscheinen nicht im Teuni-Portal.
+      const HIDDEN_BOOKING_STATUSES = ['completed', 'cancelled'];
+      const bookingsWithLinenOrders = (bookingsData || [])
+        .filter((booking: any) =>
+          !HIDDEN_BOOKING_STATUSES.includes((booking.status || '').toLowerCase())
+        )
+        .map((booking: any) => {
+          const visibleOrders = (booking.linen_orders || []).filter((o: any) =>
+            VISIBLE_LINEN_STATUSES.includes((o.status || '').toLowerCase())
+          );
+          return { ...booking, linen_orders: visibleOrders };
+        })
+        .filter((booking: any) => booking.linen_orders.length > 0);
 
-      const combined: CleaningEntry[] = [
-        ...bookingsWithCleaning.map(b => ({ type: 'booking' as const, data: b })),
-        ...(standaloneCleaningsData || []).map(s => ({ type: 'standalone' as const, data: s }))
-      ];
+      setBookings(bookingsWithLinenOrders as unknown as Booking[]);
 
-      combined.sort((a, b) => {
-        const aDate = a.type === 'booking'
-          ? a.data.service_tasks?.[0]?.scheduled_date
-          : a.data.scheduled_date;
-        const bDate = b.type === 'booking'
-          ? b.data.service_tasks?.[0]?.scheduled_date
-          : b.data.scheduled_date;
-        if (!aDate || !bDate) return 0;
-        return new Date(aDate).getTime() - new Date(bDate).getTime();
-      });
-
-      setCombinedEntries(combined);
-      setBookings(bookingsWithCleaning);
-      setLastRefresh(new Date());
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Fehler beim Laden der Buchungen';
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
+      console.error('Error fetching bookings:', err);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
-  }, []);
-
-  const forceRefresh = useCallback(() => {
-    return fetchBookings(true);
-  }, [fetchBookings]);
-
-  const fetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const debouncedFetch = useCallback(() => {
-    if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
-    fetchTimeoutRef.current = setTimeout(() => {
-      fetchBookings();
-    }, 500);
-  }, [fetchBookings]);
+  };
 
   useEffect(() => {
-    fetchBookings();
+    // Sync online state from browser (avoids SSR/hydration issues)
+    setIsOnline(navigator.onLine);
 
-    // Realtime-Subscription für bookings
-    const bookingsChannel = supabase
+    // Handle online/offline events
+    const handleOnline = () => {
+      console.log('App is now online');
+      setIsOnline(true);
+      fetchBookings(false);
+    };
+    
+    const handleOffline = () => {
+      console.log('App is now offline');
+      setIsOnline(false);
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Initial fetch
+    fetchBookings();
+    
+    // Real-time subscriptions
+    const channel = supabase
       .channel('bookings-changes')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'bookings'
-        },
+        { event: '*', schema: 'public', table: 'bookings' },
         () => {
-          debouncedFetch();
+          console.log('Booking change detected, refetching...');
+          fetchBookings(false);
         }
       )
-      .subscribe();
-
-    // Realtime-Subscription für service_tasks
-    const tasksChannel = supabase
-      .channel('service-tasks-changes')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'service_tasks'
-        },
-        () => {
-          debouncedFetch();
+        { event: '*', schema: 'public', table: 'linen_orders' },
+        (payload: { eventType: string; new: Record<string, unknown> }) => {
+          console.log('Linen order change detected, refetching...', payload.eventType);
+          fetchBookings(false);
+          if (payload.eventType === 'INSERT' && onNewOrderRef.current) {
+            onNewOrderRef.current(payload.new);
+          }
         }
       )
       .subscribe();
 
     return () => {
-      if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
-      supabase.removeChannel(bookingsChannel);
-      supabase.removeChannel(tasksChannel);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      supabase.removeChannel(channel);
     };
-  }, [fetchBookings, debouncedFetch]);
+  }, []);
 
-  const updateTaskStatus = useCallback(async (
-    taskId: string, 
-    newStatus: 'scheduled' | 'completed' | 'cancelled' | 'in_progress' | 'delayed'
-  ) => {
-    try {
-      const { error } = await supabase
-        .from('service_tasks')
-        .update({
-          status: newStatus,
-          completed_at: newStatus === 'completed' ? new Date().toISOString() : null,
-          // Wer die Änderung vorgenommen hat — landet in service_tasks und wird
-          // in der Hausverwaltung als "Geändert von: …" angezeigt.
-          // BORIS-PORTAL: muss 'Boris' sein, nicht 'Amela' (kopiertes Repo).
-          status_changed_by: 'Boris',
-          status_changed_at: new Date().toISOString()
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-      
-      await fetchBookings();
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Fehler beim Aktualisieren des Status';
-      return { success: false, error: errorMessage };
-    }
-  }, [fetchBookings]);
-
-  const updateTaskDateTime = useCallback(async (
-    taskId: string, 
-    newDate: Date, 
-    newTime: string
-  ) => {
-    try {
-      const { error } = await supabase
-        .from('service_tasks')
-        .update({
-          scheduled_date: format(newDate, 'yyyy-MM-dd'),
-          scheduled_time: newTime
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-      
-      await fetchBookings();
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Fehler beim Aktualisieren des Termins';
-      return { success: false, error: errorMessage };
-    }
-  }, [fetchBookings]);
-
-  const updateTaskStaff = useCallback(async (
-    taskId: string, 
-    staffId: string | null
-  ) => {
-    try {
-      const { error } = await supabase
-        .from('service_tasks')
-        .update({
-          assigned_staff_id: staffId
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-      
-      await fetchBookings();
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Fehler beim Zuweisen der Putzkraft';
-      return { success: false, error: errorMessage };
-    }
-  }, [fetchBookings]);
-
-  const filteredEntries = useCallback((
-    searchTerm: string,
-    statusFilter: StatusFilter,
-    staffFilter: StaffFilter,
-    timeFilter: TimeFilter,
-    houseFilter: HouseFilter,
-    providerFilter: ProviderFilter,
-    includeCheckedIn: boolean = false
-  ): CleaningEntry[] => {
-    const sanitizedSearch = sanitizeSearchTerm(searchTerm.toLowerCase());
-    
-    const filtered = combinedEntries.filter(entry => {
-      if (entry.type === 'booking') {
-        const booking = entry.data;
-
-        // Prüfe ob Buchung eingecheckt ist - nur anzeigen wenn Checkbox aktiv
-        const isCheckedIn = booking.status === 'checked_in';
-        if (isCheckedIn && !includeCheckedIn) {
-          return false;
-        }
-
-        const matchesSearch = !sanitizedSearch ||
-          getGuestName(booking).toLowerCase().includes(sanitizedSearch) ||
-          booking.houses?.name?.toLowerCase().includes(sanitizedSearch) ||
-          booking.houses?.address?.toLowerCase().includes(sanitizedSearch);
-
-        const matchesHouse = houseFilter === 'all' || booking.house_id === houseFilter;
-
-        // Alle Task-bezogenen Filter (Status, Zeit, Mitarbeiter, Provider) müssen
-        // vom GLEICHEN Task erfüllt werden, damit Kombinationen korrekt wirken.
-        const tasks = booking.service_tasks || [];
-        const taskMatches = (task: any) => {
-          const statusOk =
-            statusFilter === 'all' ||
-            (isCheckedIn && includeCheckedIn) ||
-            task.status === statusFilter;
-
-          const timeOk =
-            timeFilter === 'all' ||
-            isWithinTimeRange(task.scheduled_date, timeFilter);
-
-          const staffOk =
-            !staffFilter || staffFilter === 'all' ||
-            task.assigned_staff_id === staffFilter;
-
-          const providerOk =
-            providerFilter === 'all' ||
-            (providerFilter === 'unassigned'
-              ? !task.provider_id
-              : task.provider_id === providerFilter);
-
-          return statusOk && timeOk && staffOk && providerOk;
-        };
-
-        const hasMatchingTask = tasks.length === 0
-          ? (statusFilter === 'all' && timeFilter === 'all' &&
-             (!staffFilter || staffFilter === 'all') && providerFilter === 'all')
-          : tasks.some(taskMatches);
-
-        return matchesSearch && matchesHouse && hasMatchingTask;
-      } else {
-        const cleaning = entry.data;
-        const matchesSearch = !sanitizedSearch || 
-          cleaning.houses?.name?.toLowerCase().includes(sanitizedSearch) ||
-          cleaning.houses?.address?.toLowerCase().includes(sanitizedSearch);
-        
-        const matchesStatus = statusFilter === 'all' || cleaning.status === statusFilter;
-        
-        const matchesStaff = !staffFilter || staffFilter === 'all' || cleaning.assigned_staff_id === staffFilter;
-        
-        const matchesTime = timeFilter === 'all' || 
-          isWithinTimeRange(cleaning.scheduled_date, timeFilter);
-        
-        const matchesHouse = houseFilter === 'all' || cleaning.house_id === houseFilter;
-        
-        const matchesProvider = providerFilter === 'all' || 
-          (providerFilter === 'unassigned' ? !cleaning.provider_id : cleaning.provider_id === providerFilter);
-        
-        return matchesSearch && matchesStatus && matchesStaff && matchesTime && matchesHouse && matchesProvider;
-      }
-    });
-
-    const isCompleted = statusFilter === 'completed';
-
-    const getSortDate = (entry: CleaningEntry): number => {
-      if (entry.type === 'booking') {
-        const tasks = entry.data.service_tasks || [];
-        if (isCompleted) {
-          // Neuester abgeschlossener Task
-          const completed = tasks
-            .filter((t: any) => t.status === 'completed')
-            .map((t: any) => t.completed_at || t.scheduled_date)
-            .filter(Boolean) as string[];
-          const dates = completed.length ? completed : tasks.map((t: any) => t.scheduled_date).filter(Boolean);
-          return dates.length ? Math.max(...dates.map(d => new Date(d).getTime())) : 0;
-        }
-        const dates = tasks.map((t: any) => t.scheduled_date).filter(Boolean) as string[];
-        return dates.length ? Math.min(...dates.map(d => new Date(d).getTime())) : 0;
-      }
-      const c: any = entry.data;
-      const d = isCompleted ? (c.completed_at || c.scheduled_date) : c.scheduled_date;
-      return d ? new Date(d).getTime() : 0;
-    };
-
-    return filtered.sort((a, b) => {
-      const aT = getSortDate(a);
-      const bT = getSortDate(b);
-      return isCompleted ? bT - aT : aT - bT;
-    });
-  }, [combinedEntries]);
-
-  // Zähler für den Badge in der Navigation.
-  //
-  // KORRIGIERT 21.07.2026: Zählte vorher ALLE service_tasks aller geladenen
-  // Buchungen plus alle Standalone-Reinigungen — ohne Provider-Filter. Im
-  // Boris-Portal stand deshalb 55, obwohl nur 3 Reinigungen auf Boris laufen.
-  // Die angezeigte LISTE filtert korrekt über filteredEntries
-  // (task.provider_id === providerFilter); nur der Zähler lief daran vorbei.
-  //
-  // Dieselbe Bedingung wie in filteredEntries, damit Liste und Badge nicht
-  // auseinanderlaufen können.
-  const totalCleaningTasks = useMemo(() => {
-    const bookingTasks = bookings.reduce(
-      (total, booking) =>
-        total +
-        (booking.service_tasks?.filter(
-          (task: any) => task.provider_id === PORTAL_PROVIDER_ID
-        ).length || 0),
-      0
-    );
-    const standaloneTasks = standaloneCleanings.filter(
-      (cleaning: any) => cleaning.provider_id === PORTAL_PROVIDER_ID
-    ).length;
-    return bookingTasks + standaloneTasks;
-  }, [bookings, standaloneCleanings]);
-
-  return {
+  return { 
     bookings,
-    standaloneCleanings,
-    combinedEntries,
-    loading,
-    error,
-    totalCleaningTasks,
-    lastRefresh,
-    updateTaskStatus,
-    updateTaskDateTime,
-    updateTaskStaff,
-    filteredBookings: filteredEntries,
-    refetch: fetchBookings,
-    forceRefresh
+    
+    loading, 
+    error, 
+    isOnline,
+    refetch: () => fetchBookings(true) 
   };
 };

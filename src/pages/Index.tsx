@@ -53,6 +53,7 @@ const Index = () => {
         .from("bookings")
         .select(`
           *,
+          guests ( * ),
           houses!bookings_house_id_fkey ( name, address ),
           linen_orders!linen_orders_booking_id_fkey (
             id, status, delivery_date, delivery_time, delivery_type, notes,

@@ -80,7 +80,7 @@ const CalendarView = () => {
           house_id,
           booking_id,
           houses!linen_orders_house_id_fkey!inner (name, rental_type),
-          bookings!linen_orders_booking_id_fkey (guest_name, guests ( name ), number_of_guests, check_in, check_out)
+          bookings!linen_orders_booking_id_fkey (guests ( name ), number_of_guests, check_in, check_out)
         `)
         .eq("houses.rental_type", "tourist")
         .gte("delivery_date", rangeStart)

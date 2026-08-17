@@ -8,9 +8,23 @@ export interface ServiceTask {
   service_type: string;
 }
 
+export interface Guest {
+  id?: string;
+  name?: string;
+  email?: string | null;
+  phone?: string | null;
+  nationality?: string | null;
+}
+
 export interface Booking {
   id: string;
-  guest_name: string;
+  /**
+   * Gastdaten-Entdopplung: Gelesen wird ueber getGuestName() / getGuestEmail()
+   * aus '@/lib/guestHelpers', die zuerst `guests` auswerten. Die Kopiespalten
+   * bleiben optional deklariert, solange sie in der Datenbank existieren.
+   */
+  guests?: Guest | null;
+  guest_name?: string;
   guest_email?: string;
   guest_phone?: string;
   number_of_guests: number;
@@ -51,7 +65,8 @@ export interface LinenOrder {
     address: string;
   };
   bookings?: {
-    guest_name: string;
+    guests?: Guest | null;
+    guest_name?: string;
     check_in: string;
     check_out: string;
     number_of_guests: number;
@@ -78,6 +93,7 @@ export const useBookings = (onNewOrder?: (order?: any) => void) => {
         .from('bookings')
         .select(`
           *,
+          guests ( * ),
           houses!bookings_house_id_fkey (
             name,
             address

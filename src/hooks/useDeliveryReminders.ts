@@ -70,7 +70,7 @@ export const useDeliveryReminders = () => {
         service_providers!linen_orders_provider_id_fkey ( name ),
         laundry_staff!linen_orders_assigned_staff_id_fkey ( name ),
         bookings!linen_orders_booking_id_fkey (
-          id, guest_name, guest_email, guest_phone, number_of_guests,
+          id, number_of_guests,
           guests ( name, email, phone ),
           check_in, check_out, status, house_id,
           houses!bookings_house_id_fkey ( name, address )

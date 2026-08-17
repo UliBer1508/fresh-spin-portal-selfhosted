@@ -15,7 +15,8 @@ export interface BookingChangeNotification {
   acknowledged_at: string | null;
   acknowledged_by: string | null;
   booking?: {
-    guest_name: string | null;
+    guests?: { name?: string } | null;
+    guest_name?: string | null;
     check_in: string | null;
     check_out: string | null;
     number_of_guests: number | null;
@@ -33,7 +34,7 @@ export const useBookingChangeNotifications = () => {
         id, booking_id, change_type, old_value, new_value,
         created_at, acknowledged_at, acknowledged_by,
         bookings!booking_change_notifications_booking_id_fkey (
-          guest_name, guests ( name ), check_in, check_out, number_of_guests,
+          guests ( name ), check_in, check_out, number_of_guests,
           houses!bookings_house_id_fkey ( name )
         )
       `)

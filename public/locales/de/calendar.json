@@ -16,7 +16,15 @@
     "nights": "Nächte"
   },
   "weekdays": {
-    "short": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
+    "short": [
+      "Mo",
+      "Di",
+      "Mi",
+      "Do",
+      "Fr",
+      "Sa",
+      "So"
+    ]
   },
   "events": {
     "checkIn": "Check-in",
@@ -33,6 +41,22 @@
     "selectDate": "Datum auswählen",
     "selectDateHint": "Wählen Sie ein Datum aus dem Kalender",
     "chooseDate": "Datum wählen",
-    "legend": "Legende"
+    "legend": "Legende",
+    "upcomingWeeks": "Kommende Wochen"
+  },
+  "detail": {
+    "guestCount": "Anzahl Gäste"
+  },
+  "raster": {
+    "nothingToDo": "Diese Woche nichts zu tun.",
+    "changeover": "Wechseltag",
+    "free": "frei",
+    "done": "erledigt",
+    "open": "offen",
+    "missingDue": "fehlt, Termin steht an",
+    "bothHouses": "beide Häuser am selben Tag",
+    "there": "da",
+    "missing": "fehlt",
+    "check": "prüfen"
   }
 }

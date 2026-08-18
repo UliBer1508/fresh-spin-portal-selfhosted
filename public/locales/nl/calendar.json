@@ -16,7 +16,15 @@
     "nights": "nachten"
   },
   "weekdays": {
-    "short": ["Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"]
+    "short": [
+      "Ma",
+      "Di",
+      "Wo",
+      "Do",
+      "Vr",
+      "Za",
+      "Zo"
+    ]
   },
   "events": {
     "checkIn": "Inchecken",
@@ -33,6 +41,22 @@
     "selectDate": "Datum selecteren",
     "selectDateHint": "Selecteer een datum uit de kalender",
     "chooseDate": "Kies datum",
-    "legend": "Legenda"
+    "legend": "Legenda",
+    "upcomingWeeks": "Komende weken"
+  },
+  "detail": {
+    "guestCount": "Aantal gasten"
+  },
+  "raster": {
+    "nothingToDo": "Deze week niets te doen.",
+    "changeover": "Wisseldag",
+    "free": "vrij",
+    "done": "gereed",
+    "open": "open",
+    "missingDue": "ontbreekt, afspraak staat gepland",
+    "bothHouses": "beide huizen op dezelfde dag",
+    "there": "geleverd",
+    "missing": "ontbreekt",
+    "check": "controleren"
   }
 }

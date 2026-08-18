@@ -16,7 +16,15 @@
     "nights": "nights"
   },
   "weekdays": {
-    "short": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    "short": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ]
   },
   "events": {
     "checkIn": "Check-in",
@@ -33,6 +41,22 @@
     "selectDate": "Select date",
     "selectDateHint": "Select a date from the calendar",
     "chooseDate": "Choose date",
-    "legend": "Legend"
+    "legend": "Legend",
+    "upcomingWeeks": "Upcoming weeks"
+  },
+  "detail": {
+    "guestCount": "Guests"
+  },
+  "raster": {
+    "nothingToDo": "Nothing to do this week.",
+    "changeover": "Changeover day",
+    "free": "free",
+    "done": "done",
+    "open": "pending",
+    "missingDue": "missing, appointment due",
+    "bothHouses": "both houses on the same day",
+    "there": "delivered",
+    "missing": "missing",
+    "check": "check"
   }
 }

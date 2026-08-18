@@ -1,18 +1,20 @@
 import { useState, useEffect, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Shirt, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, isToday,
-  addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, isWithinInterval,
+  format, startOfMonth, endOfMonth, eachDayOfInterval,
+  addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks,
 } from "date-fns";
 import { de, enUS, nl } from "date-fns/locale";
-import { cn } from "@/lib/utils";
-import { HOUSE_COLORS, getColorByHash, BOOKING_STATUS } from "@/lib/constants";
 import { useTranslation } from "react-i18next";
 import { getGuestName } from '@/lib/guestHelpers';
+import Belegungsraster, {
+  type RasterAufgabe, type RasterHaus, type RasterTexte,
+} from "@/components/Belegungsraster";
+import { getHouseColors, type RasterBuchung } from "@/lib/belegung";
 
 type ViewType = "week" | "month";
 
@@ -32,6 +34,7 @@ const getLocale = (lng: string) => (lng === "en" ? enUS : lng === "nl" ? nl : de
 interface LinenEvent {
   id: string;
   orderId: string;
+  bookingId?: string | null;
   date: Date;
   house: string;
   house_id: string;
@@ -49,6 +52,11 @@ interface CleaningInfoEvent {
   house: string;
   house_id: string;
   scheduledTime?: string | null;
+  /** Ueber die Buchung wird die Reinigung mit der Wäschelieferung gepaart —
+      nicht ueber das Datum. Die Wäsche kommt meist am Vortag; ein
+      Datumsvergleich waere eine Annahme ueber die Vorlaufzeit. */
+  bookingId?: string | null;
+  status?: string | null;
 }
 
 const CalendarView = () => {
@@ -59,6 +67,10 @@ const CalendarView = () => {
   const [viewType, setViewType] = useState<ViewType>("week");
   const [linenEvents, setLinenEvents] = useState<LinenEvent[]>([]);
   const [cleaningInfo, setCleaningInfo] = useState<CleaningInfoEvent[]>([]);
+  // Fuer das Belegungsraster: Haeuser als Zeilen, Buchungen als Balken.
+  // Beides lud dieses Portal bisher nicht — die Terminliste brauchte es nicht.
+  const [haeuser, setHaeuser] = useState<RasterHaus[]>([]);
+  const [buchungen, setBuchungen] = useState<RasterBuchung[]>([]);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
@@ -96,6 +108,7 @@ const CalendarView = () => {
           status,
           service_type,
           house_id,
+          booking_id,
           houses!service_tasks_house_id_fkey!inner (name, rental_type)
         `)
         .eq("houses.rental_type", "tourist")
@@ -103,7 +116,43 @@ const CalendarView = () => {
         .gte("scheduled_date", rangeStart)
         .lte("scheduled_date", rangeEnd);
 
+      // Haeuser = Zeilen des Rasters. Direkt abgefragt statt aus den Terminen
+      // abgeleitet, damit ein Haus ohne Lieferung trotzdem eine Zeile bekommt.
+      const { data: houseRows } = await supabase
+        .from("houses")
+        .select("id, name")
+        .eq("rental_type", "tourist")
+        .order("name");
+
+      // Buchungen = die Balken. Der Zeitraum wird beidseitig grosszuegig
+      // erweitert: eine Buchung, die vor rangeStart beginnt und hineinragt,
+      // muss sichtbar sein, sonst fehlt der Balken in der ersten Woche.
+      const { data: bookingRows } = await supabase
+        .from("bookings")
+        .select(`
+          id,
+          house_id,
+          check_in,
+          check_out,
+          status,
+          guests ( name ),
+          houses!bookings_house_id_fkey!inner (rental_type)
+        `)
+        .eq("houses.rental_type", "tourist")
+        .lte("check_in", rangeEnd)
+        .gte("check_out", rangeStart);
+
       if (!active) return;
+
+      setHaeuser(((houseRows || []) as any[]).map(h => ({ id: h.id, name: h.name })));
+      setBuchungen(((bookingRows || []) as any[]).map(b => ({
+        id: b.id,
+        house_id: b.house_id,
+        check_in: b.check_in,
+        check_out: b.check_out,
+        gastName: getGuestName(b),
+        status: b.status,
+      })));
 
       const linen: LinenEvent[] = [];
       (linenOrders || []).forEach((o: any) => {
@@ -113,6 +162,7 @@ const CalendarView = () => {
         linen.push({
           id: `linen-${o.id}`,
           orderId: o.id,
+          bookingId: o.booking_id ?? null,
           date,
           house: o.houses?.name || "—",
           house_id: o.house_id,
@@ -136,6 +186,8 @@ const CalendarView = () => {
           house: tk.houses?.name || "—",
           house_id: tk.house_id,
           scheduledTime: tk.scheduled_time ?? null,
+          bookingId: tk.booking_id ?? null,
+          status: tk.status ?? null,
         });
       });
 
@@ -150,6 +202,7 @@ const CalendarView = () => {
       .channel("teuni-calendar")
       .on("postgres_changes", { event: "*", schema: "public", table: "linen_orders" }, fetchData)
       .on("postgres_changes", { event: "*", schema: "public", table: "service_tasks" }, fetchData)
+      .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, fetchData)
       .subscribe();
 
     return () => {
@@ -158,65 +211,104 @@ const CalendarView = () => {
     };
   }, [rangeStart, rangeEnd]);
 
-  const linenForDay = (day: Date) =>
-    linenEvents.filter(e => isSameDay(e.date, day)).sort((a, b) => (a.deliveryTime || "").localeCompare(b.deliveryTime || ""));
-  const cleaningForDay = (day: Date) =>
-    cleaningInfo.filter(e => isSameDay(e.date, day)).sort((a, b) => (a.scheduledTime || "").localeCompare(b.scheduledTime || ""));
+  const tagesSchluessel = (d: Date) => format(d, "yyyy-MM-dd");
 
-  const weekDays = useMemo(() => {
-    const start = startOfWeek(currentDate, { weekStartsOn: 1 });
-    const end = endOfWeek(currentDate, { weekStartsOn: 1 });
-    return eachDayOfInterval({ start, end });
+  // Wäschelieferungen = Teunis eigene Aufgabe. Die `id` ist bewusst die
+  // `orderId`, damit ein Klick im Raster direkt das Detailfenster oeffnet.
+  const meineAufgaben = useMemo<RasterAufgabe[]>(() => {
+    const bekannt = new Set(haeuser.map(h => h.id));
+    return linenEvents
+      .filter(e => bekannt.has(e.house_id))
+      .map(e => {
+        const reinigung = e.bookingId
+          ? cleaningInfo.find(c => c.bookingId === e.bookingId)
+          : undefined;
+        return {
+          id: e.orderId,
+          house_id: e.house_id,
+          datum: tagesSchluessel(e.date),
+          uhrzeit: e.deliveryTime,
+          status: e.status ?? null,
+          booking_id: e.bookingId ?? null,
+          titel: `${e.house} — ${t("events.linen")}`,
+          hinweis: reinigung
+            ? `${t("events.cleaning")}: ${format(reinigung.date, "EEE d. MMM", { locale })}${reinigung.scheduledTime ? " · " + reinigung.scheduledTime.slice(0, 5) : ""}`
+            : undefined,
+        };
+      });
+  }, [linenEvents, cleaningInfo, haeuser, t, locale]);
+
+  // Reinigungen = nur Information. Sie sind der Taktgeber: die Wäsche muss
+  // vor der Reinigung da sein (siehe Portal-Doku, Abschnitt 3).
+  const infoAufgaben = useMemo<RasterAufgabe[]>(
+    () =>
+      cleaningInfo.map(c => ({
+        id: c.id,
+        house_id: c.house_id,
+        datum: tagesSchluessel(c.date),
+        uhrzeit: c.scheduledTime,
+        status: c.status ?? null,
+        booking_id: c.bookingId ?? null,
+        titel: t("events.cleaning"),
+      })),
+    [cleaningInfo, t]
+  );
+
+  const monatsWochen = useMemo(() => {
+    const ersterMontag = startOfWeek(startOfMonth(currentDate), { weekStartsOn: 1 });
+    const letzterSonntag = endOfWeek(endOfMonth(currentDate), { weekStartsOn: 1 });
+    return Math.round(eachDayOfInterval({ start: ersterMontag, end: letzterSonntag }).length / 7);
   }, [currentDate]);
 
-  const upcomingWeeks = useMemo(() => {
-    const result: Array<{ start: Date; end: Date; events: LinenEvent[] }> = [];
-    for (let i = 1; i <= 4; i++) {
-      const start = startOfWeek(addWeeks(currentDate, i), { weekStartsOn: 1 });
-      const end = endOfWeek(addWeeks(currentDate, i), { weekStartsOn: 1 });
-      const events = linenEvents
-        .filter(e => isWithinInterval(e.date, { start, end }))
-        .sort((a, b) => a.date.getTime() - b.date.getTime());
-      if (events.length > 0) result.push({ start, end, events });
-    }
-    return result;
-  }, [linenEvents, currentDate]);
-
-  const monthGridDays = useMemo(() => {
-    const monthStart = startOfMonth(currentDate);
-    const monthEnd = endOfMonth(currentDate);
-    return eachDayOfInterval({
-      start: startOfWeek(monthStart, { weekStartsOn: 1 }),
-      end: endOfWeek(monthEnd, { weekStartsOn: 1 }),
-    });
-  }, [currentDate]);
+  // Beschriftungen des Rasters. Vorgabewerte sind Deutsch; hier werden sie
+  // uebersetzt durchgereicht, damit die Komponente in allen Portalen dieselbe
+  // Datei bleibt.
+  const rasterTexte = useMemo<RasterTexte>(() => ({
+    nichtsZuTun: t("raster.nothingToDo", "Diese Woche nichts zu tun."),
+    belegt: t("events.occupied", "Belegt"),
+    anreise: t("events.checkIn", "Check-in"),
+    abreise: t("events.checkOut", "Check-out"),
+    wechseltag: t("raster.changeover", "Wechseltag"),
+    frei: t("raster.free", "frei"),
+    erledigt: t("raster.done", "erledigt"),
+    offen: t("raster.open", "offen"),
+    fehltTerminSteht: t("raster.missingDue", "fehlt, Termin steht an"),
+    beideHaeuser: t("raster.bothHouses", "beide Häuser am selben Tag"),
+    vorhanden: t("raster.there", "da"),
+    fehlt: t("raster.missing", "fehlt"),
+    pruefen: t("raster.check", "prüfen"),
+  }), [t]);
 
   const goToToday = () => setCurrentDate(new Date());
   const previousPeriod = () => setCurrentDate(prev => (viewType === "week" ? subWeeks(prev, 1) : subMonths(prev, 1)));
   const nextPeriod = () => setCurrentDate(prev => (viewType === "week" ? addWeeks(prev, 1) : addMonths(prev, 1)));
 
+  // Die Belegungsansicht zeigt VIER Wochen; der Titel muss denselben Zeitraum
+  // nennen, sonst grenzt er einen Bereich ab, den es nicht gibt.
   const periodTitle =
     viewType === "week"
-      ? `${format(startOfWeek(currentDate, { weekStartsOn: 1 }), "d. MMM", { locale })} – ${format(endOfWeek(currentDate, { weekStartsOn: 1 }), "d. MMM yyyy", { locale })}`
+      ? `${format(startOfWeek(currentDate, { weekStartsOn: 1 }), "d. MMM", { locale })} – ${format(endOfWeek(addWeeks(currentDate, 3), { weekStartsOn: 1 }), "d. MMM yyyy", { locale })}`
       : format(currentDate, "MMMM yyyy", { locale });
-
-  const weekdayHeader = (t("weekdays.short", { returnObjects: true }) as string[]) || ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 
   const openDetail = (orderId: string) => {
     setSelectedOrderId(orderId);
     setDetailOpen(true);
   };
 
-  const houseColor = (houseId: string) => getColorByHash(HOUSE_COLORS, houseId).hex;
+  // Hausfarbe aus der gemeinsamen Quelle. Vorher vergab dieses Portal Farben
+  // ueber einen Hash der house_id — dasselbe Haus sah in Hausverwaltung,
+  // Reinigungsportalen und hier jeweils anders aus.
+  const houseColor = (houseId: string) =>
+    getHouseColors(haeuser.find(h => h.id === houseId)?.name || "").base;
 
   const selectedEvent = selectedOrderId ? linenEvents.find(e => e.orderId === selectedOrderId) : null;
 
-  // eindeutige Häuser für Legende
-  const legendHouses = useMemo(() => {
-    const map = new Map<string, string>();
-    [...linenEvents, ...cleaningInfo].forEach(e => { if (e.house_id) map.set(e.house_id, e.house); });
-    return Array.from(map.entries());
-  }, [linenEvents, cleaningInfo]);
+  // Häuser-Legende oben: jetzt aus der Häuserliste, nicht aus den Terminen
+  // abgeleitet — sonst fehlt ein Haus, sobald es gerade keine Lieferung hat.
+  const legendHouses = useMemo(
+    () => haeuser.map(h => [h.id, h.name] as [string, string]),
+    [haeuser]
+  );
 
   return (
     <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4">
@@ -258,153 +350,44 @@ const CalendarView = () => {
         </div>
       )}
 
-      {viewType === "week" ? (
-        /* ---------- WOCHENANSICHT ---------- */
-        <div className="space-y-5">
-          <div className="rounded-lg border border-border bg-card p-3 md:p-4 space-y-2">
-            {weekDays.map(day => {
-              const linen = linenForDay(day);
-              const cleaning = cleaningForDay(day);
-              const todayFlag = isToday(day);
-              const hasWork = linen.length > 0;
-              const hasInfo = cleaning.length > 0;
-              return (
-                <div
-                  key={day.toISOString()}
-                  className={cn(
-                    "flex items-start gap-3 rounded-lg p-2.5",
-                    hasWork ? "bg-muted/30" : "bg-muted/10",
-                    todayFlag && "ring-2 ring-primary ring-inset"
-                  )}
-                >
-                  <div className={cn("w-14 shrink-0 text-sm", !hasWork && !hasInfo && "opacity-60")}>
-                    <div className={cn("font-semibold", todayFlag && "text-primary")}>{format(day, "EEE", { locale })}</div>
-                    <div className="text-xs text-muted-foreground">{format(day, "d.", { locale })}</div>
-                  </div>
-                  <div className="flex-1 flex flex-col gap-1.5 min-w-0">
-                    {linen.map(event => {
-                      const color = houseColor(event.house_id);
-                      return (
-                        <button
-                          key={event.id}
-                          type="button"
-                          onClick={() => openDetail(event.orderId)}
-                          style={{ borderLeftColor: color, borderLeftWidth: 4 }}
-                          className="w-full flex items-center gap-2 px-3 py-2 bg-card border border-border/60 rounded-r-lg text-left active:scale-[0.99] transition-transform"
-                        >
-                          <Shirt className="w-4 h-4 shrink-0" style={{ color }} />
-                          <span className="font-medium text-sm truncate">{event.house}</span>
-                          <span className="ml-auto text-sm text-muted-foreground shrink-0">
-                            {event.deliveryTime ? event.deliveryTime.slice(0, 5) : ""}
-                          </span>
-                        </button>
-                      );
-                    })}
-                    {/* Reinigung nur als kleine Info-Zeile */}
-                    {cleaning.map(c => (
-                      <div key={c.id} className="flex items-center gap-1.5 px-1 text-xs text-muted-foreground">
-                        <Sparkles className="w-3 h-3 shrink-0" />
-                        <span className="truncate">{t("events.cleaning")} · {c.house}{c.scheduledTime ? " · " + c.scheduledTime.slice(0, 5) : ""}</span>
-                      </div>
-                    ))}
-                    {!hasWork && !hasInfo && (
-                      <div className="flex items-center text-sm text-muted-foreground opacity-60">{t("sidebar.noEvents")}</div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {upcomingWeeks.length > 0 && (
-            <div>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-2">{t("sidebar.upcomingWeeks", "Kommende Wochen")}</h3>
-              <div className="rounded-lg border border-border bg-card p-3 md:p-4 space-y-2">
-                {upcomingWeeks.map(week => (
-                  <div key={week.start.toISOString()} className="flex items-start gap-3">
-                    <div className="w-28 shrink-0 text-xs text-muted-foreground pt-0.5">
-                      {format(week.start, "d. MMM", { locale })} – {format(week.end, "d. MMM", { locale })}
-                    </div>
-                    <div className="flex-1 flex flex-wrap gap-x-3 gap-y-1">
-                      {week.events.map(event => (
-                        <button
-                          key={event.id}
-                          type="button"
-                          onClick={() => openDetail(event.orderId)}
-                          className="flex items-center gap-1.5 text-sm active:opacity-70"
-                        >
-                          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: houseColor(event.house_id) }} />
-                          <span className="font-medium">{format(event.date, "EEE", { locale })}</span>
-                          <span className="text-muted-foreground">· {event.house}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        /* ---------- MONATSANSICHT ---------- */
-        <div className="rounded-lg border border-border bg-card p-3 md:p-4">
-          <div className="grid grid-cols-7 gap-1">
-            {weekdayHeader.map((d, i) => (
-              <div key={i} className="p-2 text-center text-sm font-medium text-muted-foreground">{d}</div>
-            ))}
-            {monthGridDays.map((day, idx) => {
-              const linen = linenForDay(day);
-              const cleaning = cleaningForDay(day);
-              const isCurrentMonth = isSameMonth(day, currentDate);
-              const todayFlag = isToday(day);
-              const shown = linen.slice(0, 3);
-              const hidden = linen.length - shown.length;
-              return (
-                <div
-                  key={idx}
-                  className={cn(
-                    "min-h-[76px] sm:min-h-[92px] p-1.5 border border-border rounded-sm",
-                    isCurrentMonth ? "bg-card" : "bg-muted/40 text-muted-foreground",
-                    todayFlag && "ring-2 ring-primary ring-inset"
-                  )}
-                >
-                  <div className="text-sm font-medium mb-1">{format(day, "d")}</div>
-                  <div className="space-y-1">
-                    {shown.map(event => {
-                      const color = houseColor(event.house_id);
-                      return (
-                        <button
-                          key={event.id}
-                          type="button"
-                          onClick={() => openDetail(event.orderId)}
-                          style={{ backgroundColor: color }}
-                          className="w-full text-[10px] sm:text-xs px-1.5 py-0.5 rounded text-white flex items-center gap-1 truncate active:opacity-80"
-                          title={`${event.house}${event.deliveryTime ? " · " + event.deliveryTime.slice(0, 5) : ""}`}
-                        >
-                          <Shirt className="w-3 h-3 shrink-0" />
-                          <span className="truncate">
-                            {event.deliveryTime ? event.deliveryTime.slice(0, 5) + " " : ""}{event.house}
-                          </span>
-                        </button>
-                      );
-                    })}
-                    {hidden > 0 && (
-                      <div className="text-[10px] sm:text-xs text-muted-foreground">{t("events.more", { count: hidden })}</div>
-                    )}
-                    {/* Reinigung als dezenter Punkt (nur Info) */}
-                    {cleaning.length > 0 && shown.length < 3 && (
-                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                        <Sparkles className="w-3 h-3 shrink-0" />
-                        <span className="truncate">{t("events.cleaning")}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {/* Beide Ansichten zeigen DASSELBE Raster, sie unterscheiden sich nur im
+          Zeitraum: vier Wochen ab heute fuer die Arbeit, ein ganzer Monat fuer
+          den Ueberblick. Die Wäsche ist Teunis Aufgabe (Symbol in der Zelle),
+          die Reinigung nur Information (Streifen am unteren Rand) — sie ist der
+          Taktgeber, die Wäsche muss vorher da sein. */}
+      <div className="rounded-lg border border-border bg-card p-3 md:p-4">
+        {viewType === "week" ? (
+          <Belegungsraster
+            haeuser={haeuser}
+            buchungen={buchungen}
+            meineAufgaben={meineAufgaben}
+            infoAufgaben={infoAufgaben}
+            startDatum={currentDate}
+            wochen={4}
+            meinSymbol="🧺"
+            meinName={t("events.linen")}
+            infoName={t("events.cleaning")}
+            texte={rasterTexte}
+            onAufgabeClick={openDetail}
+          />
+        ) : (
+          <Belegungsraster
+            haeuser={haeuser}
+            buchungen={buchungen}
+            meineAufgaben={meineAufgaben}
+            infoAufgaben={infoAufgaben}
+            startDatum={startOfMonth(currentDate)}
+            wochen={monatsWochen}
+            zeigeAufgabenliste={false}
+            monatFokus={currentDate}
+            meinSymbol="🧺"
+            meinName={t("events.linen")}
+            infoName={t("events.cleaning")}
+            texte={rasterTexte}
+            onAufgabeClick={openDetail}
+          />
+        )}
+      </div>
 
       {/* Detail-Sheet: nur Ansicht */}
       <Sheet open={detailOpen} onOpenChange={setDetailOpen}>

@@ -365,6 +365,7 @@ const CalendarView = () => {
             startDatum={currentDate}
             wochen={4}
             meinSymbol="🧺"
+            infoSymbol="🧹"
             meinName={t("events.linen")}
             infoName={t("events.cleaning")}
             texte={rasterTexte}
@@ -381,6 +382,7 @@ const CalendarView = () => {
             zeigeAufgabenliste={false}
             monatFokus={currentDate}
             meinSymbol="🧺"
+            infoSymbol="🧹"
             meinName={t("events.linen")}
             infoName={t("events.cleaning")}
             texte={rasterTexte}

@@ -18,12 +18,21 @@ import {
  * anreisen am selben Tag) — dann ist der Termin nicht verschiebbar. Steht nach
  * der Abreise ein weißes Feld, ist Luft.
  *
- * Aufteilung eigene / fremde Aufgabe:
- * - `meineAufgaben` bekommen ein Symbol IM Feld (das ist der Auftrag)
- * - `infoAufgaben` erscheinen nur als schmaler Streifen am unteren Rand
- *   (Reinigung braucht die Wäsche, Wäsche braucht den Reinigungstermin)
- * Grund für die Ungleichbehandlung: auf dem Handy sind sieben Spalten ~48 px
- * breit — zwei gleich große Symbole passen nicht nebeneinander.
+ * Aufteilung eigene / fremde Aufgabe (überarbeitet 21.08.2026):
+ * - `meineAufgaben` bekommen ein Symbol OBEN RECHTS, Rand durchgezogen
+ * - `infoAufgaben` bekommen ein Symbol UNTEN RECHTS, Rand gestrichelt
+ * Beide stehen an IHREM EIGENEN Tag: der Wäschekorb am Liefertag, der Besen
+ * am Reinigungstag.
+ *
+ * Vorher war die fremde Aufgabe ein schmaler grauer Streifen, der bevorzugt
+ * am Tag der EIGENEN Aufgabe gezeichnet wurde (über die gemeinsame
+ * booking_id). Da Wäsche und Reinigung an verschiedenen Tagen stattfinden,
+ * erschien derselbe Termin zweimal — einmal am falschen Tag — und der
+ * Streifen sagte nicht, wofür er stand.
+ *
+ * Zwei Kreise à 20 px passen übereinander in die 44 px Zellenhöhe. Auf dem
+ * Handy entfällt bei eigener Aufgabe der Gastname; er steht in der
+ * Aufgabenliste und im Tooltip.
  *
  * Die Komponente ist portalneutral: sie kennt weder Provider noch Rolle.
  * Wer welche Aufgaben sieht, entscheidet die aufrufende Seite.
@@ -109,6 +118,8 @@ interface BelegungsrasterProps {
   monatFokus?: Date;
   /** Symbol der eigenen Aufgabe */
   meinSymbol?: string;
+  /** Symbol der fremden Aufgabe — steht an IHREM Tag, nicht am eigenen. */
+  infoSymbol?: string;
   /** Beschriftung in der Legende, z. B. "Reinigung" / "Wäsche" */
   meinName?: string;
   infoName?: string;
@@ -131,6 +142,7 @@ const Belegungsraster = ({
   zeigeAufgabenliste = true,
   monatFokus,
   meinSymbol = '🧹',
+  infoSymbol = '🧺',
   meinName = 'Reinigung',
   infoName = 'Wäsche',
   texte = RASTER_TEXTE_DE,
@@ -255,11 +267,15 @@ const Belegungsraster = ({
                   const info = getDayInfo(buchungen, haus.id, tag);
                   const stil = getCellStyle(info.status, hc.base, hc.border);
                   const meine = meineNachTag.get(`${haus.id}|${key}`);
+                  // Die fremde Aufgabe steht an IHREM Tag.
+                  //
+                  // Bis 21.08.2026 wurde stattdessen ein grauer Streifen
+                  // gezeichnet, und zwar bevorzugt am Tag der EIGENEN Aufgabe
+                  // (`fremdeZurAufgabe` über die gemeinsame booking_id). Da
+                  // Wäsche und Reinigung an verschiedenen Tagen stattfinden,
+                  // erschien derselbe Termin zweimal — einmal am falschen Tag,
+                  // beide Male ohne erkennbare Bedeutung.
                   const fremdeAmTag = infoNachTag.get(`${haus.id}|${key}`);
-                  const fremdeZurAufgabe = meine?.booking_id
-                    ? infoNachBuchung.get(meine.booking_id)
-                    : undefined;
-                  const streifen = fremdeZurAufgabe ?? fremdeAmTag;
                   const gefaehrdet = meine ? istGefaehrdet(meine) : false;
 
                   const beschriftung =
@@ -304,7 +320,9 @@ const Belegungsraster = ({
                         <span
                           className={cn(
                             'absolute inset-0 items-center pl-1',
-                            meine ? 'hidden sm:flex sm:pr-7' : 'flex pr-1'
+                            meine ? 'hidden sm:flex sm:pr-7'
+                              : fremdeAmTag ? 'flex pr-7'
+                              : 'flex pr-1'
                           )}
                         >
                           <span
@@ -319,8 +337,8 @@ const Belegungsraster = ({
                       {meine && (
                         <span
                           className={cn(
-                            'absolute top-0.5 right-0.5 w-[22px] h-[22px] rounded-full border-2 bg-card',
-                            'flex items-center justify-center text-[13px] leading-none shadow-sm z-10',
+                            'absolute top-0.5 right-0.5 w-5 h-5 rounded-full border-2 bg-card',
+                            'flex items-center justify-center text-[12px] leading-none shadow-sm z-10',
                             istErledigt(meine.status) ? 'border-green-600' : gefaehrdet ? 'border-destructive' : 'border-primary'
                           )}
                         >
@@ -328,13 +346,21 @@ const Belegungsraster = ({
                         </span>
                       )}
 
-                      {streifen && (
+                      {/* Fremde Aufgabe: gestrichelter Rand, damit ohne Legende
+                          erkennbar ist, dass es nicht die eigene ist. Unten
+                          rechts, das eigene Symbol sitzt oben rechts — zwei
+                          Kreise à 20 px passen in die 44 px Zellenhöhe. */}
+                      {fremdeAmTag && (
                         <span
+                          title={fremdeAmTag.titel}
                           className={cn(
-                            'absolute left-0.5 right-0.5 bottom-0.5 h-1 rounded-full z-10',
-                            istErledigt(streifen.status) ? 'bg-green-600' : 'bg-muted-foreground/40'
+                            'absolute bottom-0.5 right-0.5 w-5 h-5 rounded-full border-2 border-dashed bg-card',
+                            'flex items-center justify-center text-[12px] leading-none shadow-sm z-10',
+                            istErledigt(fremdeAmTag.status) ? 'border-green-600' : 'border-muted-foreground/60'
                           )}
-                        />
+                        >
+                          {infoSymbol}
+                        </span>
                       )}
 
                       {kollisionsTage.has(key) && meine && (
@@ -453,18 +479,28 @@ const Belegungsraster = ({
           {texte.frei}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-[22px] h-[22px] rounded-full border-2 border-primary bg-card flex items-center justify-center text-[13px] leading-none">
+          <span className="w-5 h-5 rounded-full border-2 border-primary bg-card flex items-center justify-center text-[12px] leading-none">
             {meinSymbol}
           </span>
           {meinName}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-6 h-1 rounded-full bg-green-600" />
-          {infoName} {texte.erledigt}
+          <span className="w-5 h-5 rounded-full border-2 border-green-600 bg-card flex items-center justify-center text-[12px] leading-none">
+            {meinSymbol}
+          </span>
+          {meinName} {texte.erledigt}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-6 h-1 rounded-full bg-muted-foreground/40" />
-          {infoName} {texte.offen}
+          <span className="w-5 h-5 rounded-full border-2 border-dashed border-muted-foreground/60 bg-card flex items-center justify-center text-[12px] leading-none">
+            {infoSymbol}
+          </span>
+          {infoName}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-5 h-5 rounded-full border-2 border-dashed border-green-600 bg-card flex items-center justify-center text-[12px] leading-none">
+            {infoSymbol}
+          </span>
+          {infoName} {texte.erledigt}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-5 h-5 rounded-sm ring-2 ring-inset ring-destructive bg-card" />
